@@ -152,7 +152,7 @@
       "name": "Cortes da Selic em 2011–13",
       "aliases": ["2012", "nova matriz econômica", "Dilma", "Tombini", "Selic a 7,25%", "corte de juros de 2012"],
       "summary": "O Banco Central cortou a Selic até 7,25% (out/2012) e voltou a subir em abril de 2013, com a inflação perto do teto da meta.",
-      "series": { "indicator": "selic_meta", "from": "2011-01-01", "to": "2014-12-31" },
+      "series": { "indicator": "selic_meta", "from": "2011-01-01", "to": "2014-12-31", "mark": "min" },
       "claims": [],
       "refs": [
         { "level": "intro", "title": "Laura Carvalho, Valsa Brasileira (2018)" },
@@ -165,7 +165,7 @@
       "name": "Selic a 2% na pandemia (2020–21)",
       "aliases": ["pandemia", "Selic a 2%", "2020", "juros mínimos"],
       "summary": "A Selic chegou a 2% em 2020, com grande déficit público; a inflação subiu forte em 2021 e os juros voltaram a subir.",
-      "series": { "indicator": "selic_meta", "from": "2019-01-01", "to": "2022-12-31" },
+      "series": { "indicator": "selic_meta", "from": "2019-01-01", "to": "2022-12-31", "mark": "min" },
       "claims": [],
       "refs": [
         { "level": "intro", "title": "Banco Central do Brasil, Relatório de Inflação (2021)" }
@@ -177,7 +177,7 @@
       "name": "Crise de confiança de 2002",
       "aliases": ["2002", "crise de 2002", "risco Brasil", "eleição de 2002"],
       "summary": "Antes da eleição de 2002, o dólar e o risco-país dispararam; Blanchard usa o caso como exemplo de dominância fiscal.",
-      "series": { "indicator": "cambio_usd", "from": "2001-01-01", "to": "2003-12-31" },
+      "series": { "indicator": "cambio_usd", "from": "2001-01-01", "to": "2003-12-31", "mark": "max" },
       "claims": [],
       "refs": [
         { "level": "deep", "title": "Olivier Blanchard (2004)" },

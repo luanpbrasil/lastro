@@ -6,7 +6,8 @@
  *   npm run eval [-- --stream fixtures/streams/<videoId>.ndjson]
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import type { Card, NodeRole, StreamEvent } from "../shared/schema";
+import { TranscriptIndex } from "../shared/locate";
+import type { Card, NodeRole, Segment, StreamEvent } from "../shared/schema";
 import { stanceView } from "../shared/stance";
 import { looseNorm } from "../shared/transcript";
 
@@ -68,14 +69,29 @@ for (const f of readdirSync("eval/gold").filter((x) => x.endsWith(".json"))) {
     .split("\n")
     .map((l) => JSON.parse(l) as StreamEvent)
     .flatMap((e) => (e.type === "card" ? [e.card as Card] : []));
+  // With a transcript, timestamps are re-checked with the current quote locator ($0).
+  const index = gold.transcript && existsSync(gold.transcript)
+    ? { segs: JSON.parse(readFileSync(gold.transcript, "utf8")).segments as Segment[] }
+    : null;
+  const locator = index ? new TranscriptIndex(index.segs) : null;
   for (const g of gold.cases) {
     const before = fail;
     const card = cards.find((c) => looseNorm(c.quote).includes(looseNorm(g.quoteContains)));
     check(!!card, `no card quoting "${g.quoteContains}"`);
     if (card) {
-      const n = card.nodes.find((x) => x.id === g.expectNode);
-      check(!!n, `card should link ${g.expectNode} (got ${card.nodes.map((x) => x.id).join(",")})`);
-      if (n) check(n.role === g.expectRole, `${g.expectNode} role ${n.role}, want ${g.expectRole}`);
+      if (g.expectNode) {
+        const n = card.nodes.find((x) => x.id === g.expectNode);
+        check(!!n, `card should link ${g.expectNode} (got ${card.nodes.map((x) => x.id).join(",")})`);
+        if (n && g.expectRole) check(n.role === g.expectRole, `${g.expectNode} role ${n.role}, want ${g.expectRole}`);
+      }
+      if (g.expectIndicator) check(card.indicator === g.expectIndicator, `indicator ${card.indicator}, want ${g.expectIndicator}`);
+      if ("expectClaimed" in g) check(card.claimed_value === g.expectClaimed, `claimed ${card.claimed_value}, want ${g.expectClaimed}`);
+      if ("expectPeriod" in g) check((card.period ?? null) === g.expectPeriod, `period ${card.period}, want ${g.expectPeriod}`);
+      if ("expectStartS" in g && locator && index) {
+        const hit = locator.locate(card.modelQuote ?? card.quote);
+        const s = hit ? Math.round(index.segs[hit.seg].s / 1000) : null;
+        check(s === g.expectStartS, `located at ${s}s, want ${g.expectStartS}s`);
+      }
     }
     console.log(`  ${fail === before ? "✓" : "✗"} ${gold.videoId}: ${g.name}`);
   }

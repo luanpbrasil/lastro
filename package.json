@@ -12,7 +12,8 @@
     "watch:ext": "node extension/build.mjs --watch",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p extension",
     "eval": "esbuild scripts/eval.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/eval.mjs && node .cache/eval.mjs",
-    "analyze": "esbuild scripts/analyze.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/analyze.mjs && node .cache/analyze.mjs"
+    "analyze": "esbuild scripts/analyze.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/analyze.mjs && node .cache/analyze.mjs",
+    "facts": "esbuild scripts/facts-check.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/facts.mjs && node .cache/facts.mjs"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

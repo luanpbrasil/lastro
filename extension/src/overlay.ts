@@ -1,37 +1,61 @@
-import type { Card } from "../../shared/schema";
+import { compare, fmtDate, fmtNum, INDICATOR_DEFS, type FactResult, type Point } from "../../shared/indicators";
+import type { Card, Indicator } from "../../shared/schema";
 import { stanceView } from "../../shared/stance";
 import { fmtTime } from "../../shared/transcript";
 
 const CSS = `
 :host { all: initial; }
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 .root { position: fixed; right: 16px; bottom: 16px; z-index: 2147483647; width: 360px; max-width: calc(100vw - 32px);
   font: 14px/1.45 "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #16203A;
   display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: none; }
 .root > * { pointer-events: auto; }
-.pill { display: inline-flex; align-items: center; gap: 8px; background: #10162A; color: #E6E9F2; border-radius: 99px;
-  padding: 6px 12px; font: 12px/1 ui-monospace, Menlo, monospace; cursor: pointer; border: 1px solid #3A4466; user-select: none; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #3FD07F; }
+.pill { display: inline-flex; align-items: stretch; background: #10162A; color: #E6E9F2; border-radius: 99px;
+  font: 12px/1 ui-monospace, Menlo, monospace; border: 1px solid #3A4466; user-select: none; overflow: hidden; }
+.pill button { all: unset; cursor: pointer; padding: 7px 10px; display: inline-flex; align-items: center; gap: 8px; }
+.pill button:hover { background: #1B2340; }
+.pill button:focus-visible { outline: 2px solid #FFD23F; outline-offset: -2px; }
+.pill .sep { width: 1px; background: #3A4466; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #3FD07F; flex: none; }
 .pill.paused .dot { background: #F5C431; }
 .pill.off .dot { background: #8A93A8; }
 .status { opacity: .8; }
-.chip { background: #10162A; color: #E6E9F2; border-radius: 99px; padding: 4px 10px; font: 12px/1.2 ui-monospace, Menlo, monospace; cursor: pointer; border: 1px solid #3A4466; }
-.card { background: #fff; border-radius: 12px; padding: 14px 16px; box-shadow: 0 12px 32px rgba(0,0,0,.35); width: 100%;
-  display: grid; gap: 8px; border: 1px solid #DADEE6; animation: in .18s ease-out; }
+.chip { all: unset; background: #10162A; color: #E6E9F2; border-radius: 99px; padding: 5px 10px; font: 12px/1.2 ui-monospace, Menlo, monospace; cursor: pointer; border: 1px solid #3A4466; }
+.panel { background: #fff; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.35); width: 100%; border: 1px solid #DADEE6;
+  max-height: calc(100vh - 120px); overflow: auto; animation: in .18s ease-out; }
+.card { padding: 14px 16px; display: grid; gap: 8px; }
 @keyframes in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
 .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.badge { font: 500 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .06em; padding: 4px 7px; border-radius: 4px; background: #E8EEFF; color: #2B55D6; }
+.badge { font: 500 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .06em; padding: 4px 7px; border-radius: 4px; background: #E8EEFF; color: #2B55D6; white-space: nowrap; }
 .badge.fact { background: #E6F6EC; color: #1B7A43; }
 .badge.forecast { background: #FFF4D6; color: #8A6100; }
+.verdict { font: 500 11px/1 ui-monospace, Menlo, monospace; padding: 4px 7px; border-radius: 4px; }
+.verdict.confere { background: #E6F6EC; color: #1B7A43; }
+.verdict.diferente { background: #FDECEA; color: #A3261B; }
 .time { font: 12px ui-monospace, Menlo, monospace; color: #5A6378; cursor: pointer; }
-.x { border: 0; background: none; font-size: 18px; line-height: 1; color: #5A6378; cursor: pointer; padding: 0 2px; }
+.x { all: unset; font-size: 18px; line-height: 1; color: #5A6378; cursor: pointer; padding: 0 2px; }
+.back { all: unset; font: 12px ui-monospace, Menlo, monospace; color: #2B55D6; cursor: pointer; }
 .lead { font-weight: 600; }
 .quote { font-size: 13px; color: #5A6378; border-left: 3px solid #FFD23F; padding: 0 4px 0 8px; overflow-wrap: anywhere; }
 .k { font: 11px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; color: #5A6378; }
 .row { display: grid; gap: 2px; }
+.muted { color: #5A6378; font-size: 12.5px; }
+.big { font: 600 20px/1.2 "IBM Plex Sans", -apple-system, Arial, sans-serif; font-variant-numeric: tabular-nums; }
+.factline { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+a { color: #2B55D6; }
 ul { margin: 0; padding-left: 18px; font-size: 13px; }
+svg.spark { width: 100%; height: 64px; display: block; }
+.list { padding: 8px 0; }
+.list h3 { margin: 0; padding: 6px 16px 8px; font: 600 13px/1.3 "IBM Plex Sans", -apple-system, Arial, sans-serif; display: flex; justify-content: space-between; align-items: center; }
+.item { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 40px 76px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 8px 16px; cursor: pointer; width: 100%; }
+.item:hover, .item:focus-visible { background: #F4F5F7; }
+.item .t { font: 12px ui-monospace, Menlo, monospace; color: #5A6378; }
+.item .badge { justify-self: start; }
+.item .s { font-size: 13px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.empty { padding: 8px 16px 12px; color: #5A6378; font-size: 13px; }
 .dbg { font: 11px ui-monospace, Menlo, monospace; color: #E6E9F2; background: rgba(16,22,42,.85); padding: 4px 8px; border-radius: 6px; }
-.btn { font: 12px/1 ui-monospace, Menlo, monospace; background: #FFD23F; color: #16203A; border: 0; border-radius: 99px; padding: 6px 10px; cursor: pointer; }
+.btn { all: unset; font: 12px/1 ui-monospace, Menlo, monospace; background: #FFD23F; color: #16203A; border-radius: 99px; padding: 7px 11px; cursor: pointer; }
 `;
 
 const KIND_LABEL: Record<Card["kind"], string> = { fact: "FATO", theory: "TEORIA", forecast: "PREVISÃO" };
@@ -47,20 +71,61 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: 
   return e;
 }
 
+const SVG = "http://www.w3.org/2000/svg";
+function svgEl(tag: string, attrs: Record<string, string | number>, text?: string): SVGElement {
+  const e = document.createElementNS(SVG, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+/** Small line chart with one marked point and labels for the first/last date and the marked value. */
+export function sparkline(points: Point[], mark: Point | undefined, label: (p: Point) => string, dateLabel: (iso: string) => string): SVGElement {
+  const W = 320, H = 64, padX = 4, top = 14, bottom = 14;
+  const s = svgEl("svg", { class: "spark", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": mark ? label(mark) : "série" });
+  if (points.length < 2) return s;
+  const vs = points.map((p) => p.value);
+  const lo = Math.min(...vs), hi = Math.max(...vs);
+  const x = (i: number) => padX + (i * (W - 2 * padX)) / (points.length - 1);
+  const y = (v: number) => (hi === lo ? (top + H - bottom) / 2 : top + ((hi - v) * (H - top - bottom)) / (hi - lo));
+  s.append(svgEl("polyline", { fill: "none", stroke: "#2B55D6", "stroke-width": 2, points: points.map((p, i) => `${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ") }));
+  const font = { "font-size": 10, "font-family": "ui-monospace, Menlo, monospace", fill: "#5A6378" };
+  s.append(svgEl("text", { x: padX, y: H - 2, ...font }, dateLabel(points[0].date)));
+  s.append(svgEl("text", { x: W - padX, y: H - 2, "text-anchor": "end", ...font }, dateLabel(points[points.length - 1].date)));
+  if (mark) {
+    const i = points.findIndex((p) => p.date === mark.date);
+    if (i >= 0) {
+      const cx = x(i), cy = y(mark.value);
+      s.append(svgEl("circle", { cx, cy, r: 4, fill: "#FFD23F", stroke: "#16203A", "stroke-width": 1.5 }));
+      const anchor = cx > W * 0.7 ? "end" : cx < W * 0.3 ? "start" : "middle";
+      s.append(svgEl("text", { x: cx, y: Math.max(10, cy - 7), "text-anchor": anchor, ...font, fill: "#16203A" }, label(mark)));
+    }
+  }
+  return s;
+}
+
 export type PillState = "on" | "paused" | "off";
+export interface ListItem {
+  card: Card;
+  mentions: number;
+}
 
 export class Overlay {
   private host: HTMLElement;
   private root: HTMLElement;
   private pill: HTMLElement;
   private statusEl: HTMLElement;
-  private chip: HTMLElement;
-  private cardSlot: HTMLElement;
+  private pauseBtn: HTMLButtonElement;
+  private chip: HTMLButtonElement;
+  private slot: HTMLElement;
   private dbg: HTMLElement;
   private actionSlot: HTMLElement;
-  onPillClick: () => void = () => {};
+  private mode: "none" | "card" | "list" = "none";
+  onPauseClick: () => void = () => {};
+  onOpenList: () => void = () => {};
   onSeek: (ms: number) => void = () => {};
-  onChipClick: () => void = () => {};
+  loadFact: (indicator: Indicator, period: string | null) => Promise<FactResult | null> = async () => null;
+  loadSeries: (indicator: Indicator, from: string, to: string) => Promise<Point[]> = async () => [];
 
   constructor() {
     this.host = document.createElement("lastro-overlay");
@@ -68,21 +133,28 @@ export class Overlay {
     const style = document.createElement("style");
     style.textContent = CSS;
     this.root = el("div", "root");
-    this.cardSlot = el("div");
-    this.cardSlot.style.width = "100%";
+    this.slot = el("div");
+    this.slot.style.width = "100%";
     this.actionSlot = el("div");
-    this.chip = el("div", "chip");
+    this.chip = el("button", "chip");
     this.chip.hidden = true;
-    this.chip.onclick = () => this.onChipClick();
+    this.chip.onclick = () => this.onOpenList();
     this.dbg = el("div", "dbg");
     this.dbg.hidden = true;
+
     this.pill = el("div", "pill");
-    this.pill.append(el("span", "dot"), el("span", "", "Lastro"));
+    const main = el("button");
+    main.title = "Ver as ideias deste vídeo";
+    main.append(el("span", "dot"), el("span", "", "Lastro"));
     this.statusEl = el("span", "status");
-    this.pill.append(this.statusEl);
-    this.pill.title = "Clique para pausar ou retomar";
-    this.pill.onclick = () => this.onPillClick();
-    this.root.append(this.cardSlot, this.actionSlot, this.chip, this.dbg, this.pill);
+    main.append(this.statusEl);
+    main.onclick = () => this.toggleList();
+    this.pauseBtn = el("button", "", "⏸");
+    this.pauseBtn.title = "Pausar o Lastro";
+    this.pauseBtn.onclick = () => this.onPauseClick();
+    this.pill.append(main, el("span", "sep"), this.pauseBtn);
+
+    this.root.append(this.slot, this.actionSlot, this.chip, this.dbg, this.pill);
     shadow.append(style, this.root);
     document.documentElement.append(this.host);
   }
@@ -90,11 +162,14 @@ export class Overlay {
   setPill(state: PillState, status: string): void {
     this.pill.className = `pill ${state === "on" ? "" : state}`;
     this.statusEl.textContent = `· ${state === "paused" ? "pausado" : state === "off" ? "desligado" : "ligado"}${status ? ` · ${status}` : ""}`;
+    this.pauseBtn.textContent = state === "paused" ? "▶" : "⏸";
+    this.pauseBtn.title = state === "paused" ? "Retomar o Lastro" : "Pausar o Lastro";
   }
 
+  /** Cards that already appeared but were not popped yet (rate limit). */
   setQueued(n: number): void {
-    this.chip.hidden = n <= 0;
-    this.chip.textContent = `+${n} ${n === 1 ? "ideia" : "ideias"} neste vídeo`;
+    this.chip.hidden = n <= 0 || this.mode === "list";
+    this.chip.textContent = `+${n} ${n === 1 ? "ideia" : "ideias"} até aqui · ver`;
   }
 
   setDebug(text: string | null): void {
@@ -110,26 +185,69 @@ export class Overlay {
     this.actionSlot.append(b);
   }
 
-  hideCard(): void {
-    this.cardSlot.replaceChildren();
+  isListOpen(): boolean {
+    return this.mode === "list";
   }
 
-  showCard(c: Card, mentions = 1): void {
+  hide(): void {
+    this.mode = "none";
+    this.slot.replaceChildren();
+  }
+
+  private toggleList(): void {
+    if (this.mode === "list") this.hide();
+    else this.onOpenList();
+  }
+
+  /** "Ideias até agora": every idea that has appeared in the video so far, newest first. */
+  showList(items: ListItem[], total: number, onPick: (c: Card) => void): void {
+    this.mode = "list";
+    this.chip.hidden = true;
+    const panel = el("div", "panel list");
+    const h = el("h3");
+    h.append(el("span", "", `Ideias até agora (${items.length})`));
+    const x = el("button", "x", "×");
+    x.title = "Fechar";
+    x.onclick = () => this.hide();
+    h.append(x);
+    panel.append(h);
+    if (!items.length) panel.append(el("div", "empty", "Nenhuma ideia apareceu ainda neste vídeo."));
+    for (const it of [...items].reverse()) {
+      const b = el("button", "item");
+      const v = stanceView(it.card);
+      const what = v.lead
+        ? `${v.lead.role === "contradicts" ? "Vai contra" : v.lead.role === "echoes" ? "Lembra" : "Apoia-se em"} ${v.lead.node.name}`
+        : it.card.paraphrase;
+      b.append(el("span", "t", fmtTime(it.card.startMs)), el("span", `badge ${it.card.kind}`, KIND_LABEL[it.card.kind]), el("span", "s", `${what}${it.mentions > 1 ? ` · ${it.mentions}×` : ""}`));
+      b.onclick = () => onPick(it.card);
+      panel.append(b);
+    }
+    const later = total - items.length;
+    if (later > 0) panel.append(el("div", "empty", `Mais ${later} ${later === 1 ? "ideia aparece" : "ideias aparecem"} adiante no vídeo.`));
+    this.slot.replaceChildren(panel);
+  }
+
+  showCard(c: Card, opts: { mentions?: number; onBack?: () => void } = {}): void {
+    this.mode = "card";
+    const panel = el("div", "panel");
     const card = el("div", "card");
     card.dataset.testid = "lastro-card";
+    panel.append(card);
     const top = el("div", "top");
-    const badge = el("span", `badge ${c.kind}`, KIND_LABEL[c.kind]);
-    const time = el("span", "time", `▶ ${fmtTime(c.startMs)}${mentions > 1 ? ` · ${mentions} menções` : ""}`);
-    time.title = "Voltar a este trecho";
-    time.onclick = () => this.onSeek(c.startMs);
-    const x = el("button", "x", "×");
-    x.title = "Recolher";
-    x.onclick = () => this.hideCard();
     const left = el("div");
-    left.style.display = "flex";
-    left.style.gap = "8px";
-    left.style.alignItems = "center";
-    left.append(badge, time);
+    left.style.cssText = "display:flex;gap:8px;align-items:center";
+    if (opts.onBack) {
+      const back = el("button", "back", "← ideias");
+      back.onclick = opts.onBack;
+      left.append(back);
+    }
+    const time = el("span", "time", `▶ ${fmtTime(c.startMs)}${(opts.mentions ?? 1) > 1 ? ` · ${opts.mentions} menções` : ""}`);
+    time.title = "Voltar a este trecho do vídeo";
+    time.onclick = () => this.onSeek(c.startMs);
+    left.append(el("span", `badge ${c.kind}`, KIND_LABEL[c.kind]), time);
+    const x = el("button", "x", "×");
+    x.title = "Recolher (reabra pelo botão Lastro)";
+    x.onclick = () => this.hide();
     top.append(left, x);
     card.append(top);
 
@@ -147,35 +265,84 @@ export class Overlay {
     }
     card.append(el("div", "quote", `“${c.quote}”`));
 
-    const row = (label: string, text: string) => {
+    if (c.kind === "fact" && c.indicator) card.append(this.factBlock(c));
+
+    const row = (label: string, body: string | Node) => {
       const r = el("div", "row");
-      r.append(el("span", "k", label), el("span", "", text));
+      r.append(el("span", "k", label), typeof body === "string" ? el("span", "", body) : body);
       card.append(r);
+      return r;
     };
     if (v.disagree.length) {
       row("Quem discorda desta fala", v.disagree.map((o) => `${o.node.name}${o.note ? `: ${o.note}` : ""}`).join(" · "));
     }
     if (v.tested.length) {
-      row("Já foi testado?", v.tested.map((t) => `${t.node.name}${t.note ? `: ${t.note}` : ""}`).join(" · "));
+      const r = row("Já foi testado?", v.tested.map((t) => `${t.node.name}${t.note ? `: ${t.note}` : ""}`).join(" · "));
+      const ep = v.tested.find((t) => t.node.series)?.node;
+      if (ep?.series) this.episodeChart(r, ep.series);
     }
     const refs = [
       ...v.readSpeaker.slice(0, 2).map((r) => `${r.title} (para entender esta fala)`),
       ...v.readOpposing.slice(0, 2).map((r) => `${r.title} (visão contrária)`),
     ];
     if (refs.length) {
-      const r = el("div", "row");
-      r.append(el("span", "k", "Para ir além"));
       const ul = el("ul");
       for (const t of refs) ul.append(el("li", "", t));
-      r.append(ul);
-      card.append(r);
+      row("Para ir além", ul);
     }
-    if (c.kind === "fact" && c.indicator) {
-      const r = el("div", "row");
-      r.append(el("span", "k", "Dado oficial"));
-      r.append(el("span", "", `${c.indicator}${c.claimed_value !== null ? ` · valor citado: ${c.claimed_value}` : ""} · consulta ao BCB/IBGE: próxima etapa`));
-      card.append(r);
-    }
-    this.cardSlot.replaceChildren(card);
+    this.slot.replaceChildren(panel);
+  }
+
+  private factBlock(c: Card): HTMLElement {
+    const r = el("div", "row");
+    r.append(el("span", "k", "Dado oficial"));
+    const body = el("div", "muted", "consultando…");
+    r.append(body);
+    const indicator = c.indicator as Indicator;
+    const def = INDICATOR_DEFS[indicator];
+    this.loadFact(indicator, c.period ?? null)
+      .then((f) => {
+        if (!f) {
+          body.textContent = "sem dado oficial para esse período";
+          return;
+        }
+        body.className = "";
+        body.replaceChildren();
+        const line = el("div", "factline");
+        line.append(el("span", "big", fmtNum(f.value, f.unit)), el("span", "muted", `${f.label}, ${f.periodLabel}`));
+        body.append(line);
+        const verdict = compare(c.claimed_value, f.value);
+        if (verdict && c.claimed_value !== null) {
+          const vline = el("div", "factline");
+          vline.append(el("span", `verdict ${verdict}`, verdict), el("span", "muted", `valor citado no vídeo: ${fmtNum(c.claimed_value, f.unit)}`));
+          body.append(vline);
+        }
+        const mark = f.series.find((p) => p.date === f.date);
+        body.append(sparkline(f.series, mark, (p) => fmtNum(p.value, f.unit), (d) => fmtDate(d, def.freq === "daily" ? "monthly" : def.freq)));
+        const src = el("a", "muted", `Fonte: ${f.source}`);
+        src.href = f.sourceUrl;
+        src.target = "_blank";
+        src.rel = "noopener";
+        body.append(src);
+      })
+      .catch(() => {
+        body.textContent = "não foi possível consultar a fonte oficial agora";
+      });
+    return r;
+  }
+
+  private episodeChart(row: HTMLElement, series: { indicator: string; from: string; to: string; mark?: "min" | "max" }): void {
+    const indicator = series.indicator as Indicator;
+    const def = INDICATOR_DEFS[indicator];
+    if (!def) return;
+    this.loadSeries(indicator, series.from, series.to)
+      .then((pts) => {
+        if (pts.length < 2) return;
+        const pick = series.mark === "max" ? Math.max(...pts.map((p) => p.value)) : Math.min(...pts.map((p) => p.value));
+        const mark = pts.find((p) => p.value === pick);
+        row.append(sparkline(pts, mark, (p) => fmtNum(p.value, def.unit), (d) => fmtDate(d, def.freq === "daily" ? "monthly" : def.freq)));
+        row.append(el("span", "muted", `${def.label} · Fonte: ${def.source}`));
+      })
+      .catch(() => {});
   }
 }

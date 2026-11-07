@@ -13,7 +13,15 @@ const worker = wi >= 0 ? args[wi + 1] : "http://127.0.0.1:8787";
 const outdir = prod ? "extension/dist-demo" : "extension/dist";
 mkdirSync(outdir, { recursive: true });
 const manifest = JSON.parse(readFileSync("extension/manifest.json", "utf8"));
-manifest.host_permissions = ["https://www.youtube.com/*", `${new URL(worker).origin}/*`];
+manifest.host_permissions = [
+  "https://www.youtube.com/*",
+  `${new URL(worker).origin}/*`,
+  // official data, fetched directly by the background worker
+  "https://api.bcb.gov.br/*",
+  "https://olinda.bcb.gov.br/*",
+  "https://apisidra.ibge.gov.br/*",
+  "https://servicodados.ibge.gov.br/*",
+];
 writeFileSync(`${outdir}/manifest.json`, JSON.stringify(manifest, null, 2));
 
 const opts = {

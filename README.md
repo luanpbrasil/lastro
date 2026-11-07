@@ -45,6 +45,20 @@ Load the extension: Chrome → `chrome://extensions` → Developer mode → **Lo
 
 Check spend: `curl http://127.0.0.1:8787/spend`.
 
+## Using it during a video
+
+- Cards pop on their own: one per new idea, at least 40 s apart, none in the first 10 s.
+- Click **Lastro** on the pill to see every idea that has appeared so far; click one to reopen its card (`← ideias` goes back). `⏸` pauses.
+- ▶ time on a card seeks the video back to that moment.
+- Fact cards show the official number (BCB SGS, IBGE SIDRA, Focus) for the period the speaker means, a chart, and "confere" / "diferente" next to the number quoted in the video. Never "falso"; never on theories.
+
+## Checks
+
+```bash
+npm run eval    # card stance logic + model labels vs gold, on recorded streams ($0)
+npm run facts   # hits every official data source once (free APIs)
+```
+
 ## Status
 
-Prototype (2026-11-07): 12-node graph, theory/forecast cards, no fact charts yet. Measured on a 5-min transcript: first card 2.1 s after the request, full analysis 7.6 s, $0.0016 per uncached video.
+Prototype (2026-11-07): 12-node graph; theory, forecast and fact cards; episode charts; "ideias até agora" list. Measured on a 5-min transcript: first card 2.1 s after the request, full analysis 7.6 s, $0.0016 per uncached video (Claude Haiku 5.5).

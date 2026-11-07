@@ -11,7 +11,7 @@ export interface KgNode {
   summary: string;
   claims: string[];
   refs: { level: RefLevel; title: string; url?: string }[];
-  series?: { indicator: string; from: string; to: string };
+  series?: { indicator: string; from: string; to: string; mark?: "min" | "max" };
 }
 
 export interface KgEdge {

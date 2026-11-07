@@ -19,7 +19,8 @@ Para cada ideia relevante, devolva uma "unit":
   Se uma frase mistura fato e teoria, separe em duas units.
 - nodes: até 3 nós do mapa abaixo ligados à ideia, com role "relies_on" (a fala se apoia nessa escola), "echoes" (lembra/cita) ou "contradicts" (a fala vai contra). Use só ids do mapa. Pode ser vazio para fatos.
 - indicator: para fatos, o indicador oficial mais próximo (${INDICATORS.join(", ")}); senão null.
-- claimed_value: o número que o falante afirma para esse indicador, se houver; senão null.
+- claimed_value: o número que o falante afirma para esse indicador, em % quando for taxa (ex.: "13,75%" → 13.75; "R$ 5,40" → 5.4); senão null.
+- period: quando vale o número citado, como "AAAA" ou "AAAA-MM" (ex.: "em outubro de 2012" → "2012-10"); null se o falante fala do valor atual.
 
 Regras:
 - Só inclua ideias que se ligam a algum nó do mapa ou fatos com indicador. Ignore conversa, anúncios e opiniões sem conteúdo econômico.

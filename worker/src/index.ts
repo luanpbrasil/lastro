@@ -260,5 +260,13 @@ function validate(u: ModelUnit, segments: AnalyzeRequest["segments"], index: Tra
   if (nodes.length === 0 && !u.indicator) return { reason: "no node and no indicator" };
   const hit = index.locate(u.quote);
   if (!hit) return { reason: "quote not in transcript" };
-  return { ...u, nodes, quote: hit.text, seg: hit.seg, startMs: segments[hit.seg].s, matchScore: Math.round(hit.score * 100) / 100 };
+  return {
+    ...u,
+    nodes,
+    modelQuote: u.quote,
+    quote: hit.text,
+    seg: hit.seg,
+    startMs: segments[hit.seg].s,
+    matchScore: Math.round(hit.score * 100) / 100,
+  };
 }

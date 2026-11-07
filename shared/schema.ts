@@ -1,7 +1,7 @@
 import { NODE_IDS } from "./kg";
 
 /** Bump when the prompt or schema changes; it is part of the cache key. */
-export const PROMPT_VERSION = "p2";
+export const PROMPT_VERSION = "p3";
 
 export const INDICATORS = [
   "selic_meta",
@@ -27,6 +27,8 @@ export interface ModelUnit {
   nodes: { id: string; role: NodeRole }[];
   indicator: Indicator | null;
   claimed_value: number | null;
+  /** When the claimed value applies: "YYYY" or "YYYY-MM"; null = now (latest data). */
+  period: string | null;
 }
 
 /** A unit after server validation: located in the transcript, quote replaced by the exact caption text. */
@@ -35,6 +37,8 @@ export interface Card extends ModelUnit {
   startMs: number;
   /** Share of the model's quote words found at that spot (1 = verbatim). */
   matchScore: number;
+  /** The quote as the model wrote it, before it was replaced by the caption text (for re-locating in evals). */
+  modelQuote?: string;
 }
 
 export interface Segment {
@@ -98,7 +102,7 @@ export function outputSchema(): Record<string, unknown> {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["quote", "paraphrase", "kind", "nodes", "indicator", "claimed_value"],
+          required: ["quote", "paraphrase", "kind", "nodes", "indicator", "claimed_value", "period"],
           properties: {
             quote: { type: "string" },
             paraphrase: { type: "string" },
@@ -117,6 +121,7 @@ export function outputSchema(): Record<string, unknown> {
             },
             indicator: { anyOf: [{ type: "string", enum: [...INDICATORS] }, { type: "null" }] },
             claimed_value: { anyOf: [{ type: "number" }, { type: "null" }] },
+            period: { anyOf: [{ type: "string" }, { type: "null" }] },
           },
         },
       },

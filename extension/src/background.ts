@@ -4,8 +4,38 @@
  * Captions come from the page hook (hook.ts), not from here.
  * The Anthropic API key never touches the extension: it lives only on the Worker.
  */
+import { episodeSeries, resolveFact } from "../../shared/indicators";
+import type { Indicator } from "../../shared/schema";
+
 declare const __WORKER_BASE__: string;
 const BASE = __WORKER_BASE__;
+
+/** Official data (BCB, IBGE) is fetched here, straight from the public APIs: free, no key, no Worker. */
+const TTL_MS = 6 * 3600e3;
+const dataCache = new Map<string, { at: number; value: unknown }>();
+async function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const hit = dataCache.get(key);
+  if (hit && Date.now() - hit.at < TTL_MS) return hit.value as T;
+  const value = await load();
+  dataCache.set(key, { at: Date.now(), value });
+  return value;
+}
+
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg?.type === "fact") {
+    cached(`fact:${msg.indicator}:${msg.period ?? "now"}`, () => resolveFact(msg.indicator as Indicator, msg.period ?? null))
+      .then((r) => sendResponse({ ok: true, fact: r }))
+      .catch((e) => sendResponse({ ok: false, error: String(e) }));
+    return true; // async response
+  }
+  if (msg?.type === "series") {
+    cached(`series:${msg.indicator}:${msg.from}:${msg.to}`, () => episodeSeries(msg.indicator as Indicator, msg.from, msg.to))
+      .then((s) => sendResponse({ ok: true, series: s }))
+      .catch((e) => sendResponse({ ok: false, error: String(e) }));
+    return true;
+  }
+  return false;
+});
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== "lastro") return;

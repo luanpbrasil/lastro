@@ -39,10 +39,21 @@ const overlay = new Overlay();
 let state: PillState = "on";
 let session: VideoSession | null = null;
 
-overlay.onPillClick = () => {
+overlay.onPauseClick = () => {
   state = state === "on" ? "paused" : "on";
-  if (state === "paused") overlay.hideCard();
+  if (state === "paused") overlay.hide();
   overlay.setPill(state, session?.status ?? "");
+};
+overlay.onOpenList = () => session?.openList();
+overlay.loadFact = async (indicator, period) => {
+  const r = await chrome.runtime.sendMessage({ type: "fact", indicator, period });
+  if (!r?.ok) throw new Error(r?.error ?? "fact failed");
+  return r.fact;
+};
+overlay.loadSeries = async (indicator, from, to) => {
+  const r = await chrome.runtime.sendMessage({ type: "series", indicator, from, to });
+  if (!r?.ok) throw new Error(r?.error ?? "series failed");
+  return r.series;
 };
 
 class VideoSession {
@@ -50,7 +61,8 @@ class VideoSession {
   status = "";
   private cards: Card[] = [];
   private handled = new Set<Card>();
-  private shownNodes = new Map<string, number>(); // node id → mentions
+  /** Ideas that have appeared so far, by primary node: first card + number of mentions. */
+  private ideas = new Map<string, { card: Card; mentions: number }>();
   private queue: Card[] = [];
   private lastPopAt = -Infinity;
   private timer: number | undefined;
@@ -61,14 +73,13 @@ class VideoSession {
   constructor(videoId: string) {
     this.videoId = videoId;
     this.m.videoId = videoId;
-    overlay.hideCard();
+    overlay.hide();
     overlay.setQueued(0);
     overlay.setAction(null);
     overlay.onSeek = (ms) => {
       const v = video();
       if (v) v.currentTime = ms / 1000;
     };
-    overlay.onChipClick = () => this.popNext(true);
     this.timer = window.setInterval(() => this.tick(), 250);
   }
 
@@ -243,7 +254,7 @@ class VideoSession {
     return (c.nodes[0]?.id ?? c.indicator ?? c.quote).toString();
   }
 
-  /** Pop due cards: one card per new idea, ≥ 40 s apart, none in the first 10 s. */
+  /** Pop due cards: one card per new idea, ≥ 40 s apart, none in the first 10 s, never over the open list. */
   private tick(): void {
     const v = video();
     if (!v || state !== "on") return;
@@ -252,24 +263,38 @@ class VideoSession {
       if (this.handled.has(c) || c.startMs > nowMs + 500) continue;
       this.handled.add(c);
       const key = this.primaryNode(c);
-      if (this.shownNodes.has(key)) {
-        this.shownNodes.set(key, this.shownNodes.get(key)! + 1);
+      const idea = this.ideas.get(key);
+      if (idea) {
+        idea.mentions++; // same idea again: count it, don't pop again
         continue;
       }
+      this.ideas.set(key, { card: c, mentions: 1 });
       this.queue.push(c);
     }
-    if (nowMs >= QUIET_START_MS && performance.now() - this.lastPopAt >= MIN_GAP_MS) this.popNext(false);
+    if (!overlay.isListOpen() && nowMs >= QUIET_START_MS && performance.now() - this.lastPopAt >= MIN_GAP_MS) this.popNext();
     overlay.setQueued(this.queue.length);
   }
 
-  private popNext(manual: boolean): void {
+  private popNext(): void {
     const c = this.queue.shift();
     if (!c) return;
-    this.shownNodes.set(this.primaryNode(c), 1);
     this.lastPopAt = performance.now();
-    overlay.showCard(c);
+    overlay.showCard(c, { mentions: this.ideas.get(this.primaryNode(c))?.mentions });
     if (this.m.firstRender === undefined) this.mark("firstRender");
-    if (manual) overlay.setQueued(this.queue.length);
+  }
+
+  /** Every idea that has appeared in the video so far (including ones still waiting to pop). */
+  openList(): void {
+    const items = [...this.ideas.values()].sort((a, b) => a.card.startMs - b.card.startMs);
+    const total = new Set(this.cards.map((c) => this.primaryNode(c))).size;
+    overlay.showList(items, total, (card) => this.openCard(card));
+  }
+
+  private openCard(card: Card): void {
+    this.queue = this.queue.filter((q) => q !== card); // opened by hand: no need to pop it later
+    this.lastPopAt = performance.now(); // and don't auto-pop over it right away
+    overlay.showCard(card, { mentions: this.ideas.get(this.primaryNode(card))?.mentions, onBack: () => this.openList() });
+    overlay.setQueued(this.queue.length);
   }
 }
 

@@ -1,0 +1,14 @@
+{
+  "videoId": "TESTfacts01",
+  "title": "Teste: juros, inflação e dívida (synthetic transcript, written for this eval)",
+  "transcript": "eval/transcripts/TESTfacts01.json",
+  "note": "Fact fields (indicator, claimed value, period) and quote timestamps. Each caption line is 6 s long.",
+  "cases": [
+    { "name": "current Selic, matches official", "quoteContains": "selic esta hoje em 13", "expectIndicator": "selic_meta", "expectClaimed": 13.75, "expectPeriod": null, "expectStartS": 6 },
+    { "name": "IPCA 12m claimed 6%", "quoteContains": "inflacao em doze meses", "expectIndicator": "ipca_12m", "expectClaimed": 6, "expectPeriod": null, "expectStartS": 12 },
+    { "name": "past value with a period: Oct 2012 Selic", "quoteContains": "outubro de 2012", "expectIndicator": "selic_meta", "expectClaimed": 7.25, "expectPeriod": "2012-10", "expectStartS": 18 },
+    { "name": "gross debt as % of GDP", "quoteContains": "divida bruta do governo", "expectIndicator": "dbgg_pib", "expectClaimed": 80, "expectPeriod": null, "expectStartS": 30 },
+    { "name": "MMT claim", "quoteContains": "emite a propria moeda", "expectNode": "s_mmt", "expectStartS": 36 },
+    { "name": "fiscal dominance claim, last line", "quoteContains": "sem ajuste fiscal", "expectNode": "s_dominancia", "expectRole": "relies_on", "expectStartS": 42 }
+  ]
+}
