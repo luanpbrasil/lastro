@@ -48,7 +48,7 @@ Check spend: `curl http://127.0.0.1:8787/spend`.
 ## Using it during a video
 
 - Cards pop on their own: one per new idea, at least 40 s apart, none in the first 10 s.
-- Click **Lastro** on the pill for every card of the video in time order, with an AGORA line at the playhead. Cards already passed reopen in place (`← ideias` goes back); cards ahead (▶ time) jump the video there. `⏸` pauses.
+- Click **Lastro** on the pill for every card of the video in time order, with an AGORA line at the playhead. Each row is a teaser; click it to expand (quote, who disagrees, `▶ Ir para` / `Rever`, `Abrir cartão completo`). `← ideias` returns to the list with that row open. `⏸` pauses.
 - Skipping ahead puts the cards you passed in the list without popping them.
 - ▶ time on a card seeks the video back to that moment.
 - Fact cards show the official number (BCB SGS, IBGE SIDRA, Focus) for the period the speaker means, a chart, and "confere" / "diferente" next to the number quoted in the video. Never "falso"; never on theories.

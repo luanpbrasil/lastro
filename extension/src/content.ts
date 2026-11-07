@@ -272,7 +272,7 @@ class VideoSession {
     // after a seek, drop queued cards that are far behind or ahead of the playhead
     this.queue = this.queue.filter((c) => c.startMs <= nowMs + DUE_SLACK_MS && nowMs - c.startMs <= 4 * STALE_MS);
     if (overlay.isListOpen()) {
-      if (this.dueCount(nowMs) !== this.listDue) this.openList();
+      if (this.dueCount(nowMs) !== this.listDue) this.openList({ redraw: true });
     } else if (nowMs >= QUIET_START_MS && performance.now() - this.lastPopAt >= MIN_GAP_MS) this.popNext();
     overlay.setQueued(this.queue.length);
   }
@@ -308,22 +308,34 @@ class VideoSession {
     if (this.m.firstRender === undefined) this.mark("firstRender");
   }
 
-  /** Every card of the video in time order: the ones already passed, then the ones ahead (click to jump). */
-  openList(): void {
+  /** Every card of the video in time order: the ones already passed, then the ones ahead. */
+  openList(opts: { redraw?: boolean; focus?: Card } = {}): void {
     const nowMs = (video()?.currentTime ?? 0) * 1000;
     this.listDue = this.dueCount(nowMs);
     const items = this.cards.map((card) => ({ card, ahead: card.startMs > nowMs + DUE_SLACK_MS }));
-    overlay.showList(items, nowMs, this.status === "analisando…", (card) => this.openCard(card));
+    overlay.showList(items, nowMs, {
+      analysing: this.status === "analisando…",
+      redraw: opts.redraw,
+      focus: opts.focus,
+      onOpen: (card) => this.openCard(card),
+      onJump: (card) => this.jumpTo(card),
+    });
+  }
+
+  /** Seek to a card (1 s early, so the sentence starts on screen); it counts as seen, so it won't pop later. */
+  private jumpTo(card: Card): void {
+    const v = video();
+    if (v) v.currentTime = Math.max(0, card.startMs - 1000) / 1000;
+    this.see(card);
+    this.queue = this.queue.filter((q) => q !== card);
+    this.lastPopAt = performance.now();
   }
 
   private openCard(card: Card): void {
-    const v = video();
-    // an idea further ahead: jump there (1 s early, so the sentence starts on screen)
-    if (v && card.startMs > v.currentTime * 1000 + DUE_SLACK_MS) v.currentTime = Math.max(0, card.startMs - 1000) / 1000;
     this.see(card);
     this.queue = this.queue.filter((q) => q !== card); // opened by hand: no need to pop it later
     this.lastPopAt = performance.now(); // and don't auto-pop over it right away
-    overlay.showCard(card, { mentions: this.mentions(card), onBack: () => this.openList() });
+    overlay.showCard(card, { mentions: this.mentions(card), onBack: () => this.openList({ focus: card }) });
     overlay.setQueued(this.queue.length);
   }
 }

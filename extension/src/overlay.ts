@@ -50,6 +50,15 @@ svg.spark { width: 100%; height: 64px; display: block; }
 .list h3 { position: sticky; top: 0; background: #fff; z-index: 1; margin: 0; padding: 6px 16px 8px; font: 600 13px/1.3 "IBM Plex Sans", -apple-system, Arial, sans-serif; display: flex; justify-content: space-between; align-items: center; }
 .item { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 52px 76px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 8px 16px; cursor: pointer; width: 100%; }
 .item:hover, .item:focus-visible { background: #F4F5F7; }
+.entry.open { background: #F7F8FA; box-shadow: inset 3px 0 0 #FFD23F; }
+.entry.open .item:hover { background: transparent; }
+.entry.open .item .p { -webkit-line-clamp: unset; display: block; }
+.chev { font-size: 11px; color: #8A93A8; margin-left: 4px; }
+.more { display: grid; gap: 8px; padding: 0 16px 12px 16px; }
+.more .quote { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.act { all: unset; font: 12px/1 ui-monospace, Menlo, monospace; border-radius: 99px; padding: 7px 11px; cursor: pointer; border: 1px solid #DADEE6; color: #16203A; background: #fff; }
+.act.primary { background: #FFD23F; border-color: #FFD23F; }
 .item .t { font: 12px ui-monospace, Menlo, monospace; color: #5A6378; }
 .item .badge { justify-self: start; }
 .item .s { display: grid; gap: 2px; min-width: 0; }
@@ -214,12 +223,21 @@ export class Overlay {
 
   /**
    * Every card of the video in time order, with an "agora" marker at the playhead.
-   * Cards already passed open in place; cards ahead jump the video there.
+   * Each row is a teaser; clicking it expands it in place (quote, who disagrees, actions).
+   * A live redraw keeps the expanded row and the scroll position.
    */
-  showList(items: ListItem[], nowMs: number, analysing: boolean, onPick: (c: Card) => void): void {
+  showList(
+    items: ListItem[],
+    nowMs: number,
+    opts: { analysing?: boolean; redraw?: boolean; focus?: Card; onOpen: (c: Card) => void; onJump: (c: Card) => void },
+  ): void {
+    const prevScroll = opts.redraw ? (this.slot.querySelector(".panel.list") as HTMLElement | null)?.scrollTop : undefined;
+    if (opts.focus) this.expanded = opts.focus;
+    else if (!opts.redraw) this.expanded = null;
     this.mode = "list";
     this.chip.hidden = true;
     const panel = el("div", "panel list");
+    if (opts.redraw) panel.style.animation = "none";
     const h = el("h3");
     const passed = items.filter((i) => !i.ahead).length;
     h.append(el("span", "", `Ideias neste vídeo (${items.length}) · ${passed} até agora`));
@@ -228,32 +246,77 @@ export class Overlay {
     x.onclick = () => this.hide();
     h.append(x);
     panel.append(h);
-    if (!items.length) panel.append(el("div", "empty", analysing ? "Analisando o vídeo…" : "Nenhuma ideia encontrada neste vídeo."));
+    if (!items.length) panel.append(el("div", "empty", opts.analysing ? "Analisando o vídeo…" : "Nenhuma ideia encontrada neste vídeo."));
     let marker: HTMLElement | null = null;
+    let focusEl: HTMLElement | null = null;
     const addMarker = () => {
       marker = el("div", "now", `AGORA · ${fmtTime(nowMs)}`);
       panel.append(marker);
     };
     for (const it of items) {
       if (it.ahead && !marker) addMarker();
-      const b = el("button", `item${it.ahead ? " ahead" : ""}`);
-      b.title = it.ahead ? `Pular para ${fmtTime(it.card.startMs)}` : "Abrir o cartão";
-      const v = stanceView(it.card);
-      const what = v.lead
-        ? `${v.lead.role === "contradicts" ? "Vai contra" : v.lead.role === "echoes" ? "Lembra" : "Apoia-se em"} ${v.lead.node.name}`
-        : "";
-      const s = el("span", "s");
-      s.append(el("span", "p", shortParaphrase(it.card.paraphrase)));
-      if (what) s.append(el("span", "w", what));
-      b.append(el("span", "t", `${it.ahead ? "▶ " : ""}${fmtTime(it.card.startMs)}`), el("span", `badge ${it.card.kind}`, KIND_LABEL[it.card.kind]), s);
-      b.onclick = () => onPick(it.card);
-      panel.append(b);
+      const entry = this.listEntry(it, opts, () => {
+        this.expanded = this.expanded === it.card ? null : it.card;
+        const keep = panel.scrollTop;
+        this.showList(items, nowMs, { ...opts, focus: undefined, redraw: true });
+        const p = this.slot.querySelector(".panel.list") as HTMLElement | null;
+        if (p) p.scrollTop = keep;
+      });
+      if (this.expanded === it.card) focusEl = entry;
+      panel.append(entry);
     }
     if (items.length && !marker) addMarker();
     this.slot.replaceChildren(panel);
-    // keep the playhead in view
-    const m = marker as HTMLElement | null;
-    if (m) panel.scrollTop += m.getBoundingClientRect().top - panel.getBoundingClientRect().top - panel.clientHeight / 2;
+    const center = (e: HTMLElement) =>
+      (panel.scrollTop += e.getBoundingClientRect().top - panel.getBoundingClientRect().top - panel.clientHeight / 3);
+    if (prevScroll !== undefined) panel.scrollTop = prevScroll;
+    else if (opts.focus && focusEl) center(focusEl);
+    else if (marker) center(marker); // first open: keep the playhead in view
+  }
+
+  private expanded: Card | null = null;
+
+  private listEntry(
+    it: ListItem,
+    opts: { onOpen: (c: Card) => void; onJump: (c: Card) => void },
+    toggle: () => void,
+  ): HTMLElement {
+    const c = it.card;
+    const open = this.expanded === c;
+    const entry = el("div", `entry${open ? " open" : ""}`);
+    const b = el("button", `item${it.ahead ? " ahead" : ""}`);
+    b.title = open ? "Recolher" : "Ver mais";
+    b.setAttribute("aria-expanded", String(open));
+    const v = stanceView(c);
+    const what = v.lead
+      ? `${v.lead.role === "contradicts" ? "Vai contra" : v.lead.role === "echoes" ? "Lembra" : "Apoia-se em"} ${v.lead.node.name}`
+      : "";
+    const s = el("span", "s");
+    s.append(el("span", "p", shortParaphrase(c.paraphrase)));
+    const w = el("span", "w", what);
+    w.append(el("span", "chev", open ? "▴ menos" : "▾ mais"));
+    s.append(w);
+    b.append(el("span", "t", fmtTime(c.startMs)), el("span", `badge ${c.kind}`, KIND_LABEL[c.kind]), s);
+    b.onclick = toggle;
+    entry.append(b);
+    if (!open) return entry;
+
+    const more = el("div", "more");
+    more.append(el("div", "quote", `“${c.quote}”`));
+    if (v.disagree.length) {
+      const d = el("div", "muted");
+      d.append(el("span", "k", "Quem discorda  "), document.createTextNode(v.disagree.map((x) => x.node.name).join(" · ")));
+      more.append(d);
+    }
+    const acts = el("div", "acts");
+    const jump = el("button", `act${it.ahead ? " primary" : ""}`, `▶ ${it.ahead ? "Ir para" : "Rever"} ${fmtTime(c.startMs)}`);
+    jump.onclick = () => opts.onJump(c);
+    const full = el("button", `act${it.ahead ? "" : " primary"}`, "Abrir cartão completo");
+    full.onclick = () => opts.onOpen(c);
+    acts.append(jump, full);
+    more.append(acts);
+    entry.append(more);
+    return entry;
   }
 
   showCard(c: Card, opts: { mentions?: number; onBack?: () => void } = {}): void {
