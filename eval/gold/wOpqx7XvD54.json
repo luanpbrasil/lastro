@@ -1,0 +1,19 @@
+{
+  "videoId": "wOpqx7XvD54",
+  "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros | Gaúcha Atualidade",
+  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run.",
+  "cases": [
+    {
+      "name": "speaker against the matched node: 'o juro é o principal problema'",
+      "quoteContains": "principal problema da economia",
+      "expectNode": "s_novoconsenso",
+      "expectRole": "contradicts"
+    },
+    {
+      "name": "speaker with the consensus: forced cut called artificial, Turkey example",
+      "quoteContains": "considerada artificial pelos economistas",
+      "expectNode": "s_novoconsenso",
+      "expectRole": "relies_on"
+    }
+  ]
+}

@@ -1,9 +1,10 @@
-import { node, opponents, testedIn } from "../../shared/kg";
 import type { Card } from "../../shared/schema";
+import { stanceView } from "../../shared/stance";
 import { fmtTime } from "../../shared/transcript";
 
 const CSS = `
 :host { all: initial; }
+*, *::before, *::after { box-sizing: border-box; }
 .root { position: fixed; right: 16px; bottom: 16px; z-index: 2147483647; width: 360px; max-width: calc(100vw - 32px);
   font: 14px/1.45 "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #16203A;
   display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: none; }
@@ -25,7 +26,7 @@ const CSS = `
 .time { font: 12px ui-monospace, Menlo, monospace; color: #5A6378; cursor: pointer; }
 .x { border: 0; background: none; font-size: 18px; line-height: 1; color: #5A6378; cursor: pointer; padding: 0 2px; }
 .lead { font-weight: 600; }
-.quote { font-size: 13px; color: #5A6378; border-left: 3px solid #FFD23F; padding-left: 8px; }
+.quote { font-size: 13px; color: #5A6378; border-left: 3px solid #FFD23F; padding: 0 4px 0 8px; overflow-wrap: anywhere; }
 .k { font: 11px ui-monospace, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; color: #5A6378; }
 .row { display: grid; gap: 2px; }
 ul { margin: 0; padding-left: 18px; font-size: 13px; }
@@ -37,7 +38,6 @@ const KIND_LABEL: Record<Card["kind"], string> = { fact: "FATO", theory: "TEORIA
 const ROLE_LEAD: Record<string, string> = {
   relies_on: "Esta fala se apoia em",
   echoes: "Esta fala lembra",
-  contradicts: "Esta fala vai contra",
 };
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] {
@@ -133,43 +133,42 @@ export class Overlay {
     top.append(left, x);
     card.append(top);
 
-    const primary = c.nodes.find((n) => node(n.id)?.type === "school") ?? c.nodes[0];
-    const pn = primary ? node(primary.id) : undefined;
-    if (pn) {
+    const v = stanceView(c);
+    if (v.lead) {
       const lead = el("div");
-      lead.append(el("span", "lead", `${ROLE_LEAD[primary.role] ?? "Ligado a"} ${pn.name}.`), document.createTextNode(` ${pn.summary}`));
+      if (v.lead.role === "contradicts") {
+        lead.append(el("span", "lead", `Esta fala vai contra ${v.lead.node.name}.`), document.createTextNode(` Essa visão diz: ${v.lead.node.summary}`));
+      } else {
+        lead.append(el("span", "lead", `${ROLE_LEAD[v.lead.role]} ${v.lead.node.name}.`), document.createTextNode(` ${v.lead.node.summary}`));
+      }
       card.append(lead);
     } else {
       card.append(el("div", "lead", c.paraphrase));
     }
     card.append(el("div", "quote", `“${c.quote}”`));
 
-    if (pn) {
-      const opp = opponents(pn.id);
-      if (opp.length) {
-        const r = el("div", "row");
-        r.append(el("span", "k", "Quem discorda"));
-        r.append(el("span", "", opp.map((o) => `${o.node.name}${o.note ? `: ${o.note}` : ""}`).join(" · ")));
-        card.append(r);
-      }
-      const tested = testedIn(pn.id);
-      if (tested.length) {
-        const r = el("div", "row");
-        r.append(el("span", "k", "Já foi testado?"));
-        r.append(el("span", "", tested.map((t) => `${t.node.name}${t.note ? `: ${t.note}` : ""}`).join(" · ")));
-        card.append(r);
-      }
-      if (pn.refs.length) {
-        const r = el("div", "row");
-        r.append(el("span", "k", "Para ir além"));
-        const ul = el("ul");
-        for (const ref of pn.refs.slice(0, 3)) {
-          const label = ref.level === "intro" ? "introdução" : ref.level === "deep" ? "aprofundamento" : "visão contrária";
-          ul.append(el("li", "", `${ref.title} (${label})`));
-        }
-        r.append(ul);
-        card.append(r);
-      }
+    const row = (label: string, text: string) => {
+      const r = el("div", "row");
+      r.append(el("span", "k", label), el("span", "", text));
+      card.append(r);
+    };
+    if (v.disagree.length) {
+      row("Quem discorda desta fala", v.disagree.map((o) => `${o.node.name}${o.note ? `: ${o.note}` : ""}`).join(" · "));
+    }
+    if (v.tested.length) {
+      row("Já foi testado?", v.tested.map((t) => `${t.node.name}${t.note ? `: ${t.note}` : ""}`).join(" · "));
+    }
+    const refs = [
+      ...v.readSpeaker.slice(0, 2).map((r) => `${r.title} (para entender esta fala)`),
+      ...v.readOpposing.slice(0, 2).map((r) => `${r.title} (visão contrária)`),
+    ];
+    if (refs.length) {
+      const r = el("div", "row");
+      r.append(el("span", "k", "Para ir além"));
+      const ul = el("ul");
+      for (const t of refs) ul.append(el("li", "", t));
+      r.append(ul);
+      card.append(r);
     }
     if (c.kind === "fact" && c.indicator) {
       const r = el("div", "row");

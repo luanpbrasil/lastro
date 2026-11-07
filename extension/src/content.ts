@@ -166,6 +166,7 @@ class VideoSession {
         this.mark("cacheHit");
         this.m.cached = "yes";
         for (const c of msg.data!.cards) this.addCard(c);
+        this.updateDebug();
         this.setStatus(`${this.cards.length} ideias`);
         port.disconnect();
         break;
@@ -205,6 +206,7 @@ class VideoSession {
           }
           document.documentElement.dataset.lastroMetrics = JSON.stringify(this.m);
           this.setStatus(`${this.cards.length} ideias`);
+          this.updateDebug();
         } else if (ev.type === "error") {
           this.setStatus(ev.message);
         }
@@ -222,11 +224,19 @@ class VideoSession {
   private addCard(c: Card): void {
     this.cards.push(c);
     this.cards.sort((a, b) => a.startMs - b.startMs);
-    if (__DEV__) {
-      overlay.setDebug(
-        `1º cartão ${this.m.firstCardEvent ?? this.m.cacheHit ?? "-"} ms · ${this.m.costUsd !== undefined ? `$${Number(this.m.costUsd).toFixed(4)}` : "…"}`,
-      );
-    }
+    this.updateDebug();
+  }
+
+  /** Dev build only: latency and cost of this video's analysis. Never shown in the demo build. */
+  private updateDebug(): void {
+    if (!__DEV__) return;
+    const src =
+      this.m.cached === "yes"
+        ? "cache · $0"
+        : this.m.costUsd !== undefined
+          ? `ao vivo · $${Number(this.m.costUsd).toFixed(4)}`
+          : "ao vivo · …";
+    overlay.setDebug(`1º cartão ${this.m.firstCardEvent ?? this.m.cacheHit ?? "-"} ms · ${src}`);
   }
 
   private primaryNode(c: Card): string {

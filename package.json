@@ -8,9 +8,10 @@
   "scripts": {
     "dev:worker": "wrangler dev --port 8787",
     "build:ext": "node extension/build.mjs",
+    "build:demo": "node extension/build.mjs --prod",
     "watch:ext": "node extension/build.mjs --watch",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p extension",
-    "kg:validate": "node --experimental-strip-types scripts/kg-validate.ts",
+    "eval": "esbuild scripts/eval.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/eval.mjs && node .cache/eval.mjs",
     "analyze": "esbuild scripts/analyze.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/analyze.mjs && node .cache/analyze.mjs"
   },
   "devDependencies": {

@@ -1,0 +1,56 @@
+{
+  "note": "Card stance logic (shared/stance.ts). Deterministic, $0. 'Speaker' = the person in the video.",
+  "cases": [
+    {
+      "name": "speaker against novo consenso (Gaúcha 0:09, reported by Luan 2026-11-07)",
+      "nodes": [{ "id": "s_novoconsenso", "role": "contradicts" }],
+      "expect": {
+        "lead": { "id": "s_novoconsenso", "role": "contradicts" },
+        "disagreeIncludes": ["s_novoconsenso"],
+        "disagreeExcludes": ["s_mmt"],
+        "readOpposingIncludes": ["Woodford", "Banco Central"],
+        "readOpposingExcludes": ["Lara Resende"],
+        "readSpeakerIncludes": ["Consenso e Contrassenso"],
+        "readSpeakerExcludes": ["Woodford"]
+      }
+    },
+    {
+      "name": "speaker relies on MMT",
+      "nodes": [{ "id": "s_mmt", "role": "relies_on" }],
+      "expect": {
+        "lead": { "id": "s_mmt", "role": "relies_on" },
+        "disagreeIncludes": ["s_novoconsenso", "s_dominancia"],
+        "disagreeExcludes": ["s_mmt"],
+        "readOpposingIncludes": ["Mankiw"],
+        "readSpeakerIncludes": ["Kelton"],
+        "readSpeakerExcludes": ["Mankiw"]
+      }
+    },
+    {
+      "name": "echoes behaves like relies_on",
+      "nodes": [{ "id": "s_keynes", "role": "echoes" }],
+      "expect": {
+        "lead": { "id": "s_keynes", "role": "echoes" },
+        "disagreeIncludes": ["s_austeridade", "s_monetarismo"],
+        "disagreeExcludes": ["s_keynes"],
+        "readOpposingIncludes": ["Friedman"],
+        "readSpeakerIncludes": ["Keynes"]
+      }
+    },
+    {
+      "name": "mixed: relies on dominância fiscal, against MMT",
+      "nodes": [
+        { "id": "s_dominancia", "role": "relies_on" },
+        { "id": "s_mmt", "role": "contradicts" }
+      ],
+      "expect": {
+        "lead": { "id": "s_dominancia", "role": "relies_on" },
+        "disagreeIncludes": ["s_mmt"],
+        "disagreeExcludes": ["s_dominancia"],
+        "readOpposingIncludes": ["Kelton"],
+        "readSpeakerIncludes": ["Blanchard"],
+        "readSpeakerExcludes": ["Kelton"]
+      }
+    }
+  ]
+}

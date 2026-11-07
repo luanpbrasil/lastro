@@ -13,3 +13,4 @@ spend.csv
 .chrome-profile/
 .cache/
 fixtures/transcripts/
+extension/dist-demo/
