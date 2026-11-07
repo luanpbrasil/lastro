@@ -47,12 +47,18 @@ a { color: #2B55D6; }
 ul { margin: 0; padding-left: 18px; font-size: 13px; }
 svg.spark { width: 100%; height: 64px; display: block; }
 .list { padding: 8px 0; }
-.list h3 { margin: 0; padding: 6px 16px 8px; font: 600 13px/1.3 "IBM Plex Sans", -apple-system, Arial, sans-serif; display: flex; justify-content: space-between; align-items: center; }
-.item { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 40px 76px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 8px 16px; cursor: pointer; width: 100%; }
+.list h3 { position: sticky; top: 0; background: #fff; z-index: 1; margin: 0; padding: 6px 16px 8px; font: 600 13px/1.3 "IBM Plex Sans", -apple-system, Arial, sans-serif; display: flex; justify-content: space-between; align-items: center; }
+.item { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 52px 76px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 8px 16px; cursor: pointer; width: 100%; }
 .item:hover, .item:focus-visible { background: #F4F5F7; }
 .item .t { font: 12px ui-monospace, Menlo, monospace; color: #5A6378; }
 .item .badge { justify-self: start; }
-.item .s { font-size: 13px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.item .s { display: grid; gap: 2px; min-width: 0; }
+.item .p { font-size: 13px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.item .w { font-size: 11.5px; color: #5A6378; }
+.item.ahead .p { color: #5A6378; }
+.item.ahead .t { color: #2B55D6; }
+.now { display: flex; align-items: center; gap: 8px; padding: 4px 16px; font: 11px ui-monospace, Menlo, monospace; color: #A3261B; letter-spacing: .06em; }
+.now::after { content: ""; flex: 1; border-top: 1px solid #F0B7B1; }
 .empty { padding: 8px 16px 12px; color: #5A6378; font-size: 13px; }
 .dbg { font: 11px ui-monospace, Menlo, monospace; color: #E6E9F2; background: rgba(16,22,42,.85); padding: 4px 8px; border-radius: 6px; }
 .btn { all: unset; font: 12px/1 ui-monospace, Menlo, monospace; background: #FFD23F; color: #16203A; border-radius: 99px; padding: 7px 11px; cursor: pointer; }
@@ -104,10 +110,17 @@ export function sparkline(points: Point[], mark: Point | undefined, label: (p: P
   return s;
 }
 
+/** "O falante afirma que o BC…" → "O BC…": the list has no room for the lead-in. */
+function shortParaphrase(p: string): string {
+  const t = p.replace(/^(o|a) (falante|palestrante|entrevistad[oa]|autor[a]?)\s+(afirma|diz|argumenta|sugere|defende|explica|critica|aponta|acredita|observa|propõe)\s+(que\s+)?/i, "");
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 export type PillState = "on" | "paused" | "off";
 export interface ListItem {
   card: Card;
-  mentions: number;
+  /** still ahead of the playhead: clicking jumps there */
+  ahead: boolean;
 }
 
 export class Overlay {
@@ -199,32 +212,48 @@ export class Overlay {
     else this.onOpenList();
   }
 
-  /** "Ideias até agora": every idea that has appeared in the video so far, newest first. */
-  showList(items: ListItem[], total: number, onPick: (c: Card) => void): void {
+  /**
+   * Every card of the video in time order, with an "agora" marker at the playhead.
+   * Cards already passed open in place; cards ahead jump the video there.
+   */
+  showList(items: ListItem[], nowMs: number, analysing: boolean, onPick: (c: Card) => void): void {
     this.mode = "list";
     this.chip.hidden = true;
     const panel = el("div", "panel list");
     const h = el("h3");
-    h.append(el("span", "", `Ideias até agora (${items.length})`));
+    const passed = items.filter((i) => !i.ahead).length;
+    h.append(el("span", "", `Ideias neste vídeo (${items.length}) · ${passed} até agora`));
     const x = el("button", "x", "×");
     x.title = "Fechar";
     x.onclick = () => this.hide();
     h.append(x);
     panel.append(h);
-    if (!items.length) panel.append(el("div", "empty", "Nenhuma ideia apareceu ainda neste vídeo."));
-    for (const it of [...items].reverse()) {
-      const b = el("button", "item");
+    if (!items.length) panel.append(el("div", "empty", analysing ? "Analisando o vídeo…" : "Nenhuma ideia encontrada neste vídeo."));
+    let marker: HTMLElement | null = null;
+    const addMarker = () => {
+      marker = el("div", "now", `AGORA · ${fmtTime(nowMs)}`);
+      panel.append(marker);
+    };
+    for (const it of items) {
+      if (it.ahead && !marker) addMarker();
+      const b = el("button", `item${it.ahead ? " ahead" : ""}`);
+      b.title = it.ahead ? `Pular para ${fmtTime(it.card.startMs)}` : "Abrir o cartão";
       const v = stanceView(it.card);
       const what = v.lead
         ? `${v.lead.role === "contradicts" ? "Vai contra" : v.lead.role === "echoes" ? "Lembra" : "Apoia-se em"} ${v.lead.node.name}`
-        : it.card.paraphrase;
-      b.append(el("span", "t", fmtTime(it.card.startMs)), el("span", `badge ${it.card.kind}`, KIND_LABEL[it.card.kind]), el("span", "s", `${what}${it.mentions > 1 ? ` · ${it.mentions}×` : ""}`));
+        : "";
+      const s = el("span", "s");
+      s.append(el("span", "p", shortParaphrase(it.card.paraphrase)));
+      if (what) s.append(el("span", "w", what));
+      b.append(el("span", "t", `${it.ahead ? "▶ " : ""}${fmtTime(it.card.startMs)}`), el("span", `badge ${it.card.kind}`, KIND_LABEL[it.card.kind]), s);
       b.onclick = () => onPick(it.card);
       panel.append(b);
     }
-    const later = total - items.length;
-    if (later > 0) panel.append(el("div", "empty", `Mais ${later} ${later === 1 ? "ideia aparece" : "ideias aparecem"} adiante no vídeo.`));
+    if (items.length && !marker) addMarker();
     this.slot.replaceChildren(panel);
+    // keep the playhead in view
+    const m = marker as HTMLElement | null;
+    if (m) panel.scrollTop += m.getBoundingClientRect().top - panel.getBoundingClientRect().top - panel.clientHeight / 2;
   }
 
   showCard(c: Card, opts: { mentions?: number; onBack?: () => void } = {}): void {
