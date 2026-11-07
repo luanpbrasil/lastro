@@ -1,0 +1,25 @@
+{
+  "name": "lastro",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Lastro: context cards for economics videos on YouTube (Hack Brasil 2026)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev:worker": "wrangler dev --port 8787",
+    "build:ext": "node extension/build.mjs",
+    "watch:ext": "node extension/build.mjs --watch",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p extension",
+    "kg:validate": "node --experimental-strip-types scripts/kg-validate.ts",
+    "analyze": "esbuild scripts/analyze.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/analyze.mjs && node .cache/analyze.mjs"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "@cloudflare/workers-types": "^5.20261107.1",
+    "@types/chrome": "^0.3.7",
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.158.0"
+  }
+}

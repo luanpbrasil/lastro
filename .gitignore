@@ -1,0 +1,15 @@
+# Local secrets (never commit)
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+
+node_modules/
+.wrangler/
+extension/dist/
+*.log
+.DS_Store
+spend.csv
+.chrome-profile/
+.cache/
+fixtures/transcripts/
