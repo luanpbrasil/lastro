@@ -135,6 +135,17 @@ Cloudflare Worker ── validates each card (quote located in the transcript, n
 | `data/classifier/` | classifier dataset: video ids, channel ids, split and labels only (titles, descriptions and captions stay local) |
 | `fixtures/streams/` | recorded Worker streams, for $0 UI work and evals |
 
+## Topic classifier
+
+Decides whether a video is about economia, politica or filosofia (or none). Only `economia` triggers an analysis for now; "Analisar este vídeo" overrides it.
+
+- Model: TF-IDF (word 1–2-grams + char 3–5-grams) + one logistic regression per topic, `shared/topics-model.json` (570 KB). The same tokenizer (`shared/topics.ts`) runs in training, the extension and the Worker; TS vs Python probabilities agree to 1e-15. Scoring takes 0.2 ms in the browser.
+- Data: 428 Brazilian videos from 66 channels (public RSS feeds), split by channel. Labels: Claude Haiku via the Batch API ($0.04), 150 reviewed by hand. Only video ids and labels are committed (`data/classifier/`).
+- Inputs today: title + description only. Captions were blocked by YouTube during collection.
+- Test (101 videos from 17 unseen channels, human labels): see `eval/classifier/final.md`. Economia recall is 0.85 at precision 0.60; the threshold choice is open.
+
+Retrain: `npm run topics:train`, then `npm run topics:parity`.
+
 ## Development
 
 ```bash
