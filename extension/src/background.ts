@@ -21,6 +21,38 @@ async function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
   return value;
 }
 
+/**
+ * On install or update (a dev reload counts as an update), YouTube tabs that are already open don't get the
+ * content scripts until they're reloaded: a judge who installs with YouTube open would see nothing.
+ * Inject them now, in the manifest's order: the page hook (MAIN world) first, then the content script.
+ * Both scripts skip themselves if a live copy is already in the tab. Tabs that can't be scripted are skipped quietly.
+ */
+chrome.runtime.onInstalled.addListener(() => {
+  void injectOpenTabs();
+});
+
+async function injectOpenTabs(): Promise<void> {
+  // @types/chrome lacks `world` on manifest content_scripts
+  const scripts = (chrome.runtime.getManifest().content_scripts ?? []) as { js?: string[]; world?: string }[];
+  const mainFiles = scripts.filter((c) => c.world === "MAIN").flatMap((c) => c.js ?? []);
+  const isolatedFiles = scripts.filter((c) => c.world !== "MAIN").flatMap((c) => c.js ?? []);
+  let tabs: chrome.tabs.Tab[] = [];
+  try {
+    tabs = await chrome.tabs.query({ url: "https://www.youtube.com/*" });
+  } catch {
+    return;
+  }
+  for (const tab of tabs) {
+    if (tab.id === undefined || tab.discarded) continue;
+    try {
+      if (mainFiles.length) await chrome.scripting.executeScript({ target: { tabId: tab.id }, world: "MAIN", files: mainFiles });
+      if (isolatedFiles.length) await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: isolatedFiles });
+    } catch {
+      /* discarded, crashed, or not scriptable: skip */
+    }
+  }
+}
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.type === "fact") {
     cached(`fact:${msg.indicator}:${msg.period ?? "now"}`, () => resolveFact(msg.indicator as Indicator, msg.period ?? null))

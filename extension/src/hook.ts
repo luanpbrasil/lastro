@@ -8,6 +8,13 @@
  *   transcript rows are passed on.
  */
 (() => {
+  // Injected again into open tabs on install/update (background.ts): skip if this version or newer already runs here.
+  // An older hook without this flag stays in place; its messages are duplicates the content script handles.
+  const HOOK_VERSION = 3;
+  const w = window as unknown as { __lastroHook?: number };
+  if ((w.__lastroHook ?? 0) >= HOOK_VERSION) return;
+  w.__lastroHook = HOOK_VERSION;
+
   const CAPTIONS = "__lastro_captions";
   const TRANSCRIPT = "__lastro_transcript";
   const kindOf = (url: string) =>

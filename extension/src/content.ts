@@ -22,7 +22,6 @@ type CaptionOutcome = { hit: CaptionHit } | { fail: CaptionFail } | { noTrack: t
 const captionsByVideo = new Map<string, CaptionHit>();
 const captionFails = new Map<string, CaptionFail>();
 const captionListeners = new Set<(v: string) => void>();
-window.addEventListener("message", onCaptionMessage);
 function onCaptionMessage(e: MessageEvent): void {
   if (e.source !== window) return;
   if (e.data?.__lastro_transcript) return onTranscriptResponse(Number(e.data.status), String(e.data.body ?? ""));
@@ -61,7 +60,6 @@ function onCaptionMessage(e: MessageEvent): void {
 type PlayerMeta = { title: string; description: string; from: string };
 const META_REPLY_MS = 4_000; // the hook waits up to 3 s for a matching response
 const metaWaiters = new Map<string, (m: PlayerMeta | null) => void>();
-window.addEventListener("message", onMetaMessage);
 function onMetaMessage(e: MessageEvent): void {
   if (e.source !== window || !e.data?.__lastro_meta) return;
   const done = metaWaiters.get(String(e.data.videoId));
@@ -92,7 +90,8 @@ function shutdown(): void {
   window.removeEventListener("message", onCaptionMessage);
   window.removeEventListener("message", onMetaMessage);
   document.removeEventListener("yt-navigate-finish", onNavigate);
-  overlay.destroy();
+  document.removeEventListener("lastro:takeover", onTakeover);
+  overlay?.destroy();
 }
 function playerMeta(videoId: string): Promise<PlayerMeta | null> {
   return new Promise((resolve) => {
@@ -119,16 +118,12 @@ function forcePanel(): boolean {
 }
 
 const topics = new TopicScorer(topicModel as TopicModel);
-const overlay = new Overlay();
+let overlay!: Overlay; // created in boot()
 let state: PillState = "on";
 let session: VideoSession | null = null;
+/** True when background.ts injected this script into an already-open tab (install/update): the player loaded first. */
+let lateInject = false;
 
-overlay.onPauseClick = () => {
-  state = state === "on" ? "paused" : "on";
-  if (state === "paused") overlay.hide();
-  overlay.setPill(state, session?.status ?? "");
-};
-overlay.onOpenList = () => session?.openList();
 /** chrome.runtime.sendMessage, or shut down quietly if the extension was reloaded under us. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- same type as chrome.runtime.sendMessage's reply
 async function runtimeMessage(msg: unknown): Promise<any> {
@@ -144,22 +139,33 @@ async function runtimeMessage(msg: unknown): Promise<any> {
   }
 }
 
-overlay.loadFact = async (indicator, period) => {
-  const r = await runtimeMessage({ type: "fact", indicator, period });
-  if (!r?.ok) throw new Error(r?.error ?? "fact failed");
-  return r.fact;
-};
-overlay.loadSeries = async (indicator, from, to) => {
-  const r = await runtimeMessage({ type: "series", indicator, from, to });
-  if (!r?.ok) throw new Error(r?.error ?? "series failed");
-  return r.series;
-};
+function makeOverlay(): Overlay {
+  const o = new Overlay();
+  o.onPauseClick = () => {
+    state = state === "on" ? "paused" : "on";
+    if (state === "paused") o.hide();
+    o.setPill(state, session?.status ?? "");
+  };
+  o.onOpenList = () => session?.openList();
+  o.loadFact = async (indicator, period) => {
+    const r = await runtimeMessage({ type: "fact", indicator, period });
+    if (!r?.ok) throw new Error(r?.error ?? "fact failed");
+    return r.fact;
+  };
+  o.loadSeries = async (indicator, from, to) => {
+    const r = await runtimeMessage({ type: "series", indicator, from, to });
+    if (!r?.ok) throw new Error(r?.error ?? "series failed");
+    return r.series;
+  };
+  return o;
+}
 
 class VideoSession {
   readonly videoId: string;
   status = "";
   private timeline: CardTimeline;
   private alive = true;
+  private ccRefreshed = false;
   private meta: { title: string; desc: string } | null = null;
   readonly m: Metrics = {};
   private t0 = performance.now();
@@ -167,6 +173,7 @@ class VideoSession {
   constructor(videoId: string) {
     this.videoId = videoId;
     this.m.videoId = videoId;
+    this.m.lateInject = lateInject ? 1 : 0;
     overlay.hide();
     overlay.setQueued(0);
     overlay.setAction(null);
@@ -252,7 +259,8 @@ class VideoSession {
       captionListeners.add(listener);
       const poll = window.setInterval(() => {
         if (!this.alive) return done({ timeout: true });
-        const r = ensureCaptionsRequested();
+        const r = ensureCaptionsRequested(lateInject && !this.ccRefreshed);
+        if (r === "refreshed") this.ccRefreshed = true;
         this.m.ccButton = r;
         if (r === "ad") return;
         waited += 1000;
@@ -302,7 +310,9 @@ class VideoSession {
     this.m.panel = p.reason;
     this.flush();
     const noTrack = outcome !== null && "noTrack" in outcome && p.reason === "no button";
-    this.setStatus(noTrack ? "este vídeo não tem legendas" : "o YouTube não enviou as legendas");
+    // Started late (extension installed or updated with this tab open): the page's first caption response was
+    // missed, so a reload is the honest fix, not a claim about YouTube or the video.
+    this.setStatus(lateInject ? "recarregue a página" : noTrack ? "este vídeo não tem legendas" : "o YouTube não enviou as legendas");
     return null;
   }
 
@@ -469,12 +479,21 @@ function videoTitle(): string {
   return (h1?.textContent ?? document.title.replace(/ - YouTube$/, "")).trim();
 }
 
-/** The player only fetches captions when they are on. Turn them on once and hide them, so the view is unchanged. */
-function ensureCaptionsRequested(): string | null {
+/**
+ * The player only fetches captions when they are on. Turn them on once and hide them, so the view is unchanged.
+ * refresh: captions are already on but their response came before this script (late injection): turn them
+ * off and on again once, so the player asks again and the hook sees it.
+ */
+function ensureCaptionsRequested(refresh = false): string | null {
   if (document.querySelector(".ad-showing")) return "ad";
   const btn = document.querySelector<HTMLButtonElement>(".ytp-subtitles-button");
   if (!btn) return "no button";
-  if (btn.getAttribute("aria-pressed") === "true") return "already on";
+  if (btn.getAttribute("aria-pressed") === "true") {
+    if (!refresh) return "already on";
+    btn.click();
+    window.setTimeout(() => btn.getAttribute("aria-pressed") !== "true" && btn.click(), 300);
+    return "refreshed";
+  }
   if (btn.offsetParent === null || btn.getAttribute("aria-disabled") === "true") return "unavailable";
   btn.click();
   if (!document.getElementById("lastro-hide-cc")) {
@@ -510,6 +529,33 @@ function onNavigate(): void {
   if (!contextAlive()) return shutdown();
   setTimeout(start, 300);
 }
-document.addEventListener("yt-navigate-finish", onNavigate);
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(start, 300));
-else start();
+/** Another (newer) Lastro script took over this tab: stop this one. */
+function onTakeover(): void {
+  shutdown();
+}
+
+/**
+ * Start Lastro in this tab, once. The script also arrives late, from background.ts, into tabs that were open on
+ * install/update: skip if a live copy already runs here, and replace any copy cut off by an extension reload.
+ */
+function boot(): void {
+  const g = globalThis as unknown as { __lastroLive?: () => boolean };
+  try {
+    if (g.__lastroLive?.()) return; // a live copy already runs in this world
+  } catch {
+    /* an old copy's check threw: treat it as dead */
+  }
+  g.__lastroLive = contextAlive;
+  lateInject = document.readyState !== "loading"; // the manifest injects at document_start
+  document.dispatchEvent(new CustomEvent("lastro:takeover")); // a live older copy in another world stops
+  for (const old of document.querySelectorAll("lastro-overlay")) old.remove(); // copies cut off by a reload
+  document.addEventListener("lastro:takeover", onTakeover);
+  window.addEventListener("message", onCaptionMessage);
+  window.addEventListener("message", onMetaMessage);
+  document.addEventListener("yt-navigate-finish", onNavigate);
+  overlay = makeOverlay();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(start, 300));
+  else start();
+}
+
+boot();

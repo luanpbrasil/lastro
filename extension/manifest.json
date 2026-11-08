@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "description": "De onde vem cada ideia econômica do vídeo que você está vendo. Não diz quem está certo.",
   "permissions": [
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
