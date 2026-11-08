@@ -1,0 +1,63 @@
+{
+ "videoId": "TESTpolit01",
+ "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+ "transcript": "eval/transcripts/TESTpolit01.json",
+ "note": "Graph rule (2026-11-08): ideas map to traditions and institutions, never to parties or politicians. Partisan lines with no idea get no card; card paraphrases never name a party or politician.",
+ "forbidInParaphrase": [
+  "PT",
+  "Bolsonaro",
+  "Lula",
+  "Haddad"
+ ],
+ "cases": [
+  {
+   "name": "partisan attack with no idea: no card",
+   "quoteContains": "farinha do mesmo saco",
+   "expectNoCard": true
+  },
+  {
+   "name": "attack on a minister: no card",
+   "quoteContains": "nao sabe o que esta fazendo",
+   "expectNoCard": true
+  },
+  {
+   "name": "fiscal rule idea maps to an institution or school",
+   "quoteContains": "regra que limite o gasto",
+   "expectNodeAny": [
+    "i_regras_fiscais",
+    "s_dominancia",
+    "s_austeridade"
+   ],
+   "expectStartS": 18
+  },
+  {
+   "name": "own-currency idea maps to MMT or state money",
+   "quoteContains": "emite a propria moeda",
+   "expectNodeAny": [
+    "s_mmt",
+    "p_soberania_monetaria"
+   ],
+   "expectStartS": 24
+  },
+  {
+   "name": "minimal state idea maps to libertarianism",
+   "quoteContains": "estado deveria ser minimo",
+   "expectNodeAny": [
+    "f_libertarianismo",
+    "f_liberalismo_classico"
+   ]
+  },
+  {
+   "name": "difference principle maps to Rawls",
+   "quoteContains": "melhorar a vida de quem esta pior",
+   "expectNodeAny": [
+    "f_justica_rawls"
+   ]
+  },
+  {
+   "name": "call to subscribe: no card",
+   "quoteContains": "ative o sininho",
+   "expectNoCard": true
+  }
+ ]
+}

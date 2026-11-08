@@ -1,11 +1,14 @@
 import kgData from "./kg.json";
 
-export type NodeType = "school" | "thinker" | "episode";
+export type NodeType = "school" | "thinker" | "episode" | "institution";
+export type Domain = "economia" | "politica" | "filosofia";
 export type RefLevel = "intro" | "deep" | "opposing";
 
 export interface KgNode {
   id: string;
   type: NodeType;
+  /** Fields the node belongs to (first = main). */
+  domain: Domain[];
   name: string;
   aliases: string[];
   summary: string;
@@ -16,7 +19,11 @@ export interface KgNode {
 
 export interface KgEdge {
   from: string;
-  type: "opposes" | "derives_from" | "tested_in" | "proponent_of";
+  /**
+   * grounds: `from` is a philosophical or economic basis of `to`.
+   * justifies: `from` is used to argue for the institution or policy `to`.
+   */
+  type: "opposes" | "derives_from" | "tested_in" | "proponent_of" | "grounds" | "justifies";
   to: string;
   note?: string;
 }
@@ -47,6 +54,14 @@ export function opponents(id: string): { node: KgNode; note?: string }[] {
   return out;
 }
 
+/** Schools a thinker is a proponent of. */
+export function schoolsOf(id: string): KgNode[] {
+  return KG.edges
+    .filter((e) => e.type === "proponent_of" && e.from === id)
+    .map((e) => byId.get(e.to))
+    .filter((n): n is KgNode => !!n);
+}
+
 /** Episodes where `id` was tested. */
 export function testedIn(id: string): { node: KgNode; note?: string }[] {
   return KG.edges
@@ -59,7 +74,7 @@ export function testedIn(id: string): { node: KgNode; note?: string }[] {
 export function kgPromptText(): string {
   const lines: string[] = [];
   for (const n of KG.nodes) {
-    lines.push(`- ${n.id} [${n.type}] ${n.name}: ${n.summary}`);
+    lines.push(`- ${n.id} [${n.type} · ${n.domain.join("/")}] ${n.name}: ${n.summary}`);
     for (const c of n.claims) lines.push(`    · ${c}`);
   }
   lines.push("", "Relações:");

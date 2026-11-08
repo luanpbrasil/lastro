@@ -1,4 +1,4 @@
-import { node, opponents, testedIn, type KgNode } from "./kg";
+import { node, opponents, schoolsOf, testedIn, type KgNode } from "./kg";
 import type { Card, NodeRole } from "./schema";
 
 type Ref = KgNode["refs"][number];
@@ -9,6 +9,8 @@ type Ref = KgNode["refs"][number];
  *   its intro/deep refs explain the speaker's line; its "opposing" ref is the other side.
  * - contradicts: the speaker is against the node → the node itself is the view that disagrees;
  *   its intro/deep refs are the other side; its "opposing" ref (a critique of the node) is on the speaker's line.
+ * - A thinker with no `opposes` edge of its own borrows the opponents of the schools it is a proponent of.
+ * - An institution with no `opposes` edge has no "Quem discorda" (the card hides the section).
  */
 export interface StanceView {
   lead: { role: NodeRole; node: KgNode } | null;
@@ -45,7 +47,11 @@ export function stanceView(card: Pick<Card, "nodes">): StanceView {
   const proIds = new Set(pro.map((x) => x.node.id));
   const disagreeMap = new Map<string, { node: KgNode; note?: string }>();
   for (const c of con) disagreeMap.set(c.node.id, { node: c.node });
-  if (mainPro) for (const o of opponents(mainPro.node.id)) if (!proIds.has(o.node.id)) disagreeMap.set(o.node.id, o);
+  if (mainPro) {
+    let opp = opponents(mainPro.node.id);
+    if (!opp.length && mainPro.node.type === "thinker") opp = schoolsOf(mainPro.node.id).flatMap((s) => opponents(s.id));
+    for (const o of opp) if (!proIds.has(o.node.id) && o.node.id !== mainPro.node.id) disagreeMap.set(o.node.id, o);
+  }
 
   const speakerRefs: Ref[] = [];
   const opposingRefs: Ref[] = [];

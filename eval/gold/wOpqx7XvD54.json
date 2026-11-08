@@ -1,17 +1,28 @@
 {
   "videoId": "wOpqx7XvD54",
   "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros | Gaúcha Atualidade",
-  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run.",
+  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run. 2026-11-08 (p4): both cases accept two readings, after reading the transcript: at 0:09 the speaker calls the rate a consequence of the fiscal situation (fiscal dominance) more than an attack on inflation targeting; the 'artificial, Turkey' argument continues into the next sentence ('gera uma desconfiança do mercado'), and p4 quotes that one.",
   "cases": [
     {
-      "name": "speaker against the matched node: 'o juro é o principal problema'",
+      "name": "0:09 'o juro é o principal problema… consequência da situação fiscal'",
       "quoteContains": "principal problema da economia",
-      "expectNode": "s_novoconsenso",
-      "expectRole": "contradicts"
+      "expectAnyOf": [
+        {
+          "node": "s_novoconsenso",
+          "role": "contradicts"
+        },
+        {
+          "node": "s_dominancia",
+          "role": "relies_on"
+        }
+      ]
     },
     {
-      "name": "speaker with the consensus: forced cut called artificial, Turkey example",
-      "quoteContains": "considerada artificial pelos economistas",
+      "name": "forced cut called artificial (Turkey), market distrust: speaker with the consensus",
+      "quoteContains": [
+        "considerada artificial pelos economistas",
+        "desconfianca do mercado como um todo"
+      ],
       "expectNode": "s_novoconsenso",
       "expectRole": "relies_on"
     }

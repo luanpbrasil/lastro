@@ -9,6 +9,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { TranscriptIndex } from "../shared/locate";
 import type { Card, NodeRole, Segment, StreamEvent } from "../shared/schema";
 import { stanceView } from "../shared/stance";
+import { KG, node, opponents, schoolsOf } from "../shared/kg";
 import { looseNorm } from "../shared/transcript";
 
 interface StanceCase {
@@ -17,6 +18,8 @@ interface StanceCase {
   expect: {
     lead?: { id: string; role: NodeRole };
     disagreeIncludes?: string[];
+    /** true: no "Quem discorda" at all (e.g. an institution with no opposes edge). */
+    disagreeEmpty?: boolean;
     disagreeExcludes?: string[];
     readOpposingIncludes?: string[];
     readOpposingExcludes?: string[];
@@ -47,6 +50,7 @@ for (const c of stance) {
   if (e.lead) check(v.lead?.node.id === e.lead.id && v.lead?.role === e.lead.role, `lead ${v.lead?.node.id}/${v.lead?.role}, want ${e.lead.id}/${e.lead.role}`);
   for (const id of e.disagreeIncludes ?? []) check(dis.includes(id), `disagree should include ${id} (got ${dis.join(",")})`);
   for (const id of e.disagreeExcludes ?? []) check(!dis.includes(id), `disagree should exclude ${id} (got ${dis.join(",")})`);
+  if (e.disagreeEmpty) check(dis.length === 0, `disagree should be empty (got ${dis.join(",")})`);
   for (const t of e.readOpposingIncludes ?? []) check(opp.includes(t), `opposing reading should include "${t}" (got ${opp})`);
   for (const t of e.readOpposingExcludes ?? []) check(!opp.includes(t), `opposing reading should exclude "${t}" (got ${opp})`);
   for (const t of e.readSpeakerIncludes ?? []) check(spk.includes(t), `speaker reading should include "${t}" (got ${spk})`);
@@ -74,15 +78,35 @@ for (const f of readdirSync("eval/gold").filter((x) => x.endsWith(".json"))) {
     ? { segs: JSON.parse(readFileSync(gold.transcript, "utf8")).segments as Segment[] }
     : null;
   const locator = index ? new TranscriptIndex(index.segs) : null;
+  // Graph rule: card text never names a party or politician (only traditions and institutions).
+  for (const w of (gold.forbidInParaphrase ?? []) as string[]) {
+    const bad = cards.filter((c) => ` ${looseNorm(c.paraphrase)} `.includes(` ${looseNorm(w)} `));
+    check(bad.length === 0, `paraphrase names "${w}": ${bad.map((c) => c.paraphrase).join(" | ")}`);
+  }
   for (const g of gold.cases) {
     const before = fail;
-    const card = cards.find((c) => looseNorm(c.quote).includes(looseNorm(g.quoteContains)));
+    const quotes: string[] = Array.isArray(g.quoteContains) ? g.quoteContains : [g.quoteContains];
+    const card = cards.find((c) => quotes.some((q) => looseNorm(c.quote).includes(looseNorm(q))));
+    if (g.expectNoCard) {
+      check(!card, `there should be no card quoting "${g.quoteContains}" (got: ${card?.paraphrase})`);
+      console.log(`  ${fail === before ? "✓" : "✗"} ${gold.videoId}: ${g.name}`);
+      continue;
+    }
     check(!!card, `no card quoting "${g.quoteContains}"`);
     if (card) {
       if (g.expectNode) {
         const n = card.nodes.find((x) => x.id === g.expectNode);
         check(!!n, `card should link ${g.expectNode} (got ${card.nodes.map((x) => x.id).join(",")})`);
         if (n && g.expectRole) check(n.role === g.expectRole, `${g.expectNode} role ${n.role}, want ${g.expectRole}`);
+      }
+      if (g.expectAnyOf) {
+        // Several readings are acceptable: at least one {node, role} pair must be on the card.
+        const ok = (g.expectAnyOf as { node: string; role: string }[]).some((x) => card.nodes.some((n) => n.id === x.node && n.role === x.role));
+        check(ok, `card should have one of ${g.expectAnyOf.map((x: { node: string; role: string }) => `${x.node}:${x.role}`).join(" / ")} (got ${card.nodes.map((n) => `${n.id}:${n.role}`).join(",")})`);
+      }
+      if (g.expectNodeAny) {
+        const ids = card.nodes.map((x) => x.id);
+        check((g.expectNodeAny as string[]).some((id) => ids.includes(id)), `card should link one of ${g.expectNodeAny.join(",")} (got ${ids.join(",")})`);
       }
       if (g.expectIndicator) check(card.indicator === g.expectIndicator, `indicator ${card.indicator}, want ${g.expectIndicator}`);
       if ("expectClaimed" in g) check(card.claimed_value === g.expectClaimed, `claimed ${card.claimed_value}, want ${g.expectClaimed}`);
@@ -95,6 +119,23 @@ for (const f of readdirSync("eval/gold").filter((x) => x.endsWith(".json"))) {
     }
     console.log(`  ${fail === before ? "✓" : "✗"} ${gold.videoId}: ${g.name}`);
   }
+}
+
+console.log("\n3. Graph rules");
+{
+  const before = fail;
+  const DOMAINS = ["economia", "politica", "filosofia"];
+  // Parties and active politicians must never be nodes or aliases: the graph maps ideas, not people in office.
+  const FORBIDDEN = ["PT", "PL", "PSDB", "MDB", "PSOL", "Novo", "União Brasil", "Republicanos", "Lula", "Bolsonaro", "Haddad", "Tarcísio", "Alckmin", "Dilma", "Ciro Gomes", "Marina Silva", "Boulos", "Moro", "Lira", "Pacheco", "Motta", "Alcolumbre"];
+  const forb = new Set(FORBIDDEN.map(looseNorm));
+  for (const n of KG.nodes) {
+    check(Array.isArray(n.domain) && n.domain.length > 0 && n.domain.every((d) => DOMAINS.includes(d)), `${n.id}: domain ${JSON.stringify(n.domain)}`);
+    for (const a of [n.name, ...n.aliases]) check(!forb.has(looseNorm(a)), `${n.id}: alias "${a}" names a party or politician`);
+    if (n.type === "school") check(opponents(n.id).length > 0, `${n.id}: school with no opposes edge (empty "Quem discorda")`);
+    if (n.type === "thinker") check(opponents(n.id).length > 0 || schoolsOf(n.id).some((s) => opponents(s.id).length > 0), `${n.id}: thinker with no opponent, directly or via its schools`);
+  }
+  for (const e of KG.edges) check(!!node(e.from) && !!node(e.to), `edge ${e.from} ${e.type} ${e.to}: unknown node`);
+  console.log(`  ${fail === before ? "✓" : "✗"} ${KG.nodes.length} nodes, ${KG.edges.length} edges: domains, opponents, no parties or politicians`);
 }
 
 console.log(`\n${pass} checks passed, ${fail} failed`);

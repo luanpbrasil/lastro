@@ -2,7 +2,8 @@
  * Send a saved transcript to the Worker and print the NDJSON stream with client-side timings.
  * Records the stream to fixtures/streams/<videoId>.ndjson for $0 replay in UI work.
  *
- *   npm run analyze -- fixtures/transcripts/<videoId>.json [--title "..."] [--nocache] [--base http://localhost:8787]
+ *   npm run analyze -- fixtures/transcripts/<videoId>.json [--title "..."] [--nocache] [--force] [--base http://localhost:8787]
+ *   --force: same as the viewer pressing "Analisar este vídeo" (skips the topic check; own daily cap)
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { Segment, StreamEvent } from "../shared/schema";
@@ -17,6 +18,7 @@ const opt = (name: string) => {
 };
 const base = opt("base") ?? "http://localhost:8787";
 const nocache = args.includes("--nocache");
+const force = args.includes("--force");
 
 const { videoId, segments, title: savedTitle } = JSON.parse(readFileSync(file, "utf8")) as {
   videoId: string;
@@ -30,7 +32,7 @@ const t0 = performance.now();
 const res = await fetch(`${base}/analyze${nocache ? "?nocache=1" : ""}`, {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({ videoId, title, hash, segments }),
+  body: JSON.stringify({ videoId, title, hash, segments, force }),
 });
 if (!res.ok || !res.body) {
   console.error(res.status, await res.text());

@@ -158,4 +158,4 @@ npm run facts   # hits every official data source once (free APIs)
 
 ## Status
 
-Prototype (2026-11-07): 12-node graph; theory, forecast and fact cards; episode charts; "Ideias neste vídeo" list with expandable rows and jump. Measured on a 5-min transcript: first card 2.1 s after the request, full analysis 7.6 s, $0.0016 per uncached video (Claude Haiku 5.5). Runs locally; no hosted Worker yet.
+Prototype (2026-11-08): 22-node graph (12 economics + 10 politics/philosophy bridge nodes; ideas map to traditions and institutions, never to parties or politicians); theory, forecast and fact cards; episode charts; "Ideias neste vídeo" list with expandable rows and jump. Measured on a 5-min transcript: first card 2.1 s after the request, full analysis 7.6 s, $0.0016 per uncached video (Claude Haiku 5.5). Runs locally; no hosted Worker yet.

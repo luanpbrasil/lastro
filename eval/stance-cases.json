@@ -3,53 +3,314 @@
   "cases": [
     {
       "name": "speaker against novo consenso (Gaúcha 0:09, reported by Luan 2026-11-07)",
-      "nodes": [{ "id": "s_novoconsenso", "role": "contradicts" }],
+      "nodes": [
+        {
+          "id": "s_novoconsenso",
+          "role": "contradicts"
+        }
+      ],
       "expect": {
-        "lead": { "id": "s_novoconsenso", "role": "contradicts" },
-        "disagreeIncludes": ["s_novoconsenso"],
-        "disagreeExcludes": ["s_mmt"],
-        "readOpposingIncludes": ["Woodford", "Banco Central"],
-        "readOpposingExcludes": ["Lara Resende"],
-        "readSpeakerIncludes": ["Consenso e Contrassenso"],
-        "readSpeakerExcludes": ["Woodford"]
+        "lead": {
+          "id": "s_novoconsenso",
+          "role": "contradicts"
+        },
+        "disagreeIncludes": [
+          "s_novoconsenso"
+        ],
+        "disagreeExcludes": [
+          "s_mmt"
+        ],
+        "readOpposingIncludes": [
+          "Woodford",
+          "Banco Central"
+        ],
+        "readOpposingExcludes": [
+          "Lara Resende"
+        ],
+        "readSpeakerIncludes": [
+          "Consenso e Contrassenso"
+        ],
+        "readSpeakerExcludes": [
+          "Woodford"
+        ]
       }
     },
     {
       "name": "speaker relies on MMT",
-      "nodes": [{ "id": "s_mmt", "role": "relies_on" }],
+      "nodes": [
+        {
+          "id": "s_mmt",
+          "role": "relies_on"
+        }
+      ],
       "expect": {
-        "lead": { "id": "s_mmt", "role": "relies_on" },
-        "disagreeIncludes": ["s_novoconsenso", "s_dominancia"],
-        "disagreeExcludes": ["s_mmt"],
-        "readOpposingIncludes": ["Mankiw"],
-        "readSpeakerIncludes": ["Kelton"],
-        "readSpeakerExcludes": ["Mankiw"]
+        "lead": {
+          "id": "s_mmt",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "s_novoconsenso",
+          "s_dominancia"
+        ],
+        "disagreeExcludes": [
+          "s_mmt"
+        ],
+        "readOpposingIncludes": [
+          "Mankiw"
+        ],
+        "readSpeakerIncludes": [
+          "Kelton"
+        ],
+        "readSpeakerExcludes": [
+          "Mankiw"
+        ]
       }
     },
     {
       "name": "echoes behaves like relies_on",
-      "nodes": [{ "id": "s_keynes", "role": "echoes" }],
+      "nodes": [
+        {
+          "id": "s_keynes",
+          "role": "echoes"
+        }
+      ],
       "expect": {
-        "lead": { "id": "s_keynes", "role": "echoes" },
-        "disagreeIncludes": ["s_austeridade", "s_monetarismo"],
-        "disagreeExcludes": ["s_keynes"],
-        "readOpposingIncludes": ["Friedman"],
-        "readSpeakerIncludes": ["Keynes"]
+        "lead": {
+          "id": "s_keynes",
+          "role": "echoes"
+        },
+        "disagreeIncludes": [
+          "s_austeridade",
+          "s_monetarismo"
+        ],
+        "disagreeExcludes": [
+          "s_keynes"
+        ],
+        "readOpposingIncludes": [
+          "Friedman"
+        ],
+        "readSpeakerIncludes": [
+          "Keynes"
+        ]
       }
     },
     {
       "name": "mixed: relies on dominância fiscal, against MMT",
       "nodes": [
-        { "id": "s_dominancia", "role": "relies_on" },
-        { "id": "s_mmt", "role": "contradicts" }
+        {
+          "id": "s_dominancia",
+          "role": "relies_on"
+        },
+        {
+          "id": "s_mmt",
+          "role": "contradicts"
+        }
       ],
       "expect": {
-        "lead": { "id": "s_dominancia", "role": "relies_on" },
-        "disagreeIncludes": ["s_mmt"],
-        "disagreeExcludes": ["s_dominancia"],
-        "readOpposingIncludes": ["Kelton"],
-        "readSpeakerIncludes": ["Blanchard"],
-        "readSpeakerExcludes": ["Kelton"]
+        "lead": {
+          "id": "s_dominancia",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "s_mmt"
+        ],
+        "disagreeExcludes": [
+          "s_dominancia"
+        ],
+        "readOpposingIncludes": [
+          "Kelton"
+        ],
+        "readSpeakerIncludes": [
+          "Blanchard"
+        ],
+        "readSpeakerExcludes": [
+          "Kelton"
+        ]
+      }
+    },
+    {
+      "name": "speaker relies on social democracy (bridge node)",
+      "nodes": [
+        {
+          "id": "p_socialdemocracia",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "p_socialdemocracia",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_libertarianismo"
+        ],
+        "disagreeExcludes": [
+          "p_socialdemocracia"
+        ],
+        "readSpeakerIncludes": [
+          "Judt"
+        ],
+        "readOpposingIncludes": [
+          "Hayek"
+        ]
+      }
+    },
+    {
+      "name": "speaker against classical liberalism",
+      "nodes": [
+        {
+          "id": "f_liberalismo_classico",
+          "role": "contradicts"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "f_liberalismo_classico",
+          "role": "contradicts"
+        },
+        "disagreeIncludes": [
+          "f_liberalismo_classico"
+        ],
+        "readOpposingIncludes": [
+          "Riqueza das Nações"
+        ],
+        "readSpeakerIncludes": [
+          "Polanyi"
+        ],
+        "readSpeakerExcludes": [
+          "Riqueza das Nações"
+        ]
+      }
+    },
+    {
+      "name": "Rawls vs Nozick both ways",
+      "nodes": [
+        {
+          "id": "f_justica_rawls",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "f_justica_rawls",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_libertarianismo"
+        ],
+        "readOpposingIncludes": [
+          "Nozick"
+        ]
+      }
+    },
+    {
+      "name": "thinker without own opposes edge borrows its school's opponents (Furtado → desenvolvimentismo)",
+      "nodes": [
+        {
+          "id": "t_furtado",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "t_furtado",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_liberalismo_classico"
+        ],
+        "disagreeExcludes": [
+          "t_furtado",
+          "p_desenvolvimentismo"
+        ]
+      }
+    },
+    {
+      "name": "Hayek: Keynes and state money disagree",
+      "nodes": [
+        {
+          "id": "t_hayek",
+          "role": "echoes"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "t_hayek",
+          "role": "echoes"
+        },
+        "disagreeIncludes": [
+          "s_keynes",
+          "p_soberania_monetaria"
+        ],
+        "disagreeExcludes": [
+          "t_hayek"
+        ]
+      }
+    },
+    {
+      "name": "institution with no opposes edge: no 'Quem discorda' (BC autonomy)",
+      "nodes": [
+        {
+          "id": "i_bc_autonomo",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "i_bc_autonomo",
+          "role": "relies_on"
+        },
+        "disagreeEmpty": true,
+        "readSpeakerIncludes": [
+          "179/2021"
+        ]
+      }
+    },
+    {
+      "name": "school before tradition: developmentalism leads, Keynes not listed as disagreeing",
+      "nodes": [
+        {
+          "id": "p_desenvolvimentismo",
+          "role": "relies_on"
+        },
+        {
+          "id": "s_keynes",
+          "role": "echoes"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "p_desenvolvimentismo",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_liberalismo_classico"
+        ],
+        "disagreeExcludes": [
+          "s_keynes",
+          "p_desenvolvimentismo"
+        ]
+      }
+    },
+    {
+      "name": "fiscal rules relied on: MMT disagrees",
+      "nodes": [
+        {
+          "id": "i_regras_fiscais",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "i_regras_fiscais",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "s_mmt"
+        ],
+        "readOpposingIncludes": [
+          "Kelton"
+        ]
       }
     }
   ]

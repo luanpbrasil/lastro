@@ -1,202 +1,909 @@
 {
-  "version": "0.1.0",
-  "note": "Prototype seed: 12 of the 25 MVP nodes (BUILD_PLAN rev 3, section 2.0). References are titles from memory and still need a human check before they ship.",
-  "nodes": [
+ "version": "0.3",
+ "note": "22 nodes: 12 economics seed + 10 politics/philosophy bridge nodes (approved by Luan 2026-11-08). Every node has a domain. References are titles from memory and still need a human check before they ship. The graph maps ideas to traditions and institutions only, never to parties or active politicians.",
+ "nodes": [
+  {
+   "id": "s_mmt",
+   "type": "school",
+   "name": "MMT (Teoria Monetária Moderna)",
+   "aliases": [
+    "MMT",
+    "teoria monetária moderna",
+    "modern monetary theory",
+    "estado não quebra",
+    "emite a própria moeda"
+   ],
+   "summary": "Quem emite a própria moeda não fica sem ela; o limite do gasto público é a inflação, não a solvência.",
+   "claims": [
+    "Um governo que emite a própria moeda não pode quebrar por falta dela.",
+    "O déficit público não precisa ser financiado antes do gasto.",
+    "O limite real ao gasto é a capacidade produtiva e a inflação."
+   ],
+   "refs": [
     {
-      "id": "s_mmt",
-      "type": "school",
-      "name": "MMT (Teoria Monetária Moderna)",
-      "aliases": ["MMT", "teoria monetária moderna", "modern monetary theory", "estado não quebra", "emite a própria moeda"],
-      "summary": "Quem emite a própria moeda não fica sem ela; o limite do gasto público é a inflação, não a solvência.",
-      "claims": [
-        "Um governo que emite a própria moeda não pode quebrar por falta dela.",
-        "O déficit público não precisa ser financiado antes do gasto.",
-        "O limite real ao gasto é a capacidade produtiva e a inflação."
-      ],
-      "refs": [
-        { "level": "intro", "title": "Stephanie Kelton, The Deficit Myth (2020)" },
-        { "level": "deep", "title": "L. Randall Wray, Modern Money Theory (2012)" },
-        { "level": "opposing", "title": "N. Gregory Mankiw, A Skeptic's Guide to Modern Monetary Theory (2020)" }
-      ]
+     "level": "intro",
+     "title": "Stephanie Kelton, The Deficit Myth (2020)"
     },
     {
-      "id": "s_novoconsenso",
-      "type": "school",
-      "name": "Novo consenso / metas de inflação",
-      "aliases": ["metas de inflação", "meta de inflação", "regime de metas", "Banco Central independente", "regra de Taylor", "autonomia do Banco Central"],
-      "summary": "Um banco central independente move a taxa de juros para levar a inflação à meta.",
-      "claims": [
-        "O banco central ancora a inflação com a taxa básica de juros.",
-        "Credibilidade e expectativas ancoradas reduzem o custo de controlar a inflação.",
-        "Cortar juros na marra, sem a inflação ceder, desancora as expectativas."
-      ],
-      "refs": [
-        { "level": "intro", "title": "Banco Central do Brasil, página 'Metas para a inflação'" },
-        { "level": "deep", "title": "Michael Woodford, Interest and Prices (2003)" },
-        { "level": "opposing", "title": "André Lara Resende, Consenso e Contrassenso (2020)" }
-      ]
+     "level": "deep",
+     "title": "L. Randall Wray, Modern Money Theory (2012)"
     },
     {
-      "id": "s_dominancia",
-      "type": "school",
-      "name": "Dominância fiscal",
-      "aliases": ["dominância fiscal", "aritmética monetarista desagradável", "dívida explosiva", "trajetória da dívida"],
-      "summary": "Com dívida alta, subir juros pode piorar a dívida e a inflação em vez de controlá-las.",
-      "claims": [
-        "Se a dívida pública é alta, a política monetária perde força.",
-        "Juros altos aumentam o custo da dívida e podem alimentar a inflação.",
-        "Sem ajuste fiscal crível, o banco central não controla a inflação sozinho."
-      ],
-      "refs": [
-        { "level": "intro", "title": "Sargent & Wallace, Some Unpleasant Monetarist Arithmetic (1981)" },
-        { "level": "deep", "title": "Olivier Blanchard, Fiscal Dominance and Inflation Targeting: Lessons from Brazil (2004)" },
-        { "level": "opposing", "title": "Stephanie Kelton, The Deficit Myth (2020)" }
-      ]
-    },
-    {
-      "id": "s_ftpl",
-      "type": "school",
-      "name": "Teoria fiscal do nível de preços",
-      "aliases": ["teoria fiscal do nível de preços", "FTPL", "âncora fiscal"],
-      "summary": "O nível de preços depende dos superávits fiscais esperados, não só da moeda e dos juros.",
-      "claims": [
-        "A inflação é ancorada pela política fiscal esperada.",
-        "Juros altos podem elevar a inflação se aumentarem o déficit.",
-        "Credibilidade fiscal é condição para a política monetária funcionar."
-      ],
-      "refs": [
-        { "level": "intro", "title": "John Cochrane, The Fiscal Theory of the Price Level (2023)" },
-        { "level": "deep", "title": "Christopher Sims, A simple model for study of the determination of the price level... (1994)" },
-        { "level": "opposing", "title": "Willem Buiter, The Fallacy of the Fiscal Theory of the Price Level (2002)" }
-      ]
-    },
-    {
-      "id": "s_keynes",
-      "type": "school",
-      "name": "Keynesianismo",
-      "aliases": ["Keynes", "keynesiano", "keynesiana", "demanda agregada", "estímulo fiscal", "gasto público para crescer"],
-      "summary": "No curto prazo, a demanda determina a produção; o gasto público pode cobrir falta de demanda.",
-      "claims": [
-        "Em recessão, cortar gastos aprofunda a queda da economia.",
-        "O gasto público pode estimular emprego e renda.",
-        "Juros baixos ajudam, mas podem não bastar numa crise."
-      ],
-      "refs": [
-        { "level": "intro", "title": "Robert Skidelsky, Keynes: A Very Short Introduction (2010)" },
-        { "level": "deep", "title": "J. M. Keynes, Teoria Geral do Emprego, do Juro e da Moeda (1936)" },
-        { "level": "opposing", "title": "Milton Friedman, The Role of Monetary Policy (1968)" }
-      ]
-    },
-    {
-      "id": "s_austeridade",
-      "type": "school",
-      "name": "Austeridade expansionista",
-      "aliases": ["austeridade", "ajuste fiscal", "corte de gastos", "contração fiscal expansionista", "responsabilidade fiscal"],
-      "summary": "Um ajuste fiscal crível pode aumentar o crescimento ao melhorar a confiança.",
-      "claims": [
-        "Cortar gastos de forma crível reduz juros e aumenta a confiança.",
-        "Ajustes pelo lado do gasto funcionam melhor que aumentos de imposto.",
-        "Dívida alta trava o crescimento."
-      ],
-      "refs": [
-        { "level": "intro", "title": "Alesina, Favero & Giavazzi, Austerity: When It Works and When It Doesn't (2019)" },
-        { "level": "deep", "title": "Alesina & Ardagna, Large Changes in Fiscal Policy (2010)" },
-        { "level": "opposing", "title": "Mark Blyth, Austeridade: a história de uma ideia perigosa (2013)" }
-      ]
-    },
-    {
-      "id": "s_monetarismo",
-      "type": "school",
-      "name": "Monetarismo",
-      "aliases": ["monetarismo", "monetarista", "Friedman", "quantidade de moeda", "imprimir dinheiro gera inflação"],
-      "summary": "A inflação é um fenômeno monetário; a moeda deve crescer por regras estáveis.",
-      "claims": [
-        "Inflação é sempre e em toda parte um fenômeno monetário.",
-        "Emitir moeda para pagar gastos gera inflação.",
-        "Regras estáveis são melhores que política discricionária."
-      ],
-      "refs": [
-        { "level": "intro", "title": "Milton & Rose Friedman, Livre para Escolher (1980)" },
-        { "level": "deep", "title": "Friedman & Schwartz, A Monetary History of the United States (1963)" },
-        { "level": "opposing", "title": "Nicholas Kaldor, The Scourge of Monetarism (1982)" }
-      ]
-    },
-    {
-      "id": "t_lararesende",
-      "type": "thinker",
-      "name": "André Lara Resende",
-      "aliases": ["Lara Resende", "André Lara Resende", "Lara Rezende"],
-      "summary": "Economista do Plano Real e da teoria da inflação inercial; hoje critica o consenso dos juros altos.",
-      "claims": [],
-      "refs": [
-        { "level": "intro", "title": "André Lara Resende, Consenso e Contrassenso (2020)" },
-        { "level": "deep", "title": "André Lara Resende, Juros, Moeda e Ortodoxia (2017)" },
-        { "level": "opposing", "title": "Olivier Blanchard (2004), sobre dominância fiscal no Brasil" }
-      ]
-    },
-    {
-      "id": "t_kelton",
-      "type": "thinker",
-      "name": "Stephanie Kelton",
-      "aliases": ["Kelton", "Stephanie Kelton"],
-      "summary": "Economista americana, principal divulgadora da MMT.",
-      "claims": [],
-      "refs": [
-        { "level": "intro", "title": "Stephanie Kelton, The Deficit Myth (2020)" },
-        { "level": "opposing", "title": "N. Gregory Mankiw (2020)" }
-      ]
-    },
-    {
-      "id": "e_cortes2012",
-      "type": "episode",
-      "name": "Cortes da Selic em 2011–13",
-      "aliases": ["2012", "nova matriz econômica", "Dilma", "Tombini", "Selic a 7,25%", "corte de juros de 2012"],
-      "summary": "O Banco Central cortou a Selic até 7,25% (out/2012) e voltou a subir em abril de 2013, com a inflação perto do teto da meta.",
-      "series": { "indicator": "selic_meta", "from": "2011-01-01", "to": "2014-12-31", "mark": "min" },
-      "claims": [],
-      "refs": [
-        { "level": "intro", "title": "Laura Carvalho, Valsa Brasileira (2018)" },
-        { "level": "deep", "title": "Fernando de Holanda Barbosa Filho, A crise econômica de 2014/2017, Estudos Avançados (2017)" }
-      ]
-    },
-    {
-      "id": "e_selic2",
-      "type": "episode",
-      "name": "Selic a 2% na pandemia (2020–21)",
-      "aliases": ["pandemia", "Selic a 2%", "2020", "juros mínimos"],
-      "summary": "A Selic chegou a 2% em 2020, com grande déficit público; a inflação subiu forte em 2021 e os juros voltaram a subir.",
-      "series": { "indicator": "selic_meta", "from": "2019-01-01", "to": "2022-12-31", "mark": "min" },
-      "claims": [],
-      "refs": [
-        { "level": "intro", "title": "Banco Central do Brasil, Relatório de Inflação (2021)" }
-      ]
-    },
-    {
-      "id": "e_crise2002",
-      "type": "episode",
-      "name": "Crise de confiança de 2002",
-      "aliases": ["2002", "crise de 2002", "risco Brasil", "eleição de 2002"],
-      "summary": "Antes da eleição de 2002, o dólar e o risco-país dispararam; Blanchard usa o caso como exemplo de dominância fiscal.",
-      "series": { "indicator": "cambio_usd", "from": "2001-01-01", "to": "2003-12-31", "mark": "max" },
-      "claims": [],
-      "refs": [
-        { "level": "deep", "title": "Olivier Blanchard (2004)" },
-        { "level": "deep", "title": "Giavazzi, Goldfajn & Herrera (orgs.), Inflation Targeting, Debt, and the Brazilian Experience (2005)" }
-      ]
+     "level": "opposing",
+     "title": "N. Gregory Mankiw, A Skeptic's Guide to Modern Monetary Theory (2020)"
     }
-  ],
-  "edges": [
-    { "from": "s_mmt", "type": "opposes", "to": "s_novoconsenso", "note": "Quem controla a inflação: o gasto público ou o banco central." },
-    { "from": "s_mmt", "type": "opposes", "to": "s_dominancia", "note": "Dívida alta na própria moeda pode forçar inflação?" },
-    { "from": "s_keynes", "type": "opposes", "to": "s_austeridade", "note": "Cortar gastos na recessão contrai ou expande a economia?" },
-    { "from": "s_monetarismo", "type": "opposes", "to": "s_keynes", "note": "Moeda ou gasto público como principal alavanca." },
-    { "from": "s_ftpl", "type": "opposes", "to": "s_monetarismo", "note": "Âncora fiscal ou monetária dos preços." },
-    { "from": "s_novoconsenso", "type": "derives_from", "to": "s_monetarismo" },
-    { "from": "s_dominancia", "type": "derives_from", "to": "s_monetarismo" },
-    { "from": "t_kelton", "type": "proponent_of", "to": "s_mmt" },
-    { "from": "t_lararesende", "type": "proponent_of", "to": "s_ftpl", "note": "Influência; conferir em Consenso e Contrassenso." },
-    { "from": "s_novoconsenso", "type": "tested_in", "to": "e_cortes2012", "note": "Citado como prova de que cortar juros na marra traz inflação." },
-    { "from": "s_mmt", "type": "tested_in", "to": "e_selic2", "note": "Juros baixos e déficit alto, depois inflação; os dois lados citam o episódio." },
-    { "from": "s_dominancia", "type": "tested_in", "to": "e_crise2002", "note": "O caso de Blanchard." }
-  ]
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "s_novoconsenso",
+   "type": "school",
+   "name": "Novo consenso / metas de inflação",
+   "aliases": [
+    "metas de inflação",
+    "meta de inflação",
+    "regime de metas",
+    "Banco Central independente",
+    "regra de Taylor",
+    "autonomia do Banco Central"
+   ],
+   "summary": "Um banco central independente move a taxa de juros para levar a inflação à meta.",
+   "claims": [
+    "O banco central ancora a inflação com a taxa básica de juros.",
+    "Credibilidade e expectativas ancoradas reduzem o custo de controlar a inflação.",
+    "Cortar juros na marra, sem a inflação ceder, desancora as expectativas."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Banco Central do Brasil, página 'Metas para a inflação'"
+    },
+    {
+     "level": "deep",
+     "title": "Michael Woodford, Interest and Prices (2003)"
+    },
+    {
+     "level": "opposing",
+     "title": "André Lara Resende, Consenso e Contrassenso (2020)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "s_dominancia",
+   "type": "school",
+   "name": "Dominância fiscal",
+   "aliases": [
+    "dominância fiscal",
+    "aritmética monetarista desagradável",
+    "dívida explosiva",
+    "trajetória da dívida"
+   ],
+   "summary": "Com dívida alta, subir juros pode piorar a dívida e a inflação em vez de controlá-las.",
+   "claims": [
+    "Se a dívida pública é alta, a política monetária perde força.",
+    "Juros altos aumentam o custo da dívida e podem alimentar a inflação.",
+    "Sem ajuste fiscal crível, o banco central não controla a inflação sozinho."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Sargent & Wallace, Some Unpleasant Monetarist Arithmetic (1981)"
+    },
+    {
+     "level": "deep",
+     "title": "Olivier Blanchard, Fiscal Dominance and Inflation Targeting: Lessons from Brazil (2004)"
+    },
+    {
+     "level": "opposing",
+     "title": "Stephanie Kelton, The Deficit Myth (2020)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "s_ftpl",
+   "type": "school",
+   "name": "Teoria fiscal do nível de preços",
+   "aliases": [
+    "teoria fiscal do nível de preços",
+    "FTPL",
+    "âncora fiscal"
+   ],
+   "summary": "O nível de preços depende dos superávits fiscais esperados, não só da moeda e dos juros.",
+   "claims": [
+    "A inflação é ancorada pela política fiscal esperada.",
+    "Juros altos podem elevar a inflação se aumentarem o déficit.",
+    "Credibilidade fiscal é condição para a política monetária funcionar."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "John Cochrane, The Fiscal Theory of the Price Level (2023)"
+    },
+    {
+     "level": "deep",
+     "title": "Christopher Sims, A simple model for study of the determination of the price level... (1994)"
+    },
+    {
+     "level": "opposing",
+     "title": "Willem Buiter, The Fallacy of the Fiscal Theory of the Price Level (2002)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "s_keynes",
+   "type": "school",
+   "name": "Keynesianismo",
+   "aliases": [
+    "Keynes",
+    "keynesiano",
+    "keynesiana",
+    "demanda agregada",
+    "estímulo fiscal",
+    "gasto público para crescer"
+   ],
+   "summary": "No curto prazo, a demanda determina a produção; o gasto público pode cobrir falta de demanda.",
+   "claims": [
+    "Em recessão, cortar gastos aprofunda a queda da economia.",
+    "O gasto público pode estimular emprego e renda.",
+    "Juros baixos ajudam, mas podem não bastar numa crise."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Robert Skidelsky, Keynes: A Very Short Introduction (2010)"
+    },
+    {
+     "level": "deep",
+     "title": "J. M. Keynes, Teoria Geral do Emprego, do Juro e da Moeda (1936)"
+    },
+    {
+     "level": "opposing",
+     "title": "Milton Friedman, The Role of Monetary Policy (1968)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "s_austeridade",
+   "type": "school",
+   "name": "Austeridade expansionista",
+   "aliases": [
+    "austeridade",
+    "ajuste fiscal",
+    "corte de gastos",
+    "contração fiscal expansionista",
+    "responsabilidade fiscal"
+   ],
+   "summary": "Um ajuste fiscal crível pode aumentar o crescimento ao melhorar a confiança.",
+   "claims": [
+    "Cortar gastos de forma crível reduz juros e aumenta a confiança.",
+    "Ajustes pelo lado do gasto funcionam melhor que aumentos de imposto.",
+    "Dívida alta trava o crescimento."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Alesina, Favero & Giavazzi, Austerity: When It Works and When It Doesn't (2019)"
+    },
+    {
+     "level": "deep",
+     "title": "Alesina & Ardagna, Large Changes in Fiscal Policy (2010)"
+    },
+    {
+     "level": "opposing",
+     "title": "Mark Blyth, Austeridade: a história de uma ideia perigosa (2013)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "s_monetarismo",
+   "type": "school",
+   "name": "Monetarismo",
+   "aliases": [
+    "monetarismo",
+    "monetarista",
+    "Friedman",
+    "quantidade de moeda",
+    "imprimir dinheiro gera inflação"
+   ],
+   "summary": "A inflação é um fenômeno monetário; a moeda deve crescer por regras estáveis.",
+   "claims": [
+    "Inflação é sempre e em toda parte um fenômeno monetário.",
+    "Emitir moeda para pagar gastos gera inflação.",
+    "Regras estáveis são melhores que política discricionária."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Milton & Rose Friedman, Livre para Escolher (1980)"
+    },
+    {
+     "level": "deep",
+     "title": "Friedman & Schwartz, A Monetary History of the United States (1963)"
+    },
+    {
+     "level": "opposing",
+     "title": "Nicholas Kaldor, The Scourge of Monetarism (1982)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "t_lararesende",
+   "type": "thinker",
+   "name": "André Lara Resende",
+   "aliases": [
+    "Lara Resende",
+    "André Lara Resende",
+    "Lara Rezende"
+   ],
+   "summary": "Economista do Plano Real e da teoria da inflação inercial; hoje critica o consenso dos juros altos.",
+   "claims": [],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "André Lara Resende, Consenso e Contrassenso (2020)"
+    },
+    {
+     "level": "deep",
+     "title": "André Lara Resende, Juros, Moeda e Ortodoxia (2017)"
+    },
+    {
+     "level": "opposing",
+     "title": "Olivier Blanchard (2004), sobre dominância fiscal no Brasil"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "t_kelton",
+   "type": "thinker",
+   "name": "Stephanie Kelton",
+   "aliases": [
+    "Kelton",
+    "Stephanie Kelton"
+   ],
+   "summary": "Economista americana, principal divulgadora da MMT.",
+   "claims": [],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Stephanie Kelton, The Deficit Myth (2020)"
+    },
+    {
+     "level": "opposing",
+     "title": "N. Gregory Mankiw (2020)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "e_cortes2012",
+   "type": "episode",
+   "name": "Cortes da Selic em 2011–13",
+   "aliases": [
+    "2012",
+    "nova matriz econômica",
+    "Tombini",
+    "Selic a 7,25%",
+    "corte de juros de 2012"
+   ],
+   "summary": "O Banco Central cortou a Selic até 7,25% (out/2012) e voltou a subir em abril de 2013, com a inflação perto do teto da meta.",
+   "series": {
+    "indicator": "selic_meta",
+    "from": "2011-01-01",
+    "to": "2014-12-31",
+    "mark": "min"
+   },
+   "claims": [],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Laura Carvalho, Valsa Brasileira (2018)"
+    },
+    {
+     "level": "deep",
+     "title": "Fernando de Holanda Barbosa Filho, A crise econômica de 2014/2017, Estudos Avançados (2017)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "e_selic2",
+   "type": "episode",
+   "name": "Selic a 2% na pandemia (2020–21)",
+   "aliases": [
+    "pandemia",
+    "Selic a 2%",
+    "2020",
+    "juros mínimos"
+   ],
+   "summary": "A Selic chegou a 2% em 2020, com grande déficit público; a inflação subiu forte em 2021 e os juros voltaram a subir.",
+   "series": {
+    "indicator": "selic_meta",
+    "from": "2019-01-01",
+    "to": "2022-12-31",
+    "mark": "min"
+   },
+   "claims": [],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Banco Central do Brasil, Relatório de Inflação (2021)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "e_crise2002",
+   "type": "episode",
+   "name": "Crise de confiança de 2002",
+   "aliases": [
+    "2002",
+    "crise de 2002",
+    "risco Brasil",
+    "eleição de 2002"
+   ],
+   "summary": "Antes da eleição de 2002, o dólar e o risco-país dispararam; Blanchard usa o caso como exemplo de dominância fiscal.",
+   "series": {
+    "indicator": "cambio_usd",
+    "from": "2001-01-01",
+    "to": "2003-12-31",
+    "mark": "max"
+   },
+   "claims": [],
+   "refs": [
+    {
+     "level": "deep",
+     "title": "Olivier Blanchard (2004)"
+    },
+    {
+     "level": "deep",
+     "title": "Giavazzi, Goldfajn & Herrera (orgs.), Inflation Targeting, Debt, and the Brazilian Experience (2005)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "f_liberalismo_classico",
+   "type": "school",
+   "domain": [
+    "filosofia",
+    "politica"
+   ],
+   "name": "Liberalismo clássico",
+   "aliases": [
+    "liberalismo clássico",
+    "Adam Smith",
+    "Locke",
+    "mão invisível",
+    "Estado mínimo"
+   ],
+   "summary": "Liberdade individual, propriedade e mercado livre; o Estado protege direitos e contratos, mas não dirige a economia.",
+   "claims": [
+    "A liberdade econômica é parte da liberdade individual.",
+    "Mercados coordenam a economia melhor que o planejamento central.",
+    "O papel do Estado é garantir direitos, contratos e moeda estável."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Adam Smith, A Riqueza das Nações (1776)"
+    },
+    {
+     "level": "deep",
+     "title": "John Locke, Segundo Tratado sobre o Governo (1689)"
+    },
+    {
+     "level": "opposing",
+     "title": "Karl Polanyi, A Grande Transformação (1944)"
+    }
+   ]
+  },
+  {
+   "id": "t_hayek",
+   "type": "thinker",
+   "domain": [
+    "economia",
+    "filosofia"
+   ],
+   "name": "Friedrich Hayek",
+   "aliases": [
+    "Hayek",
+    "Friedrich Hayek",
+    "escola austríaca",
+    "ordem espontânea"
+   ],
+   "summary": "Economista e filósofo austríaco; defendeu que preços dispersam conhecimento que nenhum planejador tem, e debateu com Keynes nos anos 1930.",
+   "claims": [],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Friedrich Hayek, O Caminho da Servidão (1944)"
+    },
+    {
+     "level": "deep",
+     "title": "Friedrich Hayek, The Use of Knowledge in Society (1945)"
+    },
+    {
+     "level": "opposing",
+     "title": "John Maynard Keynes, Teoria Geral do Emprego, do Juro e da Moeda (1936)"
+    }
+   ]
+  },
+  {
+   "id": "f_libertarianismo",
+   "type": "school",
+   "domain": [
+    "filosofia",
+    "politica"
+   ],
+   "name": "Libertarianismo",
+   "aliases": [
+    "libertarianismo",
+    "libertário",
+    "Nozick",
+    "imposto é roubo",
+    "anarcocapitalismo"
+   ],
+   "summary": "Direitos individuais limitam o que o Estado pode fazer; redistribuir renda por imposto viola esses direitos.",
+   "claims": [
+    "Só o Estado mínimo (proteção, justiça, contratos) é justificável.",
+    "Tributar para redistribuir viola o direito de cada um sobre o que produz."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Robert Nozick, Anarquia, Estado e Utopia (1974)"
+    },
+    {
+     "level": "deep",
+     "title": "Murray Rothbard, A Ética da Liberdade (1982)"
+    },
+    {
+     "level": "opposing",
+     "title": "John Rawls, Uma Teoria da Justiça (1971)"
+    }
+   ]
+  },
+  {
+   "id": "f_justica_rawls",
+   "type": "school",
+   "domain": [
+    "filosofia",
+    "politica"
+   ],
+   "name": "Justiça como equidade (Rawls)",
+   "aliases": [
+    "Rawls",
+    "justiça como equidade",
+    "véu da ignorância",
+    "princípio da diferença",
+    "justiça distributiva"
+   ],
+   "summary": "Uma sociedade justa é a que escolheríamos sem saber nossa posição nela; desigualdades só se justificam se beneficiam os que estão pior.",
+   "claims": [
+    "Desigualdades só são justas se melhoram a situação dos mais desfavorecidos.",
+    "Instituições básicas devem ser julgadas por quem fica pior nelas."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "John Rawls, Uma Teoria da Justiça (1971)"
+    },
+    {
+     "level": "deep",
+     "title": "John Rawls, Justiça como Equidade: uma reformulação (2001)"
+    },
+    {
+     "level": "opposing",
+     "title": "Robert Nozick, Anarquia, Estado e Utopia (1974)"
+    }
+   ]
+  },
+  {
+   "id": "p_socialdemocracia",
+   "type": "school",
+   "domain": [
+    "politica",
+    "economia"
+   ],
+   "name": "Social-democracia / Estado de bem-estar",
+   "aliases": [
+    "social-democracia",
+    "estado de bem-estar",
+    "welfare state",
+    "proteção social",
+    "estado social"
+   ],
+   "summary": "Economia de mercado com Estado forte em saúde, educação, previdência e proteção ao trabalho, financiado por impostos progressivos.",
+   "claims": [
+    "O Estado deve garantir serviços e renda mínima a todos.",
+    "Impostos progressivos financiam a redução da desigualdade.",
+    "O gasto social sustenta a demanda e o emprego."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Tony Judt, O Mal Ronda a Terra (2010)"
+    },
+    {
+     "level": "deep",
+     "title": "Gøsta Esping-Andersen, The Three Worlds of Welfare Capitalism (1990)"
+    },
+    {
+     "level": "opposing",
+     "title": "Friedrich Hayek, O Caminho da Servidão (1944)"
+    }
+   ]
+  },
+  {
+   "id": "p_desenvolvimentismo",
+   "type": "school",
+   "domain": [
+    "politica",
+    "economia"
+   ],
+   "name": "Desenvolvimentismo (CEPAL)",
+   "aliases": [
+    "desenvolvimentismo",
+    "desenvolvimentista",
+    "CEPAL",
+    "industrialização",
+    "substituição de importações",
+    "nacional-desenvolvimentismo"
+   ],
+   "summary": "O Estado deve conduzir a industrialização para tirar o país do subdesenvolvimento; o mercado sozinho mantém a dependência de exportar produtos primários.",
+   "claims": [
+    "Países periféricos não se desenvolvem só pelo mercado.",
+    "O Estado deve planejar e financiar a industrialização.",
+    "Crédito público e juros baixos são instrumentos de desenvolvimento."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Celso Furtado, Formação Econômica do Brasil (1959)"
+    },
+    {
+     "level": "deep",
+     "title": "Ricardo Bielschowsky, Pensamento Econômico Brasileiro: o ciclo ideológico do desenvolvimentismo (1988)"
+    },
+    {
+     "level": "opposing",
+     "title": "Roberto Campos, A Lanterna na Popa (1994)"
+    }
+   ]
+  },
+  {
+   "id": "t_furtado",
+   "type": "thinker",
+   "domain": [
+    "economia"
+   ],
+   "name": "Celso Furtado",
+   "aliases": [
+    "Furtado",
+    "Celso Furtado"
+   ],
+   "summary": "Economista da CEPAL e da SUDENE; explicou o subdesenvolvimento brasileiro pela história e defendeu o planejamento estatal.",
+   "claims": [],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Celso Furtado, Formação Econômica do Brasil (1959)"
+    },
+    {
+     "level": "deep",
+     "title": "Celso Furtado, Desenvolvimento e Subdesenvolvimento (1961)"
+    },
+    {
+     "level": "opposing",
+     "title": "Roberto Campos, A Lanterna na Popa (1994)"
+    }
+   ]
+  },
+  {
+   "id": "p_soberania_monetaria",
+   "type": "school",
+   "domain": [
+    "politica",
+    "economia"
+   ],
+   "name": "Soberania monetária do Estado",
+   "aliases": [
+    "soberania monetária",
+    "moeda soberana",
+    "cartalismo",
+    "moeda estatal",
+    "teoria estatal da moeda"
+   ],
+   "summary": "A moeda é uma criação do Estado, que a aceita em impostos; quem emite moeda própria tem poder de gasto que não depende de mercados.",
+   "claims": [
+    "A moeda vale porque o Estado a exige em impostos.",
+    "Um Estado com moeda própria decide quanto gastar nessa moeda."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "L. Randall Wray, Understanding Modern Money (1998)"
+    },
+    {
+     "level": "deep",
+     "title": "Georg Friedrich Knapp, The State Theory of Money (1924)"
+    },
+    {
+     "level": "opposing",
+     "title": "Friedrich Hayek, Denationalisation of Money (1976)"
+    }
+   ]
+  },
+  {
+   "id": "i_bc_autonomo",
+   "type": "institution",
+   "domain": [
+    "politica",
+    "economia"
+   ],
+   "name": "Autonomia do Banco Central (LC 179/2021)",
+   "aliases": [
+    "autonomia do Banco Central",
+    "independência do Banco Central",
+    "BC autônomo",
+    "mandato do presidente do BC",
+    "LC 179"
+   ],
+   "summary": "Desde 2021 a diretoria do Banco Central tem mandatos fixos, não coincidentes com o do presidente da República, para conduzir os juros com foco na inflação.",
+   "claims": [
+    "Um banco central protegido de pressões políticas consegue inflação mais baixa.",
+    "Mandatos fixos tornam a política de juros mais previsível."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Lei Complementar nº 179/2021 (texto da lei)"
+    },
+    {
+     "level": "deep",
+     "title": "Alberto Alesina e Lawrence Summers, Central Bank Independence and Macroeconomic Performance (1993)"
+    },
+    {
+     "level": "opposing",
+     "title": "Paul Tucker, Unelected Power (2018)"
+    }
+   ]
+  },
+  {
+   "id": "i_regras_fiscais",
+   "type": "institution",
+   "domain": [
+    "politica",
+    "economia"
+   ],
+   "name": "Regras fiscais (LRF, teto, arcabouço)",
+   "aliases": [
+    "regra fiscal",
+    "Lei de Responsabilidade Fiscal",
+    "LRF",
+    "teto de gastos",
+    "arcabouço fiscal",
+    "meta de primário"
+   ],
+   "summary": "Leis que limitam gasto, dívida ou déficit: Lei de Responsabilidade Fiscal (2000), teto de gastos (2016) e arcabouço fiscal (2023).",
+   "claims": [
+    "Regras fixas dão credibilidade às contas públicas.",
+    "Limitar o gasto evita que a dívida cresça sem controle."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Lei Complementar nº 101/2000 (Lei de Responsabilidade Fiscal)"
+    },
+    {
+     "level": "deep",
+     "title": "Emenda Constitucional 95/2016 e Lei Complementar 200/2023 (textos legais)"
+    },
+    {
+     "level": "opposing",
+     "title": "Stephanie Kelton, The Deficit Myth (2020)"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "s_mmt",
+   "type": "opposes",
+   "to": "s_novoconsenso",
+   "note": "Quem controla a inflação: o gasto público ou o banco central."
+  },
+  {
+   "from": "s_mmt",
+   "type": "opposes",
+   "to": "s_dominancia",
+   "note": "Dívida alta na própria moeda pode forçar inflação?"
+  },
+  {
+   "from": "s_keynes",
+   "type": "opposes",
+   "to": "s_austeridade",
+   "note": "Cortar gastos na recessão contrai ou expande a economia?"
+  },
+  {
+   "from": "s_monetarismo",
+   "type": "opposes",
+   "to": "s_keynes",
+   "note": "Moeda ou gasto público como principal alavanca."
+  },
+  {
+   "from": "s_ftpl",
+   "type": "opposes",
+   "to": "s_monetarismo",
+   "note": "Âncora fiscal ou monetária dos preços."
+  },
+  {
+   "from": "s_novoconsenso",
+   "type": "derives_from",
+   "to": "s_monetarismo"
+  },
+  {
+   "from": "s_dominancia",
+   "type": "derives_from",
+   "to": "s_monetarismo"
+  },
+  {
+   "from": "t_kelton",
+   "type": "proponent_of",
+   "to": "s_mmt"
+  },
+  {
+   "from": "t_lararesende",
+   "type": "proponent_of",
+   "to": "s_ftpl",
+   "note": "Influência; conferir em Consenso e Contrassenso."
+  },
+  {
+   "from": "s_novoconsenso",
+   "type": "tested_in",
+   "to": "e_cortes2012",
+   "note": "Citado como prova de que cortar juros na marra traz inflação."
+  },
+  {
+   "from": "s_mmt",
+   "type": "tested_in",
+   "to": "e_selic2",
+   "note": "Juros baixos e déficit alto, depois inflação; os dois lados citam o episódio."
+  },
+  {
+   "from": "s_dominancia",
+   "type": "tested_in",
+   "to": "e_crise2002",
+   "note": "O caso de Blanchard."
+  },
+  {
+   "from": "f_liberalismo_classico",
+   "type": "grounds",
+   "to": "s_monetarismo",
+   "note": "Mercados livres e moeda estável como base do monetarismo."
+  },
+  {
+   "from": "t_hayek",
+   "type": "proponent_of",
+   "to": "f_liberalismo_classico"
+  },
+  {
+   "from": "t_hayek",
+   "type": "opposes",
+   "to": "s_keynes",
+   "note": "Debate Hayek x Keynes dos anos 1930: planejar a demanda ou deixar os preços coordenarem."
+  },
+  {
+   "from": "f_libertarianismo",
+   "type": "derives_from",
+   "to": "f_liberalismo_classico"
+  },
+  {
+   "from": "f_libertarianismo",
+   "type": "opposes",
+   "to": "f_justica_rawls",
+   "note": "Redistribuir é justo (Rawls) ou viola direitos (Nozick)?"
+  },
+  {
+   "from": "f_justica_rawls",
+   "type": "justifies",
+   "to": "p_socialdemocracia",
+   "note": "Desigualdade só se justifica se beneficia os mais pobres."
+  },
+  {
+   "from": "s_keynes",
+   "type": "grounds",
+   "to": "p_socialdemocracia",
+   "note": "Gasto público sustenta demanda e emprego."
+  },
+  {
+   "from": "p_desenvolvimentismo",
+   "type": "derives_from",
+   "to": "s_keynes"
+  },
+  {
+   "from": "t_furtado",
+   "type": "proponent_of",
+   "to": "p_desenvolvimentismo"
+  },
+  {
+   "from": "p_desenvolvimentismo",
+   "type": "opposes",
+   "to": "f_liberalismo_classico",
+   "note": "O mercado sozinho desenvolve um país periférico?"
+  },
+  {
+   "from": "p_soberania_monetaria",
+   "type": "grounds",
+   "to": "s_mmt",
+   "note": "Quem emite a moeda não fica sem ela."
+  },
+  {
+   "from": "s_novoconsenso",
+   "type": "justifies",
+   "to": "i_bc_autonomo",
+   "note": "Banco central independente controla melhor a inflação."
+  },
+  {
+   "from": "s_dominancia",
+   "type": "justifies",
+   "to": "i_regras_fiscais",
+   "note": "Sem âncora fiscal, juro não controla a inflação."
+  },
+  {
+   "from": "s_austeridade",
+   "type": "justifies",
+   "to": "i_regras_fiscais",
+   "note": "Cortar gasto gera confiança e crescimento."
+  },
+  {
+   "from": "s_mmt",
+   "type": "opposes",
+   "to": "i_regras_fiscais",
+   "note": "O limite do gasto é a inflação, não uma regra contábil."
+  },
+  {
+   "from": "f_libertarianismo",
+   "type": "opposes",
+   "to": "p_socialdemocracia",
+   "note": "Estado mínimo x Estado de bem-estar."
+  },
+  {
+   "from": "t_hayek",
+   "type": "opposes",
+   "to": "p_soberania_monetaria",
+   "note": "Hayek defendeu acabar com o monopólio estatal da moeda."
+  }
+ ]
 }
