@@ -18,8 +18,7 @@ Para cada ideia relevante, devolva uma "unit":
   - "theory": afirmação causal ou normativa sobre como a economia funciona (ex.: "juro alto é que causa a dívida").
   - "forecast": afirmação sobre o futuro ou proposta de política (ex.: "cortar para 7% não gera inflação").
   Se uma frase mistura fato e teoria, separe em duas units.
-- nodes: até 3 nós do mapa abaixo ligados à ideia, com role "relies_on" (a fala se apoia nessa escola), "echoes" (lembra/cita) ou "contradicts" (a fala vai contra). Use só ids do mapa.
-  Como escolher o role: "relies_on" quando o falante afirma ou defende a ideia como sua, inclusive quando diz que algo é causado por ela ou é consequência dela. "echoes" só quando o falante menciona, relata ou alude à ideia sem adotá-la (ex.: conta o que outra pessoa defende). Pode ser vazio para fatos. Prefira o nó mais específico: uma escola econômica antes da tradição filosófica que a fundamenta.
+- nodes: até 3 nós do mapa abaixo ligados à ideia, com role "relies_on" (a fala se apoia nessa escola), "echoes" (lembra/cita) ou "contradicts" (a fala vai contra). Use só ids do mapa. Pode ser vazio para fatos. Prefira o nó mais específico: uma escola econômica antes da tradição filosófica que a fundamenta.
 - indicator: para fatos, o indicador oficial mais próximo (${INDICATORS.join(", ")}); senão null.
 - claimed_value: o número que o falante afirma para esse indicador, em % quando for taxa (ex.: "13,75%" → 13.75; "R$ 5,40" → 5.4); senão null.
 - period: quando vale o número citado, como "AAAA" ou "AAAA-MM" (ex.: "em outubro de 2012" → "2012-10"); null se o falante fala do valor atual.
