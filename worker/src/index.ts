@@ -15,7 +15,7 @@ import {
   type Usage,
 } from "../../shared/schema";
 import { TranscriptIndex } from "../../shared/locate";
-import { transcriptHash } from "../../shared/transcript";
+import { sha256Hex, transcriptHash } from "../../shared/transcript";
 import { UnitStreamParser } from "../../shared/unitStream";
 
 interface Env {
@@ -27,6 +27,8 @@ interface Env {
   DAILY_CAP?: string;
   /** Max uncached analyses per UTC day of videos the topic check rejected ("Analisar este vídeo"). */
   FORCED_DAILY_CAP?: string;
+  /** Max uncached analyses per client IP per UTC day (0 or unset = no per-IP limit). IPs are stored hashed. */
+  IP_DAILY_CAP?: string;
   /** "1" lets a request skip the cache (dev and bench only). */
   ALLOW_CACHE_BYPASS?: string;
 }
@@ -134,6 +136,14 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
   if (spent >= maxSpend) return json({ error: "spend limit reached; cache only" }, 402);
   if (count >= cap) return json({ error: "daily cap reached" }, 429);
   if (pending && !bypass) return json({ error: "analysis in progress; retry shortly" }, 409);
+  const ipCap = Number(env.IP_DAILY_CAP ?? "0");
+  const ip = req.headers.get("cf-connecting-ip");
+  if (ipCap > 0 && ip) {
+    const ipKey = `ip:${(await sha256Hex(`lastro:${ip}`)).slice(0, 16)}:${today()}`;
+    const used = await readNumber(env.CARDS, ipKey);
+    if (used >= ipCap) return json({ error: "too many new analyses from this connection today" }, 429);
+    await env.CARDS.put(ipKey, String(used + 1), { expirationTtl: 2 * 86400 });
+  }
   await env.CARDS.put(`pending:${key}`, "1", { expirationTtl: 120 });
   await env.CARDS.put(`count:${today()}`, String(count + 1), { expirationTtl: 3 * 86400 });
 

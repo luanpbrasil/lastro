@@ -19,3 +19,20 @@ id = "00000000000000000000000000000000"
 
 [observability]
 enabled = false
+
+# Hosted demo (`npx wrangler deploy --env production`). Caps are PROPOSED, pending Luan's OK (2026-11-08).
+# The key is set once by Luan with `npx wrangler secret put ANTHROPIC_API_KEY --env production`.
+[env.production]
+name = "lastro"
+
+[env.production.vars]
+MAX_SPEND_USD = "3"
+DAILY_CAP = "150"
+FORCED_DAILY_CAP = "20"
+IP_DAILY_CAP = "10"
+ALLOW_CACHE_BYPASS = "0"
+
+[[env.production.kv_namespaces]]
+binding = "CARDS"
+# Filled in after `npx wrangler kv namespace create CARDS --env production`. Deploy fails until then.
+id = "REPLACE_WITH_PRODUCTION_KV_ID"
