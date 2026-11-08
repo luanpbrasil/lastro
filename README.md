@@ -158,6 +158,8 @@ npm run typecheck
 
 Point the extension at another Worker: `node extension/build.mjs --prod --worker https://your-worker.workers.dev`.
 
+Hosted demo (Cloudflare, production caps, pre-analysed demo videos): see [DEPLOY.md](DEPLOY.md).
+
 Check spend: `curl http://127.0.0.1:8787/spend`.
 
 ## Checks
