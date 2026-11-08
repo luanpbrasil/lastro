@@ -63,3 +63,7 @@ Other options, with what is known:
 - Mainstream in test: CNN Brasil, GloboNews, Estadão, Folha.
 - The `@LauraCarvalho` channel is a singer, not the economist; its 5 test videos are labelled none (correct) and count as music, not left-leaning.
 - Optional: move one left politics channel (e.g. Brasil de Fato: 6 videos, 5 politica per Haiku) from train to test; it would need Luan to review its 6 videos. Not moved.
+
+## Decision
+
+Luan, 2026-11-08: keep the economia threshold at 0.416 (no lower threshold). Combined with the economia-OR-politica trigger (`or_rule.md`), test economia recall is 0.96.
