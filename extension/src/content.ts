@@ -56,6 +56,31 @@ window.addEventListener("message", (e) => {
   }
 });
 
+/** Title + full description from the page's player data, via hook.ts; null if no matching data in time. */
+type PlayerMeta = { title: string; description: string; from: string };
+const META_REPLY_MS = 4_000; // the hook waits up to 3 s for a matching response
+const metaWaiters = new Map<string, (m: PlayerMeta | null) => void>();
+window.addEventListener("message", (e) => {
+  if (e.source !== window || !e.data?.__lastro_meta) return;
+  const done = metaWaiters.get(String(e.data.videoId));
+  if (!done) return;
+  metaWaiters.delete(String(e.data.videoId));
+  done(e.data.found ? { title: String(e.data.title ?? ""), description: String(e.data.description ?? ""), from: String(e.data.from) } : null);
+});
+function playerMeta(videoId: string): Promise<PlayerMeta | null> {
+  return new Promise((resolve) => {
+    const t = window.setTimeout(() => {
+      metaWaiters.delete(videoId);
+      resolve(null);
+    }, META_REPLY_MS);
+    metaWaiters.set(videoId, (m) => {
+      window.clearTimeout(t);
+      resolve(m);
+    });
+    window.postMessage({ __lastro_meta_req: true, videoId }, location.origin);
+  });
+}
+
 /** Dev build only: `localStorage.lastroForcePanel = "1"` on youtube.com skips the player's captions (tests the panel path). */
 function forcePanel(): boolean {
   if (!__DEV__) return false;
@@ -93,6 +118,7 @@ class VideoSession {
   status = "";
   private timeline: CardTimeline;
   private alive = true;
+  private meta: { title: string; desc: string } | null = null;
   readonly m: Metrics = {};
   private t0 = performance.now();
 
@@ -238,9 +264,25 @@ class VideoSession {
     return null;
   }
 
+  /** Title + description for the topic check: the player's data (full description, as in training), else the DOM. */
+  private async videoMeta(): Promise<{ title: string; desc: string }> {
+    if (this.meta) return this.meta;
+    const pm = await playerMeta(this.videoId);
+    if (pm && pm.title) {
+      this.m.topicSource = pm.from; // "player" (follows in-app navigation) or "initial" (first page load)
+      this.meta = { title: pm.title, desc: pm.description };
+    } else {
+      // <meta name=description> is cut at ~160 chars and can be stale after in-app navigation
+      this.m.topicSource = "dom";
+      this.meta = { title: videoTitle(), desc: document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content ?? "" };
+    }
+    this.m.descChars = this.meta.desc.length;
+    return this.meta;
+  }
+
   async run(force = false): Promise<void> {
-    const title = videoTitle();
-    const desc = document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content ?? "";
+    const { title, desc } = await this.videoMeta();
+    if (!this.alive) return;
     // Topic check before captions (title + description): decides whether to turn captions on.
     const pre = topics.classify(title, desc);
     this.m.topicsPre = pre.topics.join(",") || "none";

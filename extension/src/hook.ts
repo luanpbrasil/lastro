@@ -44,6 +44,39 @@
     return res;
   } as typeof fetch;
 
+  // Title + full description for the topic check, from the page's own player data (no request of ours).
+  // movie_player.getPlayerResponse() follows in-app navigation; ytInitialPlayerResponse is right only on a first load.
+  // Answers only when videoDetails.videoId is the video asked for, so a stale response is never used.
+  type VideoDetails = { videoId?: string; title?: string; shortDescription?: string };
+  const META_WAIT_MS = 3_000;
+  const detailsFor = (id: string): { d: VideoDetails; from: string } | null => {
+    try {
+      const mp = document.getElementById("movie_player") as unknown as { getPlayerResponse?: () => { videoDetails?: VideoDetails } } | null;
+      const live = mp?.getPlayerResponse?.()?.videoDetails;
+      if (live?.videoId === id) return { d: live, from: "player" };
+      const first = (window as unknown as { ytInitialPlayerResponse?: { videoDetails?: VideoDetails } }).ytInitialPlayerResponse?.videoDetails;
+      if (first?.videoId === id) return { d: first, from: "initial" };
+    } catch {
+      /* never break the page */
+    }
+    return null;
+  };
+  window.addEventListener("message", (e) => {
+    if (e.source !== window || !e.data?.__lastro_meta_req) return;
+    const id = String(e.data.videoId);
+    const end = performance.now() + META_WAIT_MS;
+    const tryNow = () => {
+      const hit = detailsFor(id);
+      if (hit || performance.now() >= end) {
+        window.postMessage(
+          { __lastro_meta: true, videoId: id, found: !!hit, from: hit?.from ?? null, title: hit?.d.title ?? "", description: hit?.d.shortDescription ?? "" },
+          location.origin,
+        );
+      } else setTimeout(tryNow, 200);
+    };
+    tryNow();
+  });
+
   const origOpen = XMLHttpRequest.prototype.open;
   const origSend = XMLHttpRequest.prototype.send;
   const urls = new WeakMap<XMLHttpRequest, string>();
