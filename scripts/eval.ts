@@ -10,7 +10,7 @@ import { TranscriptIndex } from "../shared/locate";
 import type { Card, NodeRole, Segment, StreamEvent } from "../shared/schema";
 import { stanceView } from "../shared/stance";
 import { KG, node, opponents, schoolsOf } from "../shared/kg";
-import { looseNorm } from "../shared/transcript";
+import { looseNorm, parseClock, segmentsFromGetTranscript } from "../shared/transcript";
 
 interface StanceCase {
   name: string;
@@ -136,6 +136,27 @@ console.log("\n3. Graph rules");
   }
   for (const e of KG.edges) check(!!node(e.from) && !!node(e.to), `edge ${e.from} ${e.type} ${e.to}: unknown node`);
   console.log(`  ${fail === before ? "✓" : "✗"} ${KG.nodes.length} nodes, ${KG.edges.length} edges: domains, opponents, no parties or politicians`);
+}
+
+console.log("\n4. Transcript panel parsing (synthetic get_transcript response)");
+{
+  const before = fail;
+  const seg = (startMs: string, endMs: string, text: string) => ({
+    transcriptSegmentRenderer: { startMs, endMs, snippet: { runs: [{ text }] }, targetId: `abcDEF12345.CgNhc3I.${startMs}.${endMs}` },
+  });
+  const resp = {
+    actions: [{ updateEngagementPanelAction: { content: { transcriptRenderer: { content: { transcriptSearchPanelRenderer: { body: { transcriptSegmentListRenderer: {
+      initialSegments: [seg("120", "2520", "Olá,  pessoal."), { transcriptSectionHeaderRenderer: { startMs: "2520" } }, seg("2520", "5000", " a Selic\nsubiu "), seg("5000", "5000", "")],
+    } } } } } } } }],
+  };
+  const r = segmentsFromGetTranscript(resp);
+  check(r.videoId === "abcDEF12345", `video id from targetId (got ${r.videoId})`);
+  check(r.segments.length === 2, `2 segments: chapter headers and empty rows dropped (got ${r.segments.length})`);
+  check(JSON.stringify(r.segments[0]) === JSON.stringify({ s: 120, d: 2400, t: "Olá, pessoal." }), `segment shape ${JSON.stringify(r.segments[0])}`);
+  check(r.segments[1]?.t === "a Selic subiu", `whitespace collapsed (got ${JSON.stringify(r.segments[1]?.t)})`);
+  check(segmentsFromGetTranscript({}).segments.length === 0, "empty response: no segments");
+  check(parseClock("1:02:03") === 3_723_000 && parseClock("4:05") === 245_000 && parseClock("x") === null, "panel clock parsing");
+  console.log(`  ${fail === before ? "✓" : "✗"} get_transcript → segments, video id, clock`);
 }
 
 console.log(`\n${pass} checks passed, ${fail} failed`);

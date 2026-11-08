@@ -3,37 +3,68 @@ import { shouldAnalyze, TopicScorer, type TopicModel } from "../../shared/topics
 import type { Card, Segment, StreamEvent } from "../../shared/schema";
 import { segmentsFromJson3, transcriptHash } from "../../shared/transcript";
 import { Overlay, type PillState } from "./overlay";
+import { onTranscriptResponse, transcriptFromPanel } from "./panel";
 import { CardTimeline } from "./timeline";
 
 declare const __DEV__: boolean;
 
 const MAX_CAPTION_CHARS = 60_000; // one call ≈ 60 min
 const CAPTION_WAIT_MS = 20_000; // not counting ads
+const NO_TRACK_MS = 5_000; // CC button disabled this long (outside ads): the video has no captions track
 
 type Metrics = Record<string, number | string | null>;
 type CaptionHit = { url: string; segments: Segment[]; lang: string; at: number };
+/** A caption response that came back empty or with an error (e.g. 429 when YouTube limits the connection). */
+type CaptionFail = { status: number; bytes: number };
+type CaptionOutcome = { hit: CaptionHit } | { fail: CaptionFail } | { noTrack: true } | { timeout: true };
 
 /** Caption responses seen by the page hook, by video id. Filled from document_start. */
 const captionsByVideo = new Map<string, CaptionHit>();
+const captionFails = new Map<string, CaptionFail>();
 const captionListeners = new Set<(v: string) => void>();
 window.addEventListener("message", (e) => {
-  if (e.source !== window || !e.data?.__lastro_captions) return;
+  if (e.source !== window) return;
+  if (e.data?.__lastro_transcript) return onTranscriptResponse(Number(e.data.status), String(e.data.body ?? ""));
+  if (!e.data?.__lastro_captions) return;
+  let v: string | null = null;
   try {
     const u = new URL(e.data.url as string, location.href);
-    const v = u.searchParams.get("v");
+    v = u.searchParams.get("v");
     if (!v) return;
-    const segments = segmentsFromJson3(JSON.parse(e.data.body as string));
-    if (!segments.length) return;
+    const status = Number(e.data.status);
+    const body = String(e.data.body ?? "");
+    if (status !== 200 || !body) {
+      if (!captionsByVideo.has(v)) captionFails.set(v, { status, bytes: body.length });
+      for (const l of captionListeners) l(v);
+      return;
+    }
+    const segments = segmentsFromJson3(JSON.parse(body));
+    if (!segments.length) {
+      if (!captionsByVideo.has(v)) captionFails.set(v, { status, bytes: body.length });
+      for (const l of captionListeners) l(v);
+      return;
+    }
     const lang = `${u.searchParams.get("lang") ?? "?"}${u.searchParams.get("tlang") ? `→${u.searchParams.get("tlang")}` : ""}`;
     const prev = captionsByVideo.get(v);
     // keep the original-language track over a machine translation
     if (prev && !prev.lang.includes("→") && lang.includes("→")) return;
     captionsByVideo.set(v, { url: u.toString(), segments, lang, at: performance.now() });
+    captionFails.delete(v);
     for (const l of captionListeners) l(v);
   } catch {
     /* not json3, or malformed: ignore */
   }
 });
+
+/** Dev build only: `localStorage.lastroForcePanel = "1"` on youtube.com skips the player's captions (tests the panel path). */
+function forcePanel(): boolean {
+  if (!__DEV__) return false;
+  try {
+    return localStorage.getItem("lastroForcePanel") === "1";
+  } catch {
+    return false;
+  }
+}
 
 const topics = new TopicScorer(topicModel as TopicModel);
 const overlay = new Overlay();
@@ -100,8 +131,13 @@ class VideoSession {
 
   private mark(name: string): void {
     this.m[name] = Math.round(performance.now() - this.t0);
-    document.documentElement.dataset.lastroMetrics = JSON.stringify(this.m);
+    this.flush();
     if (__DEV__) console.debug("[lastro]", name, this.m[name], "ms");
+  }
+
+  /** Metrics on the page (dataset.lastroMetrics), on success and failure paths alike. */
+  private flush(): void {
+    document.documentElement.dataset.lastroMetrics = JSON.stringify(this.m);
   }
 
   private setStatus(s: string): void {
@@ -109,34 +145,97 @@ class VideoSession {
     overlay.setPill(state, s);
   }
 
-  /** Wait for the player's caption response (via the page hook), turning captions on if needed. */
-  private waitCaptions(): Promise<CaptionHit | null> {
-    const have = captionsByVideo.get(this.videoId);
-    if (have) return Promise.resolve(have);
+  /**
+   * Wait for the player's caption response (via the page hook), turning captions on if needed.
+   * Ends early on an empty or error response, or when the CC button stays disabled (no track).
+   */
+  private waitCaptions(): Promise<CaptionOutcome> {
+    const start = performance.now();
+    const settle = (o: CaptionOutcome): CaptionOutcome => {
+      this.m.captionWaitMs = Math.round(performance.now() - start);
+      return o;
+    };
+    const now = (): CaptionOutcome | null => {
+      const hit = captionsByVideo.get(this.videoId);
+      if (hit) return { hit };
+      const fail = captionFails.get(this.videoId);
+      return fail ? { fail } : null;
+    };
+    const ready = now();
+    if (ready) return Promise.resolve(settle(ready));
     return new Promise((resolve) => {
       // The CC button appears late (and belongs to the ad while one plays): keep trying.
-      // The timeout only counts time outside ads.
+      // The timeouts only count time outside ads.
       let waited = 0;
+      let unavailable = 0;
       let finished = false;
-      const done = (h: CaptionHit | null) => {
+      const done = (o: CaptionOutcome) => {
         if (finished) return;
         finished = true;
         window.clearInterval(poll);
         captionListeners.delete(listener);
-        resolve(h);
+        resolve(settle(o));
       };
       const listener = (v: string) => {
-        if (v === this.videoId) done(captionsByVideo.get(v) ?? null);
+        if (v !== this.videoId) return;
+        const o = now();
+        if (o) done(o);
       };
       captionListeners.add(listener);
       const poll = window.setInterval(() => {
-        if (!this.alive) return done(null);
+        if (!this.alive) return done({ timeout: true });
         const r = ensureCaptionsRequested();
         this.m.ccButton = r;
-        if (r !== "ad") waited += 1000;
-        if (waited >= CAPTION_WAIT_MS) done(null);
+        if (r === "ad") return;
+        waited += 1000;
+        unavailable = r === "unavailable" ? unavailable + 1000 : 0;
+        if (unavailable >= NO_TRACK_MS) done({ noTrack: true });
+        else if (waited >= CAPTION_WAIT_MS) done({ timeout: true });
       }, 1000);
     });
+  }
+
+  /** Player captions first; if they fail or are empty, YouTube's transcript panel. Null: nothing usable (status set). */
+  private async getTranscript(): Promise<{ segments: Segment[]; lang: string } | null> {
+    let outcome: CaptionOutcome | null = null;
+    if (forcePanel()) {
+      this.m.captionTried = "panel (forced)";
+    } else {
+      this.setStatus("lendo legendas…");
+      outcome = await this.waitCaptions();
+      if (!this.alive) return null;
+      if ("hit" in outcome) {
+        this.m.captionSource = "player";
+        this.m.captionStatus = 200;
+        return { segments: outcome.hit.segments, lang: outcome.hit.lang };
+      }
+      this.m.captionTried = "player,panel";
+      this.m.captionPlayer = "fail" in outcome ? `status ${outcome.fail.status}` : "noTrack" in outcome ? "no track" : "timeout";
+      if ("fail" in outcome) {
+        this.m.captionStatus = outcome.fail.status;
+        this.m.captionBytes = outcome.fail.bytes;
+      }
+      this.flush();
+    }
+
+    this.setStatus("lendo transcrição…");
+    const t = performance.now();
+    const p = await transcriptFromPanel(this.videoId, () => this.alive);
+    if (!this.alive) return null;
+    this.m.panelMs = Math.round(performance.now() - t);
+    this.m.panelStatus = p.status;
+    if (p.segments) {
+      this.m.captionSource = "panel";
+      this.m.panel = p.how;
+      this.flush();
+      return { segments: p.segments, lang: "panel" };
+    }
+    this.m.captionSource = "none";
+    this.m.panel = p.reason;
+    this.flush();
+    const noTrack = outcome !== null && "noTrack" in outcome && p.reason === "no button";
+    this.setStatus(noTrack ? "este vídeo não tem legendas" : "o YouTube não enviou as legendas");
+    return null;
   }
 
   async run(force = false): Promise<void> {
@@ -155,13 +254,8 @@ class VideoSession {
       return;
     }
 
-    this.setStatus("lendo legendas…");
-    const hit = await this.waitCaptions();
-    if (!this.alive) return;
-    if (!hit) {
-      this.setStatus("sem legendas");
-      return;
-    }
+    const hit = await this.getTranscript();
+    if (!this.alive || !hit) return;
     this.mark("captions");
     this.m.captionLang = hit.lang;
     let segments = hit.segments;
