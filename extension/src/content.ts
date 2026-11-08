@@ -1,5 +1,5 @@
 import topicModel from "../../shared/topics-model.json";
-import { TopicScorer, type TopicModel } from "../../shared/topics";
+import { shouldAnalyze, TopicScorer, type TopicModel } from "../../shared/topics";
 import type { Card, Segment, StreamEvent } from "../../shared/schema";
 import { segmentsFromJson3, transcriptHash } from "../../shared/transcript";
 import { Overlay, type PillState } from "./overlay";
@@ -142,7 +142,7 @@ class VideoSession {
     const pre = topics.classify(title, desc);
     this.m.topicsPre = pre.topics.join(",") || "none";
     this.m.economiaPre = Number(pre.scores.economia.toFixed(3));
-    if (!force && !pre.topics.includes("economia")) {
+    if (!force && !shouldAnalyze(pre)) {
       this.setStatus("fora do tema");
       overlay.setAction("Analisar este vídeo", () => {
         overlay.setAction(null);
@@ -197,7 +197,7 @@ class VideoSession {
         // Topic check with captions (uses them only if the model was trained with captions).
         const post = topics.classify(title, description, segments);
         this.m.topics = post.topics.join(",") || "none";
-        if (!force && !post.topics.includes("economia")) {
+        if (!force && !shouldAnalyze(post)) {
           this.setStatus("fora do tema");
           overlay.setAction("Analisar este vídeo", () => {
             overlay.setAction(null);

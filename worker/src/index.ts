@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { node } from "../../shared/kg";
 import topicModel from "../../shared/topics-model.json";
-import { TopicScorer, type TopicModel } from "../../shared/topics";
+import { shouldAnalyze, TopicScorer, type TopicModel } from "../../shared/topics";
 import { costUsd, RUNTIME_MODEL } from "../../shared/prices";
 import { systemPrompt, userPrompt } from "../../shared/prompt";
 import {
@@ -115,8 +115,8 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
   // Server-side topic check, so the endpoint is not a free LLM proxy. Off-topic videos the viewer
   // asked for by hand ("Analisar este vídeo") are allowed under a small separate daily cap.
   const topic = TOPICS.classify(title, String(description).slice(0, 5000), segments);
-  const onTopic = topic.topics.includes("economia");
-  if (!onTopic && !body.force) return json({ error: "off topic", economia: topic.scores.economia }, 422);
+  const onTopic = shouldAnalyze(topic);
+  if (!onTopic && !body.force) return json({ error: "off topic", scores: topic.scores }, 422);
   if (!onTopic) {
     const forced = await readNumber(env.CARDS, `forced:${today()}`);
     if (forced >= Number(env.FORCED_DAILY_CAP ?? "20")) return json({ error: "off topic; manual analyses capped today" }, 429);

@@ -86,7 +86,7 @@ Open the demo video: https://www.youtube.com/watch?v=1FzdBFDbMUs
 - **▶ time on a card** takes the video back to that sentence.
 - **Switch it off:** `⏸` on the pill pauses Lastro (no more pop-ups) until you press `▶` or reload the page. To turn it off completely, use the switch next to Lastro in `chrome://extensions`.
 
-Lastro only acts on economics videos. On other videos the pill says `fora do tema` (off topic) and offers **Analisar este vídeo** to run it anyway.
+Lastro acts on economics and politics videos. On other videos the pill says `fora do tema` (off topic) and offers **Analisar este vídeo** to run it anyway.
 
 ### No API key?
 
@@ -137,12 +137,12 @@ Cloudflare Worker ── validates each card (quote located in the transcript, n
 
 ## Topic classifier
 
-Decides whether a video is about economia, politica or filosofia (or none). Only `economia` triggers an analysis for now; "Analisar este vídeo" overrides it.
+Decides whether a video is about economia, politica or filosofia (or none). `economia` OR `politica` (each at its own threshold) triggers an analysis (`ANALYZE_TOPICS` in `shared/topics.ts`); "Analisar este vídeo" overrides it.
 
 - Model: TF-IDF (word 1–2-grams + char 3–5-grams) + one logistic regression per topic, `shared/topics-model.json` (570 KB). The same tokenizer (`shared/topics.ts`) runs in training, the extension and the Worker; TS vs Python probabilities agree to 1e-15. Scoring takes 0.2 ms in the browser.
 - Data: 428 Brazilian videos from 66 channels (public RSS feeds), split by channel. Labels: Claude Haiku via the Batch API ($0.04), 150 reviewed by hand. Only video ids and labels are committed (`data/classifier/`).
 - Inputs today: title + description only. Captions were blocked by YouTube during collection.
-- Test (101 videos from 17 unseen channels, human labels): see `eval/classifier/final.md`. Economia recall is 0.85 at precision 0.60; the threshold choice is open.
+- Test (101 videos from 17 unseen channels, human labels): see `eval/classifier/final.md`. With the economia-OR-politica rule, economia recall is 0.96 and 79% of triggered videos are economia or politica (`eval/classifier/or_rule.md`).
 
 Retrain: `npm run topics:train`, then `npm run topics:parity`.
 

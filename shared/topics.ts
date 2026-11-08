@@ -48,6 +48,17 @@ export function topicTokens(text: string): string[] {
   return out;
 }
 
+/**
+ * Which topics trigger an analysis (Luan, 2026-11-08: "economia OR política", each at its own threshold).
+ * Test set (eval/classifier/or_rule.md): economia recall 0.85 → 0.96, trigger precision 0.79.
+ * Most política-only videos yield few cards today; drop "politica" here to go back to economia only.
+ */
+export const ANALYZE_TOPICS: Topic[] = ["economia", "politica"];
+
+export function shouldAnalyze(r: TopicResult): boolean {
+  return r.topics.some((t) => ANALYZE_TOPICS.includes(t));
+}
+
 export interface TopicResult {
   variant: TopicVariant;
   scores: Record<Topic, number>;
