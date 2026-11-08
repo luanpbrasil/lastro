@@ -3,15 +3,19 @@
  * Passes two of the page's own responses to the content script. No extra request is made: we read what the page received.
  * - /api/timedtext: the player's captions (signed with `pot`). Empty and error responses are passed on too, with their
  *   status, so the content script can say at once that YouTube sent no captions instead of waiting.
- * - /youtubei/v1/get_transcript: the "Mostrar transcrição" panel, used when the player's captions fail.
+ * - /youtubei/v1/get_transcript and /youtubei/v1/get_panel: the "Mostrar transcrição" panel (older and newer
+ *   versions), used when the player's captions fail. get_panel also serves other panels: only bodies with
+ *   transcript rows are passed on.
  */
 (() => {
   const CAPTIONS = "__lastro_captions";
   const TRANSCRIPT = "__lastro_transcript";
   const kindOf = (url: string) =>
-    url.includes("/api/timedtext") ? CAPTIONS : url.includes("/youtubei/v1/get_transcript") ? TRANSCRIPT : null;
-  const post = (tag: string, url: string, status: number, body: string) =>
+    url.includes("/api/timedtext") ? CAPTIONS : url.includes("/youtubei/v1/get_transcript") || url.includes("/youtubei/v1/get_panel") ? TRANSCRIPT : null;
+  const post = (tag: string, url: string, status: number, body: string) => {
+    if (tag === TRANSCRIPT && url.includes("/get_panel") && status === 200 && !body.includes("transcriptSegmentViewModel")) return;
     window.postMessage({ [tag]: true, url, status, body }, location.origin);
+  };
   const urlOf = (input: unknown) =>
     typeof input === "string" ? input : input instanceof Request ? input.url : input instanceof URL ? input.href : String(input);
 

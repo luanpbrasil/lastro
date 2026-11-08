@@ -10,7 +10,7 @@ import { TranscriptIndex } from "../shared/locate";
 import type { Card, NodeRole, Segment, StreamEvent } from "../shared/schema";
 import { stanceView } from "../shared/stance";
 import { KG, node, opponents, schoolsOf } from "../shared/kg";
-import { looseNorm, parseClock, segmentsFromGetTranscript } from "../shared/transcript";
+import { looseNorm, parseClock, segmentsFromTranscriptResponse } from "../shared/transcript";
 
 interface StanceCase {
   name: string;
@@ -149,12 +149,22 @@ console.log("\n4. Transcript panel parsing (synthetic get_transcript response)")
       initialSegments: [seg("120", "2520", "Olá,  pessoal."), { transcriptSectionHeaderRenderer: { startMs: "2520" } }, seg("2520", "5000", " a Selic\nsubiu "), seg("5000", "5000", "")],
     } } } } } } } }],
   };
-  const r = segmentsFromGetTranscript(resp);
+  const r = segmentsFromTranscriptResponse(resp);
   check(r.videoId === "abcDEF12345", `video id from targetId (got ${r.videoId})`);
   check(r.segments.length === 2, `2 segments: chapter headers and empty rows dropped (got ${r.segments.length})`);
   check(JSON.stringify(r.segments[0]) === JSON.stringify({ s: 120, d: 2400, t: "Olá, pessoal." }), `segment shape ${JSON.stringify(r.segments[0])}`);
   check(r.segments[1]?.t === "a Selic subiu", `whitespace collapsed (got ${JSON.stringify(r.segments[1]?.t)})`);
-  check(segmentsFromGetTranscript({}).segments.length === 0, "empty response: no segments");
+  check(segmentsFromTranscriptResponse({}).segments.length === 0, "empty response: no segments");
+  // newer panel (get_panel): macro markers, whole seconds, videoId in the row's watchEndpoint
+  const row = (sec: number, ts: string, text: string) => ({
+    macroMarkersPanelItemViewModel: {
+      item: { timelineItemViewModel: { timestamp: ts, contentItems: [{ transcriptSegmentViewModel: { simpleText: text } }] } },
+      onTap: { innertubeCommand: { watchEndpoint: { videoId: "RYUUmoQlBIQ", startTimeSeconds: sec } } },
+    },
+  });
+  const modern = segmentsFromTranscriptResponse({ contents: [{ itemSectionRenderer: { contents: [row(0, "0:00", "Então  vamos lá."), row(6, "0:06", "semana."), { macroMarkersPanelItemViewModel: { item: { timelineItemViewModel: { contentItems: [{ chapter: 1 }] } } } }] } }] });
+  check(modern.videoId === "RYUUmoQlBIQ", `modern panel: video id (got ${modern.videoId})`);
+  check(JSON.stringify(modern.segments) === JSON.stringify([{ s: 0, d: 6000, t: "Então vamos lá." }, { s: 6000, d: 0, t: "semana." }]), `modern panel: segments ${JSON.stringify(modern.segments)}`);
   check(parseClock("1:02:03") === 3_723_000 && parseClock("4:05") === 245_000 && parseClock("x") === null, "panel clock parsing");
   console.log(`  ${fail === before ? "✓" : "✗"} get_transcript → segments, video id, clock`);
 }
