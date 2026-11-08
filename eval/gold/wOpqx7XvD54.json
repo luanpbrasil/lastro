@@ -1,13 +1,21 @@
 {
   "videoId": "wOpqx7XvD54",
   "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros | Gaúcha Atualidade",
-  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run. 0:09: Luan chose s_dominancia / relies_on as the only reading on 2026-11-08, because the sentence names the fiscal situation as the cause of the rate, and the second case already labels the speaker relies_on Novo consenso. Second case: the 'artificial, Turkey' argument continues into the next sentence ('gera uma desconfiança do mercado'), and p4 quotes that one, so both quotes match.",
+  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run. 0:09: Luan chose fiscal dominance as the reading on 2026-11-08, because the sentence names the fiscal situation as the cause of the rate; the second case already labels the speaker relies_on Novo consenso. Luan approved accepting relies_on OR echoes on fiscal dominance (never novoconsenso/contradicts) on 2026-11-08, because the UI difference is only 'Apoia-se em' vs 'Lembra': on p6 the role was relies_on 1 of 3 live runs and echoes 2 of 3; a role rule in the prompt (p7) reached 2 of 3 and was reverted. Second case: the 'artificial, Turkey' argument continues into the next sentence ('gera uma desconfiança do mercado'), and some runs quote that one, so both quotes match.",
   "cases": [
     {
       "name": "0:09 'o juro é o principal problema… consequência da situação fiscal'",
       "quoteContains": "principal problema da economia",
-      "expectNode": "s_dominancia",
-      "expectRole": "relies_on"
+      "expectAnyOf": [
+        {
+          "node": "s_dominancia",
+          "role": "relies_on"
+        },
+        {
+          "node": "s_dominancia",
+          "role": "echoes"
+        }
+      ]
     },
     {
       "name": "forced cut called artificial (Turkey), market distrust: speaker with the consensus",
