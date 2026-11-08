@@ -1,0 +1,70 @@
+{
+ "model": "2026-11-08-K12000-C1",
+ "K": 12000,
+ "C": 1.0,
+ "oof_mean_ap": 0.757,
+ "json_kb": 570.0,
+ "rounding_max_abs_diff": 1.8620117236967104e-07,
+ "train_videos": 327,
+ "test_videos": 101,
+ "test_channels": 17,
+ "test_label_source": {
+  "haiku": 101
+ },
+ "per_variant": {
+  "meta": {
+   "economia": {
+    "threshold": 0.4148,
+    "precision": 0.59,
+    "recall": 0.821,
+    "f1": 0.687,
+    "ap": 0.873,
+    "brier": 0.1545,
+    "positives": 28,
+    "n": 101
+   },
+   "politica": {
+    "threshold": 0.4584,
+    "precision": 0.732,
+    "recall": 0.75,
+    "f1": 0.741,
+    "ap": 0.823,
+    "brier": 0.1898,
+    "positives": 40,
+    "n": 101
+   },
+   "filosofia": {
+    "threshold": 0.3835,
+    "precision": 0.917,
+    "recall": 1.0,
+    "f1": 0.957,
+    "ap": 0.998,
+    "brier": 0.092,
+    "positives": 22,
+    "n": 101
+   },
+   "none": {
+    "true": 34,
+    "predicted": 28,
+    "agree": 87
+   }
+  }
+ },
+ "haiku_vs_human": {
+  "economia": {
+   "agree": 0,
+   "n": 0,
+   "rate": null
+  },
+  "politica": {
+   "agree": 0,
+   "n": 0,
+   "rate": null
+  },
+  "filosofia": {
+   "agree": 0,
+   "n": 0,
+   "rate": null
+  }
+ }
+}

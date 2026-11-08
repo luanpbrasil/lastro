@@ -1,4 +1,5 @@
-import { gateA, gateB } from "../../shared/lexicon";
+import topicModel from "../../shared/topics-model.json";
+import { TopicScorer, type TopicModel } from "../../shared/topics";
 import type { Card, Segment, StreamEvent } from "../../shared/schema";
 import { segmentsFromJson3, transcriptHash } from "../../shared/transcript";
 import { Overlay, type PillState } from "./overlay";
@@ -37,6 +38,7 @@ window.addEventListener("message", (e) => {
   }
 });
 
+const topics = new TopicScorer(topicModel as TopicModel);
 const overlay = new Overlay();
 let state: PillState = "on";
 let session: VideoSession | null = null;
@@ -136,7 +138,11 @@ class VideoSession {
   async run(force = false): Promise<void> {
     const title = videoTitle();
     const desc = document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content ?? "";
-    if (!force && !gateA(`${title} ${desc}`)) {
+    // Topic check before captions (title + description): decides whether to turn captions on.
+    const pre = topics.classify(title, desc);
+    this.m.topicsPre = pre.topics.join(",") || "none";
+    this.m.economiaPre = Number(pre.scores.economia.toFixed(3));
+    if (!force && !pre.topics.includes("economia")) {
       this.setStatus("fora do tema");
       overlay.setAction("Analisar este vídeo", () => {
         overlay.setAction(null);
@@ -163,7 +169,7 @@ class VideoSession {
     this.mark("hash");
 
     const port = chrome.runtime.connect({ name: "lastro" });
-    port.onMessage.addListener((msg) => this.onPortMessage(msg, port, title, hash, segments, force));
+    port.onMessage.addListener((msg) => this.onPortMessage(msg, port, title, desc, hash, segments, force));
     port.postMessage({ type: "lookup", videoId: this.videoId, hash });
   }
 
@@ -171,6 +177,7 @@ class VideoSession {
     msg: { type: string; data?: { cards: Card[] }; ev?: StreamEvent; status?: number; body?: string; message?: string },
     port: chrome.runtime.Port,
     title: string,
+    description: string,
     hash: string,
     segments: Segment[],
     force: boolean,
@@ -187,9 +194,10 @@ class VideoSession {
         break;
       case "miss": {
         this.mark("cacheMiss");
-        const last = segments[segments.length - 1];
-        const g = gateB(`${title} ${segments.map((s) => s.t).join(" ")}`, last.s + last.d);
-        if (!force && !g.pass) {
+        // Topic check with captions (uses them only if the model was trained with captions).
+        const post = topics.classify(title, description, segments);
+        this.m.topics = post.topics.join(",") || "none";
+        if (!force && !post.topics.includes("economia")) {
           this.setStatus("fora do tema");
           overlay.setAction("Analisar este vídeo", () => {
             overlay.setAction(null);
@@ -198,7 +206,7 @@ class VideoSession {
           return port.disconnect();
         }
         this.setStatus("analisando…");
-        port.postMessage({ type: "analyze", body: { videoId: this.videoId, title, hash, segments } });
+        port.postMessage({ type: "analyze", body: { videoId: this.videoId, title, description, hash, segments, force } });
         this.mark("analyzeSent");
         break;
       }

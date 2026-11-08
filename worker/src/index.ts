@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { node } from "../../shared/kg";
-import { gateB } from "../../shared/lexicon";
+import topicModel from "../../shared/topics-model.json";
+import { TopicScorer, type TopicModel } from "../../shared/topics";
 import { costUsd, RUNTIME_MODEL } from "../../shared/prices";
 import { systemPrompt, userPrompt } from "../../shared/prompt";
 import {
@@ -24,6 +25,8 @@ interface Env {
   MAX_SPEND_USD?: string;
   /** Max uncached analyses per UTC day. */
   DAILY_CAP?: string;
+  /** Max uncached analyses per UTC day of videos the topic check rejected ("Analisar este vídeo"). */
+  FORCED_DAILY_CAP?: string;
   /** "1" lets a request skip the cache (dev and bench only). */
   ALLOW_CACHE_BYPASS?: string;
 }
@@ -34,6 +37,7 @@ const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 const HEX64 = /^[0-9a-f]{64}$/;
 
 const SYSTEM = systemPrompt();
+const TOPICS = new TopicScorer(topicModel as TopicModel);
 const SCHEMA = outputSchema();
 
 const cacheKey = (videoId: string, hash: string) => `v1:${PROMPT_VERSION}:${videoId}:${hash}`;
@@ -93,7 +97,7 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
   } catch {
     return json({ error: "bad json" }, 400);
   }
-  const { videoId, title = "", hash, segments } = body;
+  const { videoId, title = "", description = "", hash, segments } = body;
   if (!VIDEO_ID.test(videoId ?? "") || !HEX64.test(hash ?? "") || !Array.isArray(segments) || segments.length === 0) {
     return json({ error: "bad request" }, 400);
   }
@@ -108,10 +112,16 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
     if (hit) return replayCached(JSON.parse(hit) as CachedAnalysis, tRecv);
   }
 
-  // Server-side gate, so the endpoint is not a free LLM proxy.
-  const last = segments[segments.length - 1];
-  const g = gateB(`${title} ${segments.map((s) => s.t).join(" ")}`, last.s + last.d);
-  if (!g.pass) return json({ error: "off topic", perMin: g.perMin }, 422);
+  // Server-side topic check, so the endpoint is not a free LLM proxy. Off-topic videos the viewer
+  // asked for by hand ("Analisar este vídeo") are allowed under a small separate daily cap.
+  const topic = TOPICS.classify(title, String(description).slice(0, 5000), segments);
+  const onTopic = topic.topics.includes("economia");
+  if (!onTopic && !body.force) return json({ error: "off topic", economia: topic.scores.economia }, 422);
+  if (!onTopic) {
+    const forced = await readNumber(env.CARDS, `forced:${today()}`);
+    if (forced >= Number(env.FORCED_DAILY_CAP ?? "20")) return json({ error: "off topic; manual analyses capped today" }, 429);
+    await env.CARDS.put(`forced:${today()}`, String(forced + 1), { expirationTtl: 3 * 86400 });
+  }
 
   // Spend guardrails.
   const maxSpend = Number(env.MAX_SPEND_USD ?? "4");

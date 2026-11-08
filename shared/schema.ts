@@ -53,8 +53,12 @@ export interface Segment {
 export interface AnalyzeRequest {
   videoId: string;
   title: string;
+  /** Video description; used only by the server-side topic check. */
+  description?: string;
   hash: string;
   segments: Segment[];
+  /** The viewer pressed "Analisar este vídeo" on a video the topic check rejected. */
+  force?: boolean;
 }
 
 /** Lines of the NDJSON stream from /analyze, and the cached result. */

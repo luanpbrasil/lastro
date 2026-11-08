@@ -106,7 +106,7 @@ Today you need a key for the first viewing of each video: the cache lives on the
 
 ```
 YouTube tab ── page hook reads the player's own caption response (no extra request)
-   │            content script: lexicon gate → sha256(transcript)
+   │            content script: topic classifier → sha256(transcript)
    ▼
 background worker ── GET /c/:videoId/:hash  (cached cards, $0)
    │                 POST /analyze          (miss: one streamed Claude Haiku call per video)
@@ -119,18 +119,20 @@ Cloudflare Worker ── validates each card (quote located in the transcript, n
 - One Claude call per video, streamed in time order. The first card arrives in ~2 s.
 - Cache key = video id + transcript hash + prompt version, so a fake transcript can't poison other viewers' cards.
 - The Anthropic API key lives only in the Worker (`.dev.vars` locally, `wrangler secret` when deployed). It is never in the extension.
-- Guardrails in the Worker: Haiku-only model allowlist, server-side lexicon check, ≤ 60 min of captions per call, daily cap, `MAX_SPEND_USD` ledger.
+- Guardrails in the Worker: Haiku-only model allowlist, server-side topic check (manual "Analisar este vídeo" requests have their own small daily cap), ≤ 60 min of captions per call, daily cap, `MAX_SPEND_USD` ledger.
 - Official data: BCB SGS (Selic, IPCA, debt, dollar), BCB Focus (Selic expectations), IBGE SIDRA (unemployment, GDP). Public APIs, called directly from the extension, cached 6 h.
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `shared/` | knowledge graph (`kg.json`), schema, prompt, prices, lexicon gate, transcript helpers, stream parser, quote locator, card stance, official-data indicators |
+| `shared/` | knowledge graph (`kg.json`), schema, prompt, prices, topic classifier (`topics.ts` + `topics-model.json`), transcript helpers, stream parser, quote locator, card stance, official-data indicators |
 | `worker/src/index.ts` | Cloudflare Worker: `/analyze`, `/c/:videoId/:hash`, `/spend`, `/health` |
 | `extension/` | Chrome MV3 extension: `hook.ts` (page world), `content.ts` + `overlay.ts`, `background.ts`; `build.mjs` |
 | `scripts/` | `analyze.ts` (send a saved transcript to the Worker, record the stream), `eval.ts`, `facts-check.ts` |
-| `eval/` | stance cases and gold labels |
+| `eval/` | stance cases, gold labels, topic-classifier results (`eval/classifier/`) |
+| `scripts/classifier/` | topic-classifier data collection, labelling review page and training (Python) |
+| `data/classifier/` | classifier dataset: video ids, channel ids, split and labels only (titles, descriptions and captions stay local) |
 | `fixtures/streams/` | recorded Worker streams, for $0 UI work and evals |
 
 ## Development

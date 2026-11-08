@@ -14,3 +14,7 @@ spend.csv
 .cache/
 fixtures/transcripts/
 extension/dist-demo/
+
+# topic classifier: local data (captions, titles, descriptions); only ids + labels are committed
+scripts/classifier/.venv/
+data/classifier/raw/

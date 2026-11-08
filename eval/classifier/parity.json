@@ -1,0 +1,12 @@
+{
+ "docs": 101,
+ "maxAbsDiff": 1.1102230246251565e-15,
+ "tolerance": 0.000001,
+ "pass": true,
+ "modelLoadMs": 0.5,
+ "scoreMs": {
+  "p50": 0.23,
+  "p90": 0.43,
+  "max": 1.13
+ }
+}
