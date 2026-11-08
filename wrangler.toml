@@ -27,7 +27,7 @@ name = "lastro"
 
 [env.production.vars]
 MAX_SPEND_USD = "3"
-DAILY_CAP = "150"
+DAILY_CAP = "100"
 FORCED_DAILY_CAP = "20"
 IP_DAILY_CAP = "10"
 ALLOW_CACHE_BYPASS = "0"
