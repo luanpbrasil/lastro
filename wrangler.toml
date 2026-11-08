@@ -3,6 +3,13 @@ main = "worker/src/index.ts"
 compatibility_date = "2026-11-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Judge site (/ and /demo) as static assets, built before every `wrangler dev` / `wrangler deploy`.
+[build]
+command = "node site/build.mjs"
+
+[assets]
+directory = "site/dist"
+
 # Secrets: ANTHROPIC_API_KEY comes from .dev.vars locally (never committed)
 # and from `wrangler secret put ANTHROPIC_API_KEY` when deployed.
 

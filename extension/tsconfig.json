@@ -12,6 +12,7 @@
   },
   "include": [
     "src",
-    "../shared"
+    "../shared",
+    "../site/src"
   ]
 }

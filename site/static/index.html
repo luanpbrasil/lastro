@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lastro</title>
+<meta name="description" content="Lastro mostra, enquanto você assiste, de onde vem cada ideia econômica de um vídeo no YouTube, quem discorda e o que dizem os dados oficiais.">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="/">Lastro</a><a class="small" href="https://github.com/luanpbrasil/lastro">GitHub</a></header>
+<main>
+  <h1>De onde vem cada ideia econômica que você ouve no YouTube.</h1>
+  <p class="lede">Enquanto você assiste, o Lastro mostra a escola de pensamento por trás de cada afirmação, quem discorda e o que dizem os dados oficiais. Ele nunca diz quem está certo.</p>
+  <p class="muted small">While you watch an economics video, Lastro shows the school of thought behind each claim, who argues the opposite, and the official numbers. It never says who is right.</p>
+  <div class="row">
+    <a class="btn primary" href="/demo/">Ver o demo, sem instalar nada →</a>
+    <a class="btn" href="#instalar">Instalar a extensão</a>
+  </div>
+
+  <h2>A extensão em uso</h2>
+  <div class="loop" id="loop">Vídeo de 20 s da extensão no YouTube: em breve.</div>
+
+  <h2 id="instalar">Instalar a extensão (Chrome)</h2>
+  <div class="panel">
+    <ol>
+      <li>Baixe <code>lastro-extension.zip</code> na <a href="https://github.com/luanpbrasil/lastro/releases/latest">página de releases</a> e descompacte.</li>
+      <li>Abra <code>chrome://extensions</code>, ligue o <b>Modo do desenvolvedor</b> (canto superior direito) e clique em <b>Carregar sem compactação</b>.</li>
+      <li>Escolha a pasta descompactada. Abra um vídeo de economia no YouTube: a pílula <b>Lastro · ligado</b> aparece no canto inferior direito.</li>
+    </ol>
+    <p class="small muted">Sem chave de API e sem servidor local: a extensão usa o servidor do Lastro. Para rodar tudo na sua máquina, veja o <a href="https://github.com/luanpbrasil/lastro#readme">README</a>.</p>
+  </div>
+
+  <h2>Como funciona</h2>
+  <p>A extensão lê as legendas que o próprio player do YouTube já carregou. Uma chamada ao Claude Haiku por vídeo encontra as ideias e as liga a um mapa de 22 escolas, pensadores, instituições e episódios brasileiros. O resultado fica em cache: o próximo espectador do mesmo vídeo recebe os cartões na hora, sem custo. Números citados são conferidos nas APIs públicas do Banco Central e do IBGE.</p>
+  <p class="small muted">Hack Brasil 2026 · Acesso à educação</p>
+</main>
+<script>
+  // Show the loop video once it has been uploaded to /media/lastro-loop.mp4.
+  fetch("/media/lastro-loop.mp4", { method: "HEAD" }).then((r) => {
+    if (!r.ok || !(r.headers.get("content-type") || "").startsWith("video/")) return;
+    const v = document.createElement("video");
+    Object.assign(v, { src: "/media/lastro-loop.mp4", autoplay: true, muted: true, loop: true, playsInline: true });
+    document.getElementById("loop").replaceChildren(v);
+  }).catch(() => {});
+</script>
+</body>
+</html>

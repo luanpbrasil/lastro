@@ -3,15 +3,12 @@ import { shouldAnalyze, TopicScorer, type TopicModel } from "../../shared/topics
 import type { Card, Segment, StreamEvent } from "../../shared/schema";
 import { segmentsFromJson3, transcriptHash } from "../../shared/transcript";
 import { Overlay, type PillState } from "./overlay";
+import { CardTimeline } from "./timeline";
 
 declare const __DEV__: boolean;
 
-const MIN_GAP_MS = 40_000; // ≥ 40 s between pop-ups
-const QUIET_START_MS = 10_000; // no pop-up in the first 10 s
 const MAX_CAPTION_CHARS = 60_000; // one call ≈ 60 min
 const CAPTION_WAIT_MS = 20_000; // not counting ads
-const STALE_MS = 30_000; // a card passed by more than this (a skip ahead) goes to the list, not a pop-up
-const DUE_SLACK_MS = 500;
 
 type Metrics = Record<string, number | string | null>;
 type CaptionHit = { url: string; segments: Segment[]; lang: string; at: number };
@@ -63,15 +60,7 @@ overlay.loadSeries = async (indicator, from, to) => {
 class VideoSession {
   readonly videoId: string;
   status = "";
-  private cards: Card[] = [];
-  private handled = new Set<Card>();
-  /** Ideas that have appeared so far, by primary node + side: number of mentions. Used to pop each idea once. */
-  private ideas = new Map<string, number>();
-  /** How many cards were due when the list was last drawn (redraw the open list when it changes). */
-  private listDue = -1;
-  private queue: Card[] = [];
-  private lastPopAt = -Infinity;
-  private timer: number | undefined;
+  private timeline: CardTimeline;
   private alive = true;
   readonly m: Metrics = {};
   private t0 = performance.now();
@@ -82,16 +71,31 @@ class VideoSession {
     overlay.hide();
     overlay.setQueued(0);
     overlay.setAction(null);
-    overlay.onSeek = (ms) => {
-      const v = video();
-      if (v) v.currentTime = ms / 1000;
-    };
-    this.timer = window.setInterval(() => this.tick(), 250);
+    this.timeline = new CardTimeline(
+      overlay,
+      {
+        nowMs: () => {
+          const v = video();
+          return v ? v.currentTime * 1000 : null;
+        },
+        seekMs: (ms) => {
+          const v = video();
+          if (v) v.currentTime = ms / 1000;
+        },
+      },
+      () => state === "on",
+      () => this.status === "analisando…",
+    );
+    this.timeline.onFirstRender = () => this.mark("firstRender");
+  }
+
+  openList(): void {
+    this.timeline.openList();
   }
 
   stop(): void {
     this.alive = false;
-    window.clearInterval(this.timer);
+    this.timeline.stop();
   }
 
   private mark(name: string): void {
@@ -189,7 +193,7 @@ class VideoSession {
         this.m.cached = "yes";
         for (const c of msg.data!.cards) this.addCard(c);
         this.updateDebug();
-        this.setStatus(`${this.cards.length} ideias`);
+        this.setStatus(`${this.timeline.count} ideias`);
         port.disconnect();
         break;
       case "miss": {
@@ -215,7 +219,7 @@ class VideoSession {
         if (ev.type === "card") {
           if (this.m.firstCardEvent === undefined) this.mark("firstCardEvent");
           this.addCard(ev.card);
-          this.setStatus(`${this.cards.length} ideias`);
+          this.setStatus(`${this.timeline.count} ideias`);
         } else if (ev.type === "done") {
           this.mark("done");
           this.m.costUsd = ev.costUsd ?? null;
@@ -228,7 +232,7 @@ class VideoSession {
             this.m.serverDoneMs = ev.timings.recvToDoneMs;
           }
           document.documentElement.dataset.lastroMetrics = JSON.stringify(this.m);
-          this.setStatus(`${this.cards.length} ideias`);
+          this.setStatus(`${this.timeline.count} ideias`);
           this.updateDebug();
         } else if (ev.type === "error") {
           this.setStatus(ev.message);
@@ -245,8 +249,7 @@ class VideoSession {
   }
 
   private addCard(c: Card): void {
-    this.cards.push(c);
-    this.cards.sort((a, b) => a.startMs - b.startMs);
+    this.timeline.add(c);
     this.updateDebug();
   }
 
@@ -260,91 +263,6 @@ class VideoSession {
           ? `ao vivo · $${Number(this.m.costUsd).toFixed(4)}`
           : "ao vivo · …";
     overlay.setDebug(`1º cartão ${this.m.firstCardEvent ?? this.m.cacheHit ?? "-"} ms · ${src}`);
-  }
-
-  private primaryNode(c: Card): string {
-    return (c.nodes[0]?.id ?? c.indicator ?? c.quote).toString();
-  }
-
-  /** Pop due cards: one card per new idea, ≥ 40 s apart, none in the first 10 s, never over the open list. */
-  private tick(): void {
-    const v = video();
-    if (!v || state !== "on") return;
-    const nowMs = v.currentTime * 1000;
-    for (const c of this.cards) {
-      if (this.handled.has(c) || c.startMs > nowMs + DUE_SLACK_MS) continue;
-      const isNew = this.see(c);
-      // skipped past it: it is in the list, no pop-up
-      if (isNew && nowMs - c.startMs <= STALE_MS) this.queue.push(c);
-    }
-    // after a seek, drop queued cards that are far behind or ahead of the playhead
-    this.queue = this.queue.filter((c) => c.startMs <= nowMs + DUE_SLACK_MS && nowMs - c.startMs <= 4 * STALE_MS);
-    if (overlay.isListOpen()) {
-      if (this.dueCount(nowMs) !== this.listDue) this.openList({ redraw: true });
-    } else if (nowMs >= QUIET_START_MS && performance.now() - this.lastPopAt >= MIN_GAP_MS) this.popNext();
-    overlay.setQueued(this.queue.length);
-  }
-
-  /** Mark a card as seen. Returns true if it is the first card of its idea. */
-  private see(c: Card): boolean {
-    if (this.handled.has(c)) return false;
-    this.handled.add(c);
-    const key = this.ideaKey(c);
-    const n = this.ideas.get(key) ?? 0;
-    this.ideas.set(key, n + 1);
-    return n === 0;
-  }
-
-  private ideaKey(c: Card): string {
-    const n = c.nodes[0];
-    return n ? `${n.id}:${n.role === "contradicts" ? "con" : "pro"}` : (c.indicator ?? c.quote);
-  }
-
-  private mentions(c: Card): number {
-    return this.ideas.get(this.ideaKey(c)) ?? 1;
-  }
-
-  private dueCount(nowMs: number): number {
-    return this.cards.filter((c) => c.startMs <= nowMs + DUE_SLACK_MS).length;
-  }
-
-  private popNext(): void {
-    const c = this.queue.shift();
-    if (!c) return;
-    this.lastPopAt = performance.now();
-    overlay.showCard(c, { mentions: this.mentions(c) });
-    if (this.m.firstRender === undefined) this.mark("firstRender");
-  }
-
-  /** Every card of the video in time order: the ones already passed, then the ones ahead. */
-  openList(opts: { redraw?: boolean; focus?: Card } = {}): void {
-    const nowMs = (video()?.currentTime ?? 0) * 1000;
-    this.listDue = this.dueCount(nowMs);
-    const items = this.cards.map((card) => ({ card, ahead: card.startMs > nowMs + DUE_SLACK_MS }));
-    overlay.showList(items, nowMs, {
-      analysing: this.status === "analisando…",
-      redraw: opts.redraw,
-      focus: opts.focus,
-      onOpen: (card) => this.openCard(card),
-      onJump: (card) => this.jumpTo(card),
-    });
-  }
-
-  /** Seek to a card (1 s early, so the sentence starts on screen); it counts as seen, so it won't pop later. */
-  private jumpTo(card: Card): void {
-    const v = video();
-    if (v) v.currentTime = Math.max(0, card.startMs - 1000) / 1000;
-    this.see(card);
-    this.queue = this.queue.filter((q) => q !== card);
-    this.lastPopAt = performance.now();
-  }
-
-  private openCard(card: Card): void {
-    this.see(card);
-    this.queue = this.queue.filter((q) => q !== card); // opened by hand: no need to pop it later
-    this.lastPopAt = performance.now(); // and don't auto-pop over it right away
-    overlay.showCard(card, { mentions: this.mentions(card), onBack: () => this.openList({ focus: card }) });
-    overlay.setQueued(this.queue.length);
   }
 }
 

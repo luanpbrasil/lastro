@@ -1,6 +1,10 @@
 # Deploy the hosted demo
 
-This puts the Lastro server (a Cloudflare Worker) online and pre-analyses the demo videos, so judges can use the extension with no API key and no local server.
+This puts the Lastro server (a Cloudflare Worker) online and pre-analyses the demo videos. One deploy ships three things:
+
+- the API the extension uses, so judges can install it with no API key and no local server;
+- `/`, a landing page, and `/demo`, where judges see Lastro over a YouTube player with nothing to install;
+- the cards for the demo videos, in the cache.
 
 About 30 minutes. Steps marked **check** must pass before you go on. If one fails, stop and tell Luan.
 
@@ -89,6 +93,14 @@ npm run analyze -- eval/transcripts/TESTcook001.json --base $URL
 
 **Check:** it prints `422 {"error":"off topic",...}`. That's a cake recipe: the server must refuse it before calling Claude.
 
+The judge site is served by the same Worker (built automatically by `wrangler deploy`):
+
+```bash
+for p in / /demo/ /api/demo/cards/1FzdBFDbMUs /api/demo/cards/nc55w2yFyoE; do echo "$p $(curl -s -o /dev/null -w '%{http_code}' $URL$p)"; done
+```
+
+**Check:** `/` 200, `/demo/` 200, `/api/demo/cards/1FzdBFDbMUs` 200 (recorded cards ship with the Worker), `/api/demo/cards/nc55w2yFyoE` 404 (not analysed yet: the page shows "being prepared"). Then open `$URL/demo/` in a browser: the video list shows, and the pill says `Lastro · ligado · 9 ideias` on the first video.
+
 ## 6. Build the extension for the hosted server
 
 ```bash
@@ -109,17 +121,25 @@ Open each video in Chrome, let it play until the pill in the bottom-right corner
 6. https://www.youtube.com/watch?v=4wZdCOvolDU
 7. (optional) https://www.youtube.com/watch?v=rtIxeUMZj-M
 
-If the pill says `fora do tema` (off topic) with an **Analisar este vídeo** button, click it: the topic check judges by title and description and can miss. Videos 2–7 pass it; 1 may not.
+If the pill says `fora do tema` (off topic) with an **Analisar este vídeo** button, click it: the topic check judges by title and description and can miss. All 7 passed it when checked on 2026-11-08.
 If the pill says `sem legendas` (no captions), reload the tab once after any ad; if it persists, note the video and move on.
 
 **Check:** run `curl -s $URL/spend`: `analysesToday` equals the number of videos that showed ideas, and `total` is a few cents.
 Then reload one of the videos: the cards appear at once and `analysesToday` doesn't go up (cache hit).
 
+**Check the judge demo now has every video** (each line should say `cache`):
+
+```bash
+for id in 1FzdBFDbMUs wOpqx7XvD54 nc55w2yFyoE p7YTkl30MQ4 M4xUpAnuMJ4 4wZdCOvolDU; do echo "$id $(curl -s $URL/api/demo/cards/$id | grep -o '"source":"[a-z]*"')"; done
+```
+
+Then open `$URL/demo/` and click through the videos: each one's cards load at once (the pill shows `N ideias`). Press **Rodar ao vivo** once (one Haiku call, ~$0.0015): cards appear one by one, with the time to the first card and the cost.
+
 ## 8. Send Luan
 
 - The Worker URL.
 - The KV id you put in `wrangler.toml` (or a pull request with that one-line change).
-- The output of `curl -s $URL/spend`.
+- The output of `curl -s $URL/spend` and of the `/api/demo/cards` loop above.
 - Any video that showed `sem legendas`, an error, or 0 ideas.
 
 He'll commit the URL into the judge build and update the README.

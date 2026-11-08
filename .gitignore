@@ -19,3 +19,4 @@ extension/dist-demo/
 scripts/classifier/.venv/
 data/classifier/raw/
 __pycache__/
+site/dist/

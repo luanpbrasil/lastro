@@ -17,7 +17,8 @@
     "label": "esbuild scripts/label-topics.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/label.mjs && node .cache/label.mjs",
     "topics:tokens": "esbuild scripts/topics-tokens.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/topics-tokens.mjs && node .cache/topics-tokens.mjs",
     "topics:parity": "esbuild scripts/topics-parity.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/topics-parity.mjs && node .cache/topics-parity.mjs",
-    "topics:train": "npm run -s topics:tokens && scripts/classifier/.venv/bin/python -I scripts/classifier/train.py"
+    "topics:train": "npm run -s topics:tokens && scripts/classifier/.venv/bin/python -I scripts/classifier/train.py",
+    "build:site": "node site/build.mjs"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

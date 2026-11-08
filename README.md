@@ -4,6 +4,13 @@ Context cards for economics videos on YouTube. While you watch, Lastro shows whe
 
 Hack Brasil 2026 · track: Acesso à educação.
 
+## Try it without installing anything
+
+Open the demo page: **`https://<hosted-demo-url>/demo/`** (link added once the hosted demo is deployed, see [DEPLOY.md](DEPLOY.md)).
+Pick a video and press play: cards appear as the speaker reaches each idea. Click **Lastro** on the pill for every idea in the video, then expand one and jump to it. **Rodar ao vivo** runs a fresh analysis of a test transcript and shows the time to the first card and the cost.
+
+The page uses the same overlay as the extension, over the YouTube player, with cards computed in advance. The extension itself works on any economics or politics video on YouTube; to install it, follow the steps below.
+
 ## Install and try it (step by step)
 
 This takes about 10 minutes. You need a terminal, but no coding.
@@ -127,8 +134,9 @@ Cloudflare Worker ── validates each card (quote located in the transcript, n
 | Path | What |
 |---|---|
 | `shared/` | knowledge graph (`kg.json`), schema, prompt, prices, topic classifier (`topics.ts` + `topics-model.json`), transcript helpers, stream parser, quote locator, card stance, official-data indicators |
-| `worker/src/index.ts` | Cloudflare Worker: `/analyze`, `/c/:videoId/:hash`, `/spend`, `/health` |
+| `worker/src/index.ts` | Cloudflare Worker: `/analyze`, `/c/:videoId/:hash`, `/spend`, `/health`, `/api/demo/cards/:id`, `/api/demo/live` |
 | `extension/` | Chrome MV3 extension: `hook.ts` (page world), `content.ts` + `overlay.ts`, `background.ts`; `build.mjs` |
+| `site/` | judge site served by the Worker: landing page (`/`) and `/demo` (overlay + YouTube IFrame player, precomputed cards) |
 | `scripts/` | `analyze.ts` (send a saved transcript to the Worker, record the stream), `eval.ts`, `facts-check.ts` |
 | `eval/` | stance cases, gold labels, topic-classifier results (`eval/classifier/`) |
 | `scripts/classifier/` | topic-classifier data collection, labelling review page and training (Python) |

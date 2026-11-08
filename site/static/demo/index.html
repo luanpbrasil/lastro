@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lastro · demo</title>
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="/">Lastro</a><span class="small muted">demo sem instalação</span></header>
+<main>
+  <h1>Assista e veja de onde vem cada ideia.</h1>
+  <p class="lede">Escolha um vídeo e dê play. Quando o falante chega a uma ideia, um cartão aparece no canto. Clique em <b>Lastro</b> na pílula para ver todas as ideias do vídeo e pular para qualquer uma.</p>
+  <div class="stage">
+    <div>
+      <div class="player"><div id="player"></div></div>
+      <p class="notice muted" id="hint"></p>
+      <p class="notice warn" id="preparing" hidden>Os cartões deste vídeo ainda estão sendo preparados. Escolha outro vídeo por enquanto.</p>
+    </div>
+    <div class="videos" id="videos" aria-label="Vídeos do demo"></div>
+  </div>
+
+  <h2>Rodar ao vivo</h2>
+  <div class="panel">
+    <p class="small" style="margin-top:0">Os cartões acima foram calculados antes e saem do cache, sem custo. Este botão manda uma transcrição de teste ao servidor, que chama o Claude Haiku agora, e mostra os cartões chegando, o tempo até o primeiro e o custo.</p>
+    <div class="row"><button class="btn primary" id="live">Rodar ao vivo</button><span class="small muted" id="live-what" style="align-self:center"></span></div>
+    <div class="metrics small mono" id="live-metrics"></div>
+    <div class="live-list" id="live-list"></div>
+  </div>
+  <p class="small muted">Os vídeos são de seus autores e tocam no player do YouTube. O Lastro só mostra o contexto de cada ideia; não diz quem está certo.</p>
+</main>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="/demo/demo.js"></script>
+</body>
+</html>

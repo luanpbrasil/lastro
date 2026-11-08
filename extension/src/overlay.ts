@@ -70,6 +70,7 @@ svg.spark { width: 100%; height: 64px; display: block; }
 .now::after { content: ""; flex: 1; border-top: 1px solid #F0B7B1; }
 .empty { padding: 8px 16px 12px; color: #5A6378; font-size: 13px; }
 .dbg { font: 11px ui-monospace, Menlo, monospace; color: #E6E9F2; background: rgba(16,22,42,.85); padding: 4px 8px; border-radius: 6px; }
+@media (max-width: 560px) { .panel { max-height: 55vh; } }
 .btn { all: unset; font: 12px/1 ui-monospace, Menlo, monospace; background: #FFD23F; color: #16203A; border-radius: 99px; padding: 7px 11px; cursor: pointer; }
 `;
 
@@ -120,7 +121,7 @@ export function sparkline(points: Point[], mark: Point | undefined, label: (p: P
 }
 
 /** "O falante afirma que o BC…" → "O BC…": the list has no room for the lead-in. */
-function shortParaphrase(p: string): string {
+export function shortParaphrase(p: string): string {
   const t = p.replace(/^(o|a) (falante|palestrante|entrevistad[oa]|autor[a]?)\s+(afirma|diz|argumenta|sugere|defende|explica|critica|aponta|acredita|observa|propõe)\s+(que\s+)?/i, "");
   return t.charAt(0).toUpperCase() + t.slice(1);
 }

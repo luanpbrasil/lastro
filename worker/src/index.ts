@@ -15,6 +15,10 @@ import {
   type Usage,
 } from "../../shared/schema";
 import { TranscriptIndex } from "../../shared/locate";
+import { DEMO_IDS, LIVE_TRANSCRIPTS, type LiveId } from "../../shared/demo";
+import demoCards1Fz from "../../fixtures/demo-cards/1FzdBFDbMUs.json";
+import demoCardsGaucha from "../../fixtures/demo-cards/wOpqx7XvD54.json";
+import liveFacts from "../../eval/transcripts/TESTfacts01.json";
 import { sha256Hex, transcriptHash } from "../../shared/transcript";
 import { UnitStreamParser } from "../../shared/unitStream";
 
@@ -39,6 +43,14 @@ const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 const HEX64 = /^[0-9a-f]{64}$/;
 
 const SYSTEM = systemPrompt();
+/** Recorded cards for demo videos, used until the hosted cache has a fresh analysis of them. */
+const DEMO_FALLBACK: Record<string, { promptVersion: string; cards: Card[] }> = {
+  "1FzdBFDbMUs": demoCards1Fz as unknown as { promptVersion: string; cards: Card[] },
+  wOpqx7XvD54: demoCardsGaucha as unknown as { promptVersion: string; cards: Card[] },
+};
+const LIVE: Record<LiveId, { videoId: string; title: string; segments: AnalyzeRequest["segments"] }> = {
+  TESTfacts01: liveFacts as { videoId: string; title: string; segments: AnalyzeRequest["segments"] },
+};
 const TOPICS = new TopicScorer(topicModel as TopicModel);
 const SCHEMA = outputSchema();
 
@@ -78,6 +90,11 @@ export default {
     }
 
     if (req.method === "POST" && url.pathname === "/analyze") return analyze(req, env, ctx, url);
+
+    // Judge demo (static page at /demo): precomputed cards by video id, and the live button.
+    const dm = url.pathname.match(/^\/api\/demo\/cards\/([A-Za-z0-9_-]{11})$/);
+    if (req.method === "GET" && dm) return demoCards(env, dm[1]);
+    if (req.method === "POST" && url.pathname === "/api/demo/live") return demoLive(req, env, ctx);
 
     if (req.method === "GET" && url.pathname === "/spend") {
       return json({
@@ -125,17 +142,27 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
     await env.CARDS.put(`forced:${today()}`, String(forced + 1), { expirationTtl: 3 * 86400 });
   }
 
-  // Spend guardrails.
+  const refused = await reserve(env, req, `pending:${key}`, bypass);
+  if (refused) return refused;
+
+  return streamAnalysis(env, ctx, body, tRecv, key, { cache: true, pendingKey: `pending:${key}` });
+}
+
+/**
+ * Spend guardrails before any Claude call: total spend, daily cap, one analysis at a time per key,
+ * per-IP daily cap. Counts the analysis when it is allowed. Returns a refusal, or null to go ahead.
+ */
+async function reserve(env: Env, req: Request, pendingKey: string, ignorePending = false): Promise<Response | null> {
   const maxSpend = Number(env.MAX_SPEND_USD ?? "4");
   const cap = Number(env.DAILY_CAP ?? "100");
   const [spent, count, pending] = await Promise.all([
     readNumber(env.CARDS, "spend:total"),
     readNumber(env.CARDS, `count:${today()}`),
-    env.CARDS.get(`pending:${key}`),
+    env.CARDS.get(pendingKey),
   ]);
   if (spent >= maxSpend) return json({ error: "spend limit reached; cache only" }, 402);
   if (count >= cap) return json({ error: "daily cap reached" }, 429);
-  if (pending && !bypass) return json({ error: "analysis in progress; retry shortly" }, 409);
+  if (pending && !ignorePending) return json({ error: "analysis in progress; retry shortly" }, 409);
   const ipCap = Number(env.IP_DAILY_CAP ?? "0");
   const ip = req.headers.get("cf-connecting-ip");
   if (ipCap > 0 && ip) {
@@ -144,9 +171,19 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
     if (used >= ipCap) return json({ error: "too many new analyses from this connection today" }, 429);
     await env.CARDS.put(ipKey, String(used + 1), { expirationTtl: 2 * 86400 });
   }
-  await env.CARDS.put(`pending:${key}`, "1", { expirationTtl: 120 });
+  await env.CARDS.put(pendingKey, "1", { expirationTtl: 120 });
   await env.CARDS.put(`count:${today()}`, String(count + 1), { expirationTtl: 3 * 86400 });
+  return null;
+}
 
+function streamAnalysis(
+  env: Env,
+  ctx: ExecutionContext,
+  body: AnalyzeRequest,
+  tRecv: number,
+  key: string,
+  opts: { cache: boolean; pendingKey: string; publicDone?: boolean },
+): Response {
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
   const enc = new TextEncoder();
@@ -156,12 +193,12 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
     (async () => {
       try {
         await send({ type: "meta", cached: false, promptVersion: PROMPT_VERSION, tRecv });
-        await runModel(env, body, tRecv, send, key);
+        await runModel(env, body, tRecv, send, key, opts);
       } catch (err) {
         console.error("analyze failed", err instanceof Error ? err.message : String(err));
         await send({ type: "error", message: "analysis failed" }).catch(() => {});
       } finally {
-        await env.CARDS.delete(`pending:${key}`).catch(() => {});
+        await env.CARDS.delete(opts.pendingKey).catch(() => {});
         await writer.close().catch(() => {});
       }
     })(),
@@ -170,6 +207,41 @@ async function analyze(req: Request, env: Env, ctx: ExecutionContext, url: URL):
   return new Response(readable, {
     headers: { "content-type": "application/x-ndjson; charset=utf-8", "access-control-allow-origin": "*", "cache-control": "no-store" },
   });
+}
+
+/** Cards for a demo video: the latest analysis in the cache, else recorded cards, else 404 ("being prepared"). $0. */
+async function demoCards(env: Env, videoId: string): Promise<Response> {
+  if (!DEMO_IDS.has(videoId)) return json({ error: "not a demo video" }, 404);
+  const latestKey = await env.CARDS.get(`latest:${PROMPT_VERSION}:${videoId}`);
+  const hit = latestKey ? await env.CARDS.get(latestKey) : null;
+  if (hit) {
+    const c = JSON.parse(hit) as CachedAnalysis;
+    return json({ videoId, source: "cache", promptVersion: c.promptVersion, cards: c.cards });
+  }
+  const f = DEMO_FALLBACK[videoId];
+  if (f) return json({ videoId, source: "recorded", promptVersion: f.promptVersion, cards: f.cards });
+  return json({ videoId, status: "preparing" }, 404);
+}
+
+/**
+ * "Rodar ao vivo": a fresh Haiku analysis of one transcript stored with the Worker, picked by id.
+ * Never takes text from the client. Same caps as /analyze (spend, daily, per-IP); not cached.
+ * The stream carries cards, timings and cost, not token usage.
+ */
+async function demoLive(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  const tRecv = Date.now();
+  let id: string | undefined;
+  try {
+    id = ((await req.json()) as { id?: string }).id;
+  } catch {
+    return json({ error: "bad json" }, 400);
+  }
+  if (!id || !(id in LIVE_TRANSCRIPTS)) return json({ error: "unknown transcript" }, 400);
+  const t = LIVE[id as LiveId];
+  const refused = await reserve(env, req, "pending:demo-live");
+  if (refused) return refused;
+  const body: AnalyzeRequest = { videoId: t.videoId, title: t.title, hash: await transcriptHash(t.segments), segments: t.segments };
+  return streamAnalysis(env, ctx, body, tRecv, "", { cache: false, pendingKey: "pending:demo-live", publicDone: true });
 }
 
 function replayCached(c: CachedAnalysis, tRecv: number): Response {
@@ -189,6 +261,7 @@ async function runModel(
   tRecv: number,
   send: (e: StreamEvent) => Promise<void>,
   key: string,
+  opts: { cache: boolean; publicDone?: boolean } = { cache: true },
 ): Promise<void> {
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
   const { segments } = body;
@@ -247,7 +320,7 @@ async function runModel(
   ]);
   console.log(JSON.stringify({ event: "analysis", videoId: body.videoId, cards: cards.length, usage, costUsd: cost, stop: msg.stop_reason, ms: tDone - tRecv }));
 
-  if (msg.stop_reason === "end_turn") {
+  if (opts.cache && msg.stop_reason === "end_turn") {
     const cached: CachedAnalysis = {
       videoId: body.videoId,
       hash: body.hash,
@@ -259,11 +332,13 @@ async function runModel(
       costUsd: cost,
     };
     await env.CARDS.put(key, JSON.stringify(cached));
+    // pointer for the judge demo, which looks cards up by video id
+    await env.CARDS.put(`latest:${PROMPT_VERSION}:${body.videoId}`, key);
   }
   await send({
     type: "done",
     cards: cards.length,
-    usage,
+    ...(opts.publicDone ? {} : { usage }),
     costUsd: cost,
     model: RUNTIME_MODEL,
     timings: {
