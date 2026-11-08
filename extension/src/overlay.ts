@@ -182,6 +182,11 @@ export class Overlay {
     document.documentElement.append(this.host);
   }
 
+  /** Remove the overlay from the page for good (the extension was reloaded under this tab). */
+  destroy(): void {
+    this.host.remove();
+  }
+
   setPill(state: PillState, status: string): void {
     this.pill.className = `pill ${state === "on" ? "" : state}`;
     this.statusEl.textContent = `· ${state === "paused" ? "pausado" : state === "off" ? "desligado" : "ligado"}${status ? ` · ${status}` : ""}`;

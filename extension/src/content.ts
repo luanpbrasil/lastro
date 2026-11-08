@@ -22,7 +22,8 @@ type CaptionOutcome = { hit: CaptionHit } | { fail: CaptionFail } | { noTrack: t
 const captionsByVideo = new Map<string, CaptionHit>();
 const captionFails = new Map<string, CaptionFail>();
 const captionListeners = new Set<(v: string) => void>();
-window.addEventListener("message", (e) => {
+window.addEventListener("message", onCaptionMessage);
+function onCaptionMessage(e: MessageEvent): void {
   if (e.source !== window) return;
   if (e.data?.__lastro_transcript) return onTranscriptResponse(Number(e.data.status), String(e.data.body ?? ""));
   if (!e.data?.__lastro_captions) return;
@@ -54,19 +55,45 @@ window.addEventListener("message", (e) => {
   } catch {
     /* not json3, or malformed: ignore */
   }
-});
+}
 
 /** Title + full description from the page's player data, via hook.ts; null if no matching data in time. */
 type PlayerMeta = { title: string; description: string; from: string };
 const META_REPLY_MS = 4_000; // the hook waits up to 3 s for a matching response
 const metaWaiters = new Map<string, (m: PlayerMeta | null) => void>();
-window.addEventListener("message", (e) => {
+window.addEventListener("message", onMetaMessage);
+function onMetaMessage(e: MessageEvent): void {
   if (e.source !== window || !e.data?.__lastro_meta) return;
   const done = metaWaiters.get(String(e.data.videoId));
   if (!done) return;
   metaWaiters.delete(String(e.data.videoId));
   done(e.data.found ? { title: String(e.data.title ?? ""), description: String(e.data.description ?? ""), from: String(e.data.from) } : null);
-});
+}
+
+/**
+ * After the extension is reloaded or updated, tabs that were already open keep this old script, cut off from the
+ * extension: every chrome.runtime call throws "Extension context invalidated". Detect that and stop quietly
+ * (no overlay, no listeners, no further calls). A tab reload brings Lastro back.
+ */
+let orphaned = false;
+function contextAlive(): boolean {
+  try {
+    return !orphaned && !!chrome.runtime?.id;
+  } catch {
+    return false;
+  }
+}
+const isOrphanError = (e: unknown) => /context invalidated|disconnected port/i.test(e instanceof Error ? e.message : String(e));
+function shutdown(): void {
+  if (orphaned) return;
+  orphaned = true;
+  session?.stop();
+  session = null;
+  window.removeEventListener("message", onCaptionMessage);
+  window.removeEventListener("message", onMetaMessage);
+  document.removeEventListener("yt-navigate-finish", onNavigate);
+  overlay.destroy();
+}
 function playerMeta(videoId: string): Promise<PlayerMeta | null> {
   return new Promise((resolve) => {
     const t = window.setTimeout(() => {
@@ -102,13 +129,28 @@ overlay.onPauseClick = () => {
   overlay.setPill(state, session?.status ?? "");
 };
 overlay.onOpenList = () => session?.openList();
+/** chrome.runtime.sendMessage, or shut down quietly if the extension was reloaded under us. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- same type as chrome.runtime.sendMessage's reply
+async function runtimeMessage(msg: unknown): Promise<any> {
+  if (!contextAlive()) {
+    shutdown();
+    throw new Error("lastro: stopped");
+  }
+  try {
+    return await chrome.runtime.sendMessage(msg);
+  } catch (e) {
+    if (isOrphanError(e)) shutdown();
+    throw new Error("lastro: message failed");
+  }
+}
+
 overlay.loadFact = async (indicator, period) => {
-  const r = await chrome.runtime.sendMessage({ type: "fact", indicator, period });
+  const r = await runtimeMessage({ type: "fact", indicator, period });
   if (!r?.ok) throw new Error(r?.error ?? "fact failed");
   return r.fact;
 };
 overlay.loadSeries = async (indicator, from, to) => {
-  const r = await chrome.runtime.sendMessage({ type: "series", indicator, from, to });
+  const r = await runtimeMessage({ type: "series", indicator, from, to });
   if (!r?.ok) throw new Error(r?.error ?? "series failed");
   return r.series;
 };
@@ -308,9 +350,19 @@ class VideoSession {
     const hash = await transcriptHash(segments);
     this.mark("hash");
 
-    const port = chrome.runtime.connect({ name: "lastro" });
-    port.onMessage.addListener((msg) => this.onPortMessage(msg, port, title, desc, hash, segments, force));
-    port.postMessage({ type: "lookup", videoId: this.videoId, hash });
+    if (!contextAlive()) return shutdown();
+    let port: chrome.runtime.Port;
+    try {
+      port = chrome.runtime.connect({ name: "lastro" });
+      port.onMessage.addListener((msg) => this.onPortMessage(msg, port, title, desc, hash, segments, force));
+      port.onDisconnect.addListener(() => {
+        if (!contextAlive()) shutdown();
+      });
+      port.postMessage({ type: "lookup", videoId: this.videoId, hash });
+    } catch (e) {
+      if (isOrphanError(e) || !contextAlive()) return shutdown();
+      this.setStatus("servidor fora do ar");
+    }
   }
 
   private onPortMessage(
@@ -346,7 +398,13 @@ class VideoSession {
           return port.disconnect();
         }
         this.setStatus("analisando…");
-        port.postMessage({ type: "analyze", body: { videoId: this.videoId, title, description, hash, segments, force } });
+        try {
+          port.postMessage({ type: "analyze", body: { videoId: this.videoId, title, description, hash, segments, force } });
+        } catch {
+          if (!contextAlive()) return shutdown();
+          this.setStatus("servidor fora do ar");
+          return;
+        }
         this.mark("analyzeSent");
         break;
       }
@@ -434,6 +492,7 @@ function currentVideoId(): string | null {
 }
 
 function start(): void {
+  if (!contextAlive()) return shutdown();
   const id = currentVideoId();
   if (session?.videoId === id) return;
   session?.stop();
@@ -447,6 +506,10 @@ function start(): void {
   if (state === "on") void session.run();
 }
 
-document.addEventListener("yt-navigate-finish", () => setTimeout(start, 300));
+function onNavigate(): void {
+  if (!contextAlive()) return shutdown();
+  setTimeout(start, 300);
+}
+document.addEventListener("yt-navigate-finish", onNavigate);
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(start, 300));
 else start();
