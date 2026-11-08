@@ -79,7 +79,7 @@ Paste the demo key at the prompt and press Enter. The prompt doesn't show it or 
 curl -s $URL/health
 ```
 
-**Check:** `{"ok":true,"promptVersion":"p4","model":"claude-haiku-5-5"}`.
+**Check:** `{"ok":true,"promptVersion":"p5","model":"claude-haiku-5-5"}`.
 
 ```bash
 curl -s $URL/spend

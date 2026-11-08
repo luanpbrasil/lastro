@@ -226,7 +226,7 @@
       }
     },
     {
-      "name": "Hayek: Keynes and state money disagree",
+      "name": "Hayek: Keynes disagrees, not state money",
       "nodes": [
         {
           "id": "t_hayek",
@@ -239,11 +239,11 @@
           "role": "echoes"
         },
         "disagreeIncludes": [
-          "s_keynes",
-          "p_soberania_monetaria"
+          "s_keynes"
         ],
         "disagreeExcludes": [
-          "t_hayek"
+          "t_hayek",
+          "p_soberania_monetaria"
         ]
       }
     },
@@ -310,6 +310,28 @@
         ],
         "readOpposingIncludes": [
           "Kelton"
+        ]
+      }
+    },
+    {
+      "name": "monetary sovereignty relied on: fiscal dominance disagrees, not Hayek",
+      "nodes": [
+        {
+          "id": "p_soberania_monetaria",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "p_soberania_monetaria",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "s_dominancia"
+        ],
+        "disagreeExcludes": [
+          "t_hayek",
+          "p_soberania_monetaria"
         ]
       }
     }

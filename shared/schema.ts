@@ -1,7 +1,7 @@
 import { NODE_IDS } from "./kg";
 
 /** Bump when the prompt or schema changes; it is part of the cache key. */
-export const PROMPT_VERSION = "p4";
+export const PROMPT_VERSION = "p5";
 
 export const INDICATORS = [
   "selic_meta",

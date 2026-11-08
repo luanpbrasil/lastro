@@ -900,10 +900,10 @@
    "note": "Estado mínimo x Estado de bem-estar."
   },
   {
-   "from": "t_hayek",
+   "from": "p_soberania_monetaria",
    "type": "opposes",
-   "to": "p_soberania_monetaria",
-   "note": "Hayek defendeu acabar com o monopólio estatal da moeda."
+   "to": "s_dominancia",
+   "note": "Emitir a própria moeda não elimina o limite: dívida alta força o BC a acomodar, e vem inflação."
   }
  ]
 }
