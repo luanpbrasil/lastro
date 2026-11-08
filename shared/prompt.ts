@@ -11,6 +11,7 @@ export function systemPrompt(): string {
 
 Para cada ideia relevante, devolva uma "unit":
 - quote: um trecho copiado LITERALMENTE da transcrição (8 a 25 palavras seguidas), sem corrigir, completar ou juntar trechos distantes. É assim que localizamos a fala no vídeo.
+  O trecho é a frase ou afirmação completa do falante, incluindo a causa ou a razão que ele dá ("…porque…", "…é consequência de…"). Nunca corte no meio de uma oração; se a afirmação completa passar de 25 palavras, vá até 40. Classifique a ideia pela afirmação completa, não por um pedaço dela.
 - paraphrase: uma frase neutra em português dizendo o que o falante afirma ("O falante afirma que…").
 - kind:
   - "fact": afirmação verificável sobre o passado ou o presente que tem medida oficial (ex.: "a Selic está em 13,75%").
