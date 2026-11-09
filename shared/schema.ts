@@ -1,7 +1,7 @@
 import { NODE_IDS } from "./kg";
 
 /** Bump when the prompt or schema changes; it is part of the cache key. */
-export const PROMPT_VERSION = "p8";
+export const PROMPT_VERSION = "p9";
 
 export const INDICATORS = [
   "selic_meta",
@@ -25,10 +25,25 @@ export interface ModelUnit {
   paraphrase: string;
   kind: UnitKind;
   nodes: { id: string; role: NodeRole }[];
+  /** p9+: why this claim belongs to the lead node, in the speaker's own argument. Absent on cards cached before p9. */
+  context?: string;
+  /** p9+: how the view `counterpointBy` answers this claim; "" when there is none or the model named a view the card does not list. */
+  counterpoint?: string;
+  /** p9+: node id of the view that gives the counterpoint (one of the card's "Quem discorda"). */
+  counterpointBy?: string;
   indicator: Indicator | null;
   claimed_value: number | null;
   /** When the claimed value applies: "YYYY" or "YYYY-MM"; null = now (latest data). */
   period: string | null;
+}
+
+/** p9+: written after all units; `i` is the unit's position in the model's units array. */
+export interface ModelNote {
+  i: number;
+  context: string;
+  /** The node whose answer `counterpoint` gives; the server keeps the counterpoint only if the card lists it under "Quem discorda". */
+  against: string | null;
+  counterpoint: string;
 }
 
 /** A unit after server validation: located in the transcript, quote replaced by the exact caption text. */
@@ -65,6 +80,8 @@ export interface AnalyzeRequest {
 export type StreamEvent =
   | { type: "meta"; cached: boolean; promptVersion: string; tRecv: number }
   | { type: "card"; card: Card; tServer: number }
+  /** p9+: context/counterpoint for an earlier card, by its position among the card events (0-based). */
+  | { type: "enrich"; card: number; context: string; counterpoint: string; counterpointBy?: string }
   | { type: "dropped"; reason: string; quote?: string }
   | {
       type: "done";
@@ -99,7 +116,7 @@ export function outputSchema(): Record<string, unknown> {
   return {
     type: "object",
     additionalProperties: false,
-    required: ["units"],
+    required: ["units", "notes"],
     properties: {
       units: {
         type: "array",
@@ -126,6 +143,21 @@ export function outputSchema(): Record<string, unknown> {
             indicator: { anyOf: [{ type: "string", enum: [...INDICATORS] }, { type: "null" }] },
             claimed_value: { anyOf: [{ type: "number" }, { type: "null" }] },
             period: { anyOf: [{ type: "string" }, { type: "null" }] },
+          },
+        },
+      },
+      // p9: written after ALL units, so no enrichment text can steer the labels of a later unit.
+      notes: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["i", "context", "against", "counterpoint"],
+          properties: {
+            i: { type: "integer" },
+            context: { type: "string" },
+            against: { anyOf: [{ type: "string", enum: NODE_IDS }, { type: "null" }] },
+            counterpoint: { type: "string" },
           },
         },
       },

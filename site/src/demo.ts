@@ -174,6 +174,7 @@ async function runLive(): Promise<void> {
     const reader = r.body.getReader();
     const dec = new TextDecoder();
     let buf = "";
+    const streamed: Card[] = [];
     for (;;) {
       const { value, done } = await reader.read();
       if (done) break;
@@ -184,9 +185,19 @@ async function runLive(): Promise<void> {
         buf = buf.slice(i + 1);
         if (!line) continue;
         const ev = JSON.parse(line) as StreamEvent;
-        if (ev.type === "card") {
+        if (ev.type === "enrich") {
+          // p9+: context/counterpoint for a card already listed
+          const c = streamed[ev.card];
+          if (c) {
+            c.context = ev.context;
+            c.counterpoint = ev.counterpoint;
+            c.counterpointBy = ev.counterpointBy;
+            overlay.refreshCard(c);
+          }
+        } else if (ev.type === "card") {
           if (first === null) first = performance.now() - t0;
           n++;
+          streamed.push(ev.card);
           list.append(liveItem(ev.card));
           metrics.textContent = `1º cartão em ${(first / 1000).toFixed(1).replace(".", ",")} s · ${n} cartões…`;
         } else if (ev.type === "done") {

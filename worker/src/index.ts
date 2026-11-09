@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { node } from "../../shared/kg";
+import { stanceView } from "../../shared/stance";
 import topicModel from "../../shared/topics-model.json";
 import { shouldAnalyze, TopicScorer, type TopicModel } from "../../shared/topics";
 import { costUsd, RUNTIME_MODEL } from "../../shared/prices";
@@ -10,6 +11,7 @@ import {
   type AnalyzeRequest,
   type CachedAnalysis,
   type Card,
+  type ModelNote,
   type ModelUnit,
   type StreamEvent,
   type Usage,
@@ -266,8 +268,12 @@ async function runModel(
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
   const { segments } = body;
   const index = new TranscriptIndex(segments);
-  const parser = new UnitStreamParser();
+  const parser = new UnitStreamParser("units");
+  const notesParser = new UnitStreamParser("notes");
   const cards: Card[] = [];
+  /** model unit position → card (dropped units have none) */
+  const byUnit = new Map<number, Card>();
+  let unitPos = 0;
   let tFirstToken = 0;
   let tFirstCard: number | null = null;
 
@@ -284,14 +290,31 @@ async function runModel(
     if (ev.type !== "content_block_delta" || ev.delta.type !== "text_delta") continue;
     if (!tFirstToken) tFirstToken = Date.now();
     for (const raw of parser.push(ev.delta.text)) {
+      const pos = unitPos++;
       const res = validate(raw as ModelUnit, segments, index);
       if ("reason" in res) {
         await send({ type: "dropped", reason: res.reason, quote: (raw as ModelUnit)?.quote });
         continue;
       }
       cards.push(res);
+      byUnit.set(pos, res);
       if (tFirstCard === null) tFirstCard = Date.now();
       await send({ type: "card", card: res, tServer: Date.now() });
+    }
+    for (const raw of notesParser.push(ev.delta.text)) {
+      const n = raw as ModelNote;
+      const card = typeof n?.i === "number" ? byUnit.get(n.i) : undefined;
+      if (typeof n?.context !== "string" || !n.context.trim()) continue; // a unit with no nodes gets an empty note
+      if (!card || !card.nodes.length) {
+        await send({ type: "dropped", reason: `note for unit ${n.i} has no card`, quote: n.context });
+        continue;
+      }
+      card.context = n.context;
+      // Keep the counterpoint only when it speaks for a view the card shows under "Quem discorda" (stance logic).
+      const by = typeof n.against === "string" && stanceView(card).disagree.some((d) => d.node.id === n.against) ? n.against : null;
+      card.counterpoint = by && typeof n.counterpoint === "string" ? n.counterpoint : "";
+      if (by && card.counterpoint) card.counterpointBy = by;
+      await send({ type: "enrich", card: cards.indexOf(card), context: card.context, counterpoint: card.counterpoint, ...(card.counterpointBy ? { counterpointBy: card.counterpointBy } : {}) });
     }
   }
 

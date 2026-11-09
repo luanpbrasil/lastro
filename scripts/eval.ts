@@ -28,6 +28,21 @@ interface StanceCase {
   };
 }
 
+/** Number tokens ("13,75", "2015") in a text. */
+const digitsIn = (t: string) => t.match(/\d+(?:[.,]\d+)*/g) ?? [];
+
+/**
+ * Parties and active politicians in free card text. Acronyms match case-sensitively as whole words
+ * ("PL" the party, not "pl"); "Novo" only as "partido Novo" (Novo consenso is a node).
+ */
+const POLITICS: RegExp[] = [
+  /\b(PT|PL|PSDB|MDB|PSOL)\b/,
+  /partido novo/i,
+  /\b(União Brasil|Republicanos)\b/i,
+  /\b(Lula|Bolsonaro|Haddad|Tarcísio|Alckmin|Dilma|Ciro Gomes|Marina Silva|Boulos|Moro|Lira|Pacheco|Motta|Alcolumbre|Milei|Trump|Campos Neto|Galípolo)\b/i,
+];
+const namesPolitics = (t: string) => POLITICS.flatMap((r) => t.match(r)?.[0] ?? []);
+
 let pass = 0;
 let fail = 0;
 const check = (ok: boolean, what: string) => {
@@ -68,11 +83,14 @@ for (const f of readdirSync("eval/gold").filter((x) => x.endsWith(".json"))) {
     console.log(`  - ${gold.videoId}: no recorded stream at ${stream}; run npm run analyze first`);
     continue;
   }
-  const cards = readFileSync(stream, "utf8")
+  const events = readFileSync(stream, "utf8")
     .trim()
     .split("\n")
-    .map((l) => JSON.parse(l) as StreamEvent)
-    .flatMap((e) => (e.type === "card" ? [e.card as Card] : []));
+    .map((l) => JSON.parse(l) as StreamEvent);
+  const cards = events.flatMap((e) => (e.type === "card" ? [e.card as Card] : []));
+  for (const e of events) if (e.type === "enrich" && cards[e.card]) Object.assign(cards[e.card], { context: e.context, counterpoint: e.counterpoint, counterpointBy: e.counterpointBy });
+  const meta = events.find((e) => e.type === "meta");
+  const version = meta?.type === "meta" ? Number(meta.promptVersion.slice(1)) : 0;
   // With a transcript, timestamps are re-checked with the current quote locator ($0).
   const index = gold.transcript && existsSync(gold.transcript)
     ? { segs: JSON.parse(readFileSync(gold.transcript, "utf8")).segments as Segment[] }
@@ -82,6 +100,30 @@ for (const f of readdirSync("eval/gold").filter((x) => x.endsWith(".json"))) {
   for (const w of (gold.forbidInParaphrase ?? []) as string[]) {
     const bad = cards.filter((c) => ` ${looseNorm(c.paraphrase)} `.includes(` ${looseNorm(w)} `));
     check(bad.length === 0, `paraphrase names "${w}": ${bad.map((c) => c.paraphrase).join(" | ")}`);
+  }
+  // p9+ enrichment: theory/forecast cards with nodes carry context (a fact card's depth is the official data, and the
+  // model often leaves its note empty: it then renders the p8 layout); context/counterpoint add no numbers and name
+  // no party or politician.
+  {
+    const before = fail;
+    for (const c of cards) {
+      const at = `@${Math.round(c.startMs / 1000)}s`;
+      if (version >= 9 && c.nodes.length && c.kind !== "fact") check(!!c.context?.trim(), `${at}: ${c.kind} card with nodes but no context`);
+      const v = stanceView(c);
+      if (c.counterpoint) check(!!c.counterpointBy && v.disagree.some((d) => d.node.id === c.counterpointBy), `${at}: counterpoint from ${c.counterpointBy}, not a view under "Quem discorda"`);
+      const mapText = [...c.nodes.map((n) => node(n.id)), ...v.disagree.map((d) => d.node)]
+        .flatMap((n) => (n ? [n.name, n.summary, ...n.claims, ...n.aliases] : []))
+        .concat(v.disagree.map((d) => d.note ?? ""));
+      const allowed = new Set(digitsIn([c.quote, c.modelQuote ?? "", ...mapText].join(" ")));
+      for (const [field, text] of [["context", c.context], ["counterpoint", c.counterpoint]] as const) {
+        if (!text) continue;
+        const extra = digitsIn(text).filter((d) => !allowed.has(d));
+        check(extra.length === 0, `${at} ${field} has numbers not in the quote or map (${extra.join(", ")}): ${text}`);
+        const named = namesPolitics(text);
+        check(named.length === 0, `${at} ${field} names ${named.join(", ")}: ${text}`);
+      }
+    }
+    if (version >= 9) console.log(`  ${fail === before ? "✓" : "✗"} ${gold.videoId}: context on theory/forecast node cards; no new numbers or political names (${cards.length} cards)`);
   }
   for (const g of gold.cases) {
     const before = fail;

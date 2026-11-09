@@ -1,8 +1,9 @@
 /**
- * Incremental parser for a streamed `{"units": [ {...}, {...} ]}` JSON document.
- * Feed it text deltas; it returns each array element as soon as its closing brace arrives.
+ * Incremental parser for a streamed `{"units": [ {...}, {...} ], "notes": [...]}` JSON document.
+ * Feed it text deltas; it returns each element of the array under `key` as soon as its closing brace arrives.
  */
 export class UnitStreamParser {
+  constructor(private readonly key = "units") {}
   private buf = "";
   private pos = 0;
   private inArray = false;
@@ -17,8 +18,8 @@ export class UnitStreamParser {
     for (; this.pos < this.buf.length; this.pos++) {
       const c = this.buf[this.pos];
       if (!this.inArray) {
-        // wait for the '[' that follows the "units" key
-        if (c === "[" && /"units"\s*:\s*$/.test(this.buf.slice(0, this.pos))) this.inArray = true;
+        // wait for the '[' that follows the key
+        if (c === "[" && new RegExp(`"${this.key}"\\s*:\\s*$`).test(this.buf.slice(0, this.pos))) this.inArray = true;
         continue;
       }
       if (this.inString) {

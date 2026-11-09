@@ -144,6 +144,7 @@ export class Overlay {
   private dbg: HTMLElement;
   private actionSlot: HTMLElement;
   private mode: "none" | "card" | "list" = "none";
+  private shown: { c: Card; opts: { mentions?: number; onBack?: () => void } } | null = null;
   onPauseClick: () => void = () => {};
   onOpenList: () => void = () => {};
   onSeek: (ms: number) => void = () => {};
@@ -327,6 +328,7 @@ export class Overlay {
 
   showCard(c: Card, opts: { mentions?: number; onBack?: () => void } = {}): void {
     this.mode = "card";
+    this.shown = { c, opts };
     const panel = el("div", "panel");
     const card = el("div", "card");
     card.dataset.testid = "lastro-card";
@@ -350,7 +352,15 @@ export class Overlay {
     card.append(top);
 
     const v = stanceView(c);
-    if (v.lead) {
+    if (v.lead && c.context) {
+      // p9+: what the speaker says and why it belongs to the node; the node's fixed summary drops to a secondary line.
+      card.append(el("div", "lead", c.paraphrase), el("div", "", c.context));
+      const label = v.lead.role === "contradicts" ? "Vai contra" : v.lead.role === "echoes" ? "Lembra" : "Apoia-se em";
+      const node = el("div", "muted");
+      node.append(el("strong", "", `${label} ${v.lead.node.name}: `), document.createTextNode(v.lead.node.summary));
+      card.append(node);
+    } else if (v.lead) {
+      // Cards cached before p9 have no context: the node's summary is the main text.
       const lead = el("div");
       if (v.lead.role === "contradicts") {
         lead.append(el("span", "lead", `Esta fala vai contra ${v.lead.node.name}.`), document.createTextNode(` Essa visão diz: ${v.lead.node.summary}`));
@@ -372,7 +382,16 @@ export class Overlay {
       return r;
     };
     if (v.disagree.length) {
-      row("Quem discorda desta fala", v.disagree.map((o) => `${o.node.name}${o.note ? `: ${o.note}` : ""}`).join(" · "));
+      // p9+: the view the server checked (counterpointBy) answers this claim; the others keep the graph's per-edge note.
+      row(
+        "Quem discorda desta fala",
+        v.disagree
+          .map((o) => {
+            const text = c.counterpoint && o.node.id === c.counterpointBy ? c.counterpoint : o.note;
+            return `${o.node.name}${text ? `: ${text}` : ""}`;
+          })
+          .join(" · "),
+      );
     }
     if (v.tested.length) {
       const r = row("Já foi testado?", v.tested.map((t) => `${t.node.name}${t.note ? `: ${t.note}` : ""}`).join(" · "));
@@ -389,6 +408,11 @@ export class Overlay {
       row("Para ir além", ul);
     }
     this.slot.replaceChildren(panel);
+  }
+
+  /** p9+: a card's context/counterpoint arrive after the card itself; redraw it if it is the one on screen. */
+  refreshCard(c: Card): void {
+    if (this.mode === "card" && this.shown?.c === c) this.showCard(c, this.shown.opts);
   }
 
   private factBlock(c: Card): HTMLElement {

@@ -165,6 +165,8 @@ class VideoSession {
   status = "";
   private timeline: CardTimeline;
   private alive = true;
+  /** Cards in stream order: p9+ "enrich" events point at them by position. */
+  private streamed: Card[] = [];
   private ccRefreshed = false;
   private meta: { title: string; desc: string } | null = null;
   readonly m: Metrics = {};
@@ -422,8 +424,17 @@ class VideoSession {
         const ev = msg.ev!;
         if (ev.type === "card") {
           if (this.m.firstCardEvent === undefined) this.mark("firstCardEvent");
+          this.streamed.push(ev.card);
           this.addCard(ev.card);
           this.setStatus(`${this.timeline.count} ideias`);
+        } else if (ev.type === "enrich") {
+          const c = this.streamed[ev.card];
+          if (c) {
+            c.context = ev.context;
+            c.counterpoint = ev.counterpoint;
+            c.counterpointBy = ev.counterpointBy;
+            overlay.refreshCard(c);
+          }
         } else if (ev.type === "done") {
           this.mark("done");
           this.m.costUsd = ev.costUsd ?? null;

@@ -23,6 +23,13 @@ Para cada ideia relevante, devolva uma "unit":
 - claimed_value: o número que o falante afirma para esse indicador, em % quando for taxa (ex.: "13,75%" → 13.75; "R$ 5,40" → 5.4); senão null.
 - period: quando vale o número citado, como "AAAA" ou "AAAA-MM" (ex.: "em outubro de 2012" → "2012-10"); null se o falante fala do valor atual.
 
+Depois de todas as units, devolva "notes": uma nota para CADA unit, na mesma ordem, sem pular nenhuma (notes tem o mesmo número de entradas que units). Toda unit com nodes, inclusive um fato, tem context; só uma unit sem nodes tem context e counterpoint "".
+- i: a posição da unit na lista units (a primeira é 0).
+- context: 1 ou 2 frases sobre por que essa afirmação pertence ao primeiro nó de nodes, seguindo o argumento do próprio falante neste vídeo: que passo do raciocínio dele é típico desse nó. Não repita a paraphrase nem o resumo do nó.
+- against: o id da visão que discorda dessa fala: o nó que tem relação "opposes" com o primeiro nó de nodes (se o primeiro nó é um pensador, com a escola dele); se a fala vai contra o primeiro nó (role "contradicts"), é esse nó. Nunca um nó do mesmo lado do falante. null quando o mapa não tem essa relação.
+- counterpoint: 1 ou 2 frases sobre como a visão against responderia a essa afirmação, partindo da nota da relação. "" quando against é null.
+- Em context e counterpoint use só o que está na transcrição e no mapa: nenhum nome, número, data ou obra que não esteja lá, nenhum partido ou político, e nunca diga quem está certo. Português simples, para quem não é economista.
+
 Regras:
 - Só inclua ideias que se ligam a algum nó do mapa ou fatos com indicador. Ignore conversa, anúncios e opiniões sem uma ideia econômica ou política por trás.
 - Ligue ideias a tradições, escolas e instituições, nunca a partidos ou políticos. Ataques ou elogios a um partido, governo ou político sem uma ideia por trás não viram unit. Quando houver uma ideia, a paraphrase descreve a ideia sem citar partido ou político (ex.: "O falante afirma que cortar gastos gera confiança", não "O falante defende o governo X").
