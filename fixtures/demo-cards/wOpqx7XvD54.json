@@ -1,11 +1,11 @@
 {
   "videoId": "wOpqx7XvD54",
-  "promptVersion": "p6",
+  "promptVersion": "p8",
   "source": "recorded stream (fixtures/streams), transcript from youtube-transcript-api",
   "cards": [
     {
-      "quote": "E o juro é o principal problema da economia hoje no país e é um problema que se que é uma consequência da situação fiscal",
-      "paraphrase": "O falante afirma que o juro alto é o principal problema da economia e decorre da situação fiscal do país.",
+      "quote": "o juro é o principal problema da economia hoje no país e é um problema que se que é uma consequência da situação fiscal do país.",
+      "paraphrase": "O falante afirma que os juros altos são o principal problema da economia e são consequência da situação fiscal.",
       "kind": "theory",
       "nodes": [
         {
@@ -20,36 +20,14 @@
       "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "E o juro é o principal problema da economia hoje no país e é um problema que é uma consequência da situação fiscal do país.",
+      "modelQuote": "o juro é o principal problema da economia hoje no país e é um problema que se que é uma consequência da situação fiscal do país",
       "seg": 5,
       "startMs": 9440,
       "matchScore": 1
     },
     {
-      "quote": "defende uma redução a força da taxa de juro no país, fazendo uma inversão do raciocínio.",
-      "paraphrase": "O falante afirma que André Lara Resende defende reduzir a taxa de juros como forma de reduzir a dívida pública.",
-      "kind": "forecast",
-      "nodes": [
-        {
-          "id": "t_lararesende",
-          "role": "echoes"
-        },
-        {
-          "id": "s_ftpl",
-          "role": "relies_on"
-        }
-      ],
-      "indicator": null,
-      "claimed_value": null,
-      "period": null,
-      "modelQuote": "defende uma redução a força da taxa de juro no país, fazendo uma inversão do raciocínio.",
-      "seg": 25,
-      "startMs": 54400,
-      "matchScore": 1
-    },
-    {
       "quote": "uma parte muito grande da dívida pública, como a gente tem dito aqui no Gaúcha Atualidades, se deve ao juro alto que a gente",
-      "paraphrase": "O falante afirma que grande parte da dívida pública se deve ao juro alto pago sobre ela.",
+      "paraphrase": "O falante afirma que grande parte da dívida pública se deve ao juro alto pago pelo governo.",
       "kind": "theory",
       "nodes": [
         {
@@ -57,18 +35,40 @@
           "role": "relies_on"
         }
       ],
-      "indicator": "dbgg_pib",
+      "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "uma parte muito grande da dívida pública, como a gente tem dito aqui no Gaúcha Atualidades, se deve ao juro alto que a gente paga.",
+      "modelQuote": "uma parte muito grande da dívida pública, como a gente tem dito aqui no Gaúcha Atualidades, se deve ao juro alto que a gente paga",
       "seg": 31,
       "startMs": 67400,
       "matchScore": 1
     },
     {
-      "quote": "Porém, isso é uma medida considerada artificial pelos economistas. Já foi ah adotada em outros países, mais recentemente até na Turquia, não deu certo.",
-      "paraphrase": "O falante afirma que tabelar juros é medida artificial que já fracassou em outros países, como a Turquia.",
-      "kind": "theory",
+      "quote": "reduzir a taxa de juro no que se chama de canetaço e manter ela tabelada numa faixa reduzida, isso poderia cortar a dívida pública do país.",
+      "paraphrase": "O falante afirma que reduzir e tabelar os juros por decreto poderia cortar a dívida pública.",
+      "kind": "forecast",
+      "nodes": [
+        {
+          "id": "s_mmt",
+          "role": "echoes"
+        },
+        {
+          "id": "t_lararesende",
+          "role": "echoes"
+        }
+      ],
+      "indicator": null,
+      "claimed_value": null,
+      "period": null,
+      "modelQuote": "reduzir a taxa de juro no que se chama de canetaço e manter ela tabelada numa faixa reduzida, isso poderia cortar a dívida pública do país",
+      "seg": 40,
+      "startMs": 83480,
+      "matchScore": 1
+    },
+    {
+      "quote": "medida considerada artificial pelos economistas. Já foi ah adotada em outros países, mais recentemente até na Turquia, não deu certo.",
+      "paraphrase": "O falante afirma que tabelar juros é uma medida artificial que não deu certo em outros países, como a Turquia.",
+      "kind": "forecast",
       "nodes": [
         {
           "id": "s_novoconsenso",
@@ -78,14 +78,14 @@
       "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "Porém, isso é uma medida considerada artificial pelos economistas. Já foi ah adotada em outros países, mais recentemente até na Turquia, não deu certo.",
-      "seg": 45,
-      "startMs": 96160,
-      "matchScore": 1
+      "modelQuote": "essa medida considerada artificial pelos economistas. Já foi ah adotada em outros países, mais recentemente até na Turquia, não deu certo",
+      "seg": 46,
+      "startMs": 97360,
+      "matchScore": 0.95
     },
     {
-      "quote": "Porque gera uma desconfiança do mercado como um todo, ah que o governo não vai cortar também o gasto.",
-      "paraphrase": "O falante afirma que reduzir juros à força gera desconfiança do mercado de que o governo não cortará gastos.",
+      "quote": "Porque gera uma desconfiança do mercado como um todo, ah que o governo não vai cortar também o gasto. Pode manter o gasto elevado, talvez até aumentá-lo.",
+      "paraphrase": "O falante afirma que tabelar juros gera desconfiança do mercado de que o governo não cortará gastos.",
       "kind": "theory",
       "nodes": [
         {
@@ -93,43 +93,21 @@
           "role": "relies_on"
         },
         {
-          "id": "s_novoconsenso",
-          "role": "relies_on"
-        }
-      ],
-      "indicator": null,
-      "claimed_value": null,
-      "period": null,
-      "modelQuote": "Porque gera uma desconfiança do mercado como um todo, ah que o governo não vai cortar também o gasto.",
-      "seg": 50,
-      "startMs": 106720,
-      "matchScore": 1
-    },
-    {
-      "quote": "E aí tu tem o efeito rebote, que é tu ter uma inflação e exigir que, daqui a pouco tu diga: \"Ó, não deu para segurar o",
-      "paraphrase": "O falante afirma que tabelar juros gera inflação e depois forçará uma alta de juros maior que a anterior.",
-      "kind": "forecast",
-      "nodes": [
-        {
-          "id": "s_novoconsenso",
-          "role": "relies_on"
-        },
-        {
-          "id": "s_monetarismo",
+          "id": "s_dominancia",
           "role": "echoes"
         }
       ],
       "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "E aí tu tem o efeito rebote, que é tu ter uma inflação e exigir que, daqui a pouco tu diga: não deu para segurar o juro",
-      "seg": 82,
-      "startMs": 179572,
+      "modelQuote": "Porque gera uma desconfiança do mercado como um todo, ah que o governo não vai cortar também o gasto. Pode manter o gasto elevado, talvez até aumentá-lo.",
+      "seg": 50,
+      "startMs": 106720,
       "matchScore": 1
     },
     {
-      "quote": "Essa garantia só e de um idiota.",
-      "paraphrase": "O falante afirma que ninguém confiaria em garantia de juros baixos forçados pelo governo sem ajuste fiscal.",
+      "quote": "Tu acaba tendo que pagar mais juro, o governo tem que pagar mais juro para pegar dinheiro emprestado, acaba tendo que, de, que",
+      "paraphrase": "O falante afirma que a falta de confiança eleva o juro pago pelo governo e a inflação.",
       "kind": "theory",
       "nodes": [
         {
@@ -140,15 +118,28 @@
       "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "Essa garantia só e de um idiota.",
-      "seg": 67,
-      "startMs": 147532,
+      "modelQuote": "tu acaba tendo que pagar mais juro, o governo tem que pagar mais juro para pegar dinheiro emprestado, acaba tendo que elevar a inflação",
+      "seg": 71,
+      "startMs": 155652,
+      "matchScore": 0.82
+    },
+    {
+      "quote": "acaba tendo que, usar reservas internacionais para tentar segurar o dólar, porque nós temos uma alta do dólar como reflexo nessas situações.",
+      "paraphrase": "O falante afirma que a perda de confiança força o uso de reservas para segurar o dólar.",
+      "kind": "theory",
+      "nodes": [],
+      "indicator": "cambio_usd",
+      "claimed_value": null,
+      "period": null,
+      "modelQuote": "acaba tendo que usar reservas internacionais para tentar segurar o dólar, porque nós temos uma alta do dólar como reflexo nessas situações",
+      "seg": 76,
+      "startMs": 168532,
       "matchScore": 1
     },
     {
-      "quote": "não tem que agradar a Faria Lima, não é esse, não é essa questão. A questão é que tu não pode obrigar o investidor a confiar em ti, tu precisa conquistar essa confiança.",
-      "paraphrase": "O falante afirma que a confiança do investidor precisa ser conquistada e não pode ser imposta.",
-      "kind": "theory",
+      "quote": "tu ter uma inflação e exigir que, daqui a pouco tu diga: \"Ó, não deu para segurar o juro, vamos ter que aumentar o juro de novo\" e o juro volta bem maior do que estava",
+      "paraphrase": "O falante afirma que tabelar juros leva a inflação e a um efeito rebote, com juros voltando mais altos.",
+      "kind": "forecast",
       "nodes": [
         {
           "id": "s_novoconsenso",
@@ -158,27 +149,45 @@
       "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "Não tem que agradar a Faria Lima, não é esse, não é essa questão. A questão é que tu não pode obrigar o investidor a confiar em ti, tu precisa conquistar essa confiança.",
-      "seg": 131,
-      "startMs": 281814,
+      "modelQuote": "tu ter uma inflação e exigir que, daqui a pouco tu diga: não deu para segurar o juro, vamos ter que aumentar o juro de novo e o juro volta bem maior do que estava antes",
+      "seg": 82,
+      "startMs": 179572,
       "matchScore": 1
     },
     {
-      "quote": "O presidente Lula precisa falar claramente para que se entenda qual vai ser a decisão dele, porque independentemente dele colocar Rafael Fonteles como ministro da Fazenda,",
-      "paraphrase": "O falante afirma que a sinalização clara do presidente sobre a política fiscal é necessária para a confiança do mercado.",
+      "quote": "não está se cogitando tabelamento de taxa de juro. Mas o que o mercado precisa é uma posição do",
+      "paraphrase": "O falante afirma que o mercado precisa de sinalização clara do presidente sobre as contas públicas, não de seus ministros.",
       "kind": "forecast",
       "nodes": [
         {
-          "id": "i_regras_fiscais",
-          "role": "relies_on"
+          "id": "s_austeridade",
+          "role": "echoes"
         }
       ],
       "indicator": null,
       "claimed_value": null,
       "period": null,
-      "modelQuote": "O presidente Lula precisa falar claramente para que se entenda qual vai ser a decisão dele, porque independentemente dele colocar Rafael Fonteles como ministro da Fazenda",
-      "seg": 117,
-      "startMs": 254734,
+      "modelQuote": "não cogitando tabelamento de taxa de juro. Mas o que o mercado precisa é uma posição do presidente Lula",
+      "seg": 112,
+      "startMs": 241252,
+      "matchScore": 1
+    },
+    {
+      "quote": "tu não pode obrigar o investidor a confiar em ti, tu precisa conquistar essa confiança.",
+      "paraphrase": "O falante afirma que a confiança do investidor precisa ser conquistada com sinais fiscais, não imposta.",
+      "kind": "theory",
+      "nodes": [
+        {
+          "id": "s_dominancia",
+          "role": "echoes"
+        }
+      ],
+      "indicator": null,
+      "claimed_value": null,
+      "period": null,
+      "modelQuote": "tu não pode obrigar o investidor a confiar em ti, tu precisa conquistar essa confiança",
+      "seg": 133,
+      "startMs": 285734,
       "matchScore": 1
     }
   ]

@@ -18,6 +18,7 @@
     "topics:tokens": "esbuild scripts/topics-tokens.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/topics-tokens.mjs && node .cache/topics-tokens.mjs",
     "topics:parity": "esbuild scripts/topics-parity.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/topics-parity.mjs && node .cache/topics-parity.mjs",
     "topics:train": "npm run -s topics:tokens && scripts/classifier/.venv/bin/python -I scripts/classifier/train.py",
+    "probe": "esbuild scripts/coverage-probe.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/probe.mjs && node .cache/probe.mjs",
     "build:site": "node site/build.mjs"
   },
   "devDependencies": {

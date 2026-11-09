@@ -11,6 +11,7 @@ type Ref = KgNode["refs"][number];
  *   its intro/deep refs are the other side; its "opposing" ref (a critique of the node) is on the speaker's line.
  * - A thinker with no `opposes` edge of its own borrows the opponents of the schools it is a proponent of.
  * - An institution with no `opposes` edge has no "Quem discorda" (the card hides the section).
+ * - A school or thinker never gets an institution in "Quem discorda": institutions are not views.
  */
 export interface StanceView {
   lead: { role: NodeRole; node: KgNode } | null;
@@ -50,6 +51,9 @@ export function stanceView(card: Pick<Card, "nodes">): StanceView {
   if (mainPro) {
     let opp = opponents(mainPro.node.id);
     if (!opp.length && mainPro.node.type === "thinker") opp = schoolsOf(mainPro.node.id).flatMap((s) => opponents(s.id));
+    // "Quem discorda" lists views. An institution is not a view that disagrees with a school or thinker
+    // (e.g. a liberal speaker gets no "Legislação trabalhista"); it still disagrees when the speaker relies on another institution.
+    if (mainPro.node.type !== "institution") opp = opp.filter((o) => o.node.type !== "institution");
     for (const o of opp) if (!proIds.has(o.node.id) && o.node.id !== mainPro.node.id) disagreeMap.set(o.node.id, o);
   }
 

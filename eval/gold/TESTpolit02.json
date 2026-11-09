@@ -1,0 +1,81 @@
+{
+ "videoId": "TESTpolit02",
+ "title": "Teste: instituições e tradições políticas (synthetic transcript, written for this eval)",
+ "transcript": "eval/transcripts/TESTpolit02.json",
+ "note": "Graph expansion lastro-16 (approved by Luan 2026-11-08): each new p7 node is reachable from a plain statement of its idea. Lines are 6 s long.",
+ "forbidInParaphrase": [
+  "PT",
+  "PL",
+  "Lula",
+  "Bolsonaro"
+ ],
+ "cases": [
+  {
+   "name": "coalition presidentialism",
+   "quoteContains": "montar uma base no congresso",
+   "expectNodeAny": [
+    "i_presidencialismo_coalizao"
+   ],
+   "expectStartS": 6
+  },
+  {
+   "name": "impeachment",
+   "quoteContains": "crime de responsabilidade",
+   "expectNodeAny": [
+    "i_impeachment"
+   ],
+   "expectStartS": 12
+  },
+  {
+   "name": "STF and judicial review",
+   "quoteContains": "ativismo judicial",
+   "expectNodeAny": [
+    "i_stf_controle"
+   ],
+   "expectStartS": 18
+  },
+  {
+   "name": "electoral system",
+   "quoteContains": "lista aberta",
+   "expectNodeAny": [
+    "i_sistema_eleitoral",
+    "i_presidencialismo_coalizao"
+   ],
+   "expectStartS": 24
+  },
+  {
+   "name": "procedural democracy",
+   "quoteContains": "aceita o resultado",
+   "expectNodeAny": [
+    "p_democracia_procedimental"
+   ],
+   "expectStartS": 30
+  },
+  {
+   "name": "marxism",
+   "quoteContains": "trabalho nao pago",
+   "expectNodeAny": [
+    "p_marxismo"
+   ],
+   "expectStartS": 36
+  },
+  {
+   "name": "conservatism",
+   "quoteContains": "familia religiao e tradicao",
+   "expectNodeAny": [
+    "p_conservadorismo"
+   ],
+   "expectStartS": 42
+  },
+  {
+   "name": "insult with no idea: no card",
+   "quoteContains": "so pensa em reeleicao",
+   "expectNoCard": true
+  },
+  {
+   "name": "call to comment: no card",
+   "quoteContains": "comenta ai embaixo",
+   "expectNoCard": true
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 {
   "videoId": "wOpqx7XvD54",
   "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros | Gaúcha Atualidade",
-  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run. 0:09: Luan chose fiscal dominance as the reading on 2026-11-08, because the sentence names the fiscal situation as the cause of the rate; the second case already labels the speaker relies_on Novo consenso. Luan approved accepting relies_on OR echoes on fiscal dominance (never novoconsenso/contradicts) on 2026-11-08, because the UI difference is only 'Apoia-se em' vs 'Lembra': on p6 the role was relies_on 1 of 3 live runs and echoes 2 of 3; a role rule in the prompt (p7) reached 2 of 3 and was reverted. Second case: the 'artificial, Turkey' argument continues into the next sentence ('gera uma desconfiança do mercado'), and some runs quote that one, so both quotes match.",
+  "note": "Hand-labelled model expectations. Checked against the recorded stream in fixtures/streams/ ($0), or a fresh run. 0:09: Luan chose fiscal dominance as the reading on 2026-11-08, because the sentence names the fiscal situation as the cause of the rate; the second case already labels the speaker relies_on Novo consenso. Luan approved accepting relies_on OR echoes on fiscal dominance (never novoconsenso/contradicts) on 2026-11-08, because the UI difference is only 'Apoia-se em' vs 'Lembra': on p6 the role was relies_on 1 of 3 live runs and echoes 2 of 3; a role rule in the prompt (p7) reached 2 of 3 and was reverted. Second case: the 'artificial, Turkey' argument continues into the next sentence ('gera uma desconfiança do mercado'), and some runs quote that one, so both quotes match. Third case (added 2026-11-09, Luan): the video is about André Lara Resende's proposal, so the card quoting it must link t_lararesende, any role. p6 linked it 3/3, p7-draft 1/3 (it put only s_mmt on the canetaço line).",
   "cases": [
     {
       "name": "0:09 'o juro é o principal problema… consequência da situação fiscal'",
@@ -25,6 +25,15 @@
       ],
       "expectNode": "s_novoconsenso",
       "expectRole": "relies_on"
+    },
+    {
+      "name": "0:54 Lara Resende's proposal (cut the rate by force, debt falls): links the thinker",
+      "quoteContains": [
+        "defende uma redução",
+        "canetaço",
+        "reduzir a dívida pública poderia"
+      ],
+      "expectNode": "t_lararesende"
     }
   ]
 }

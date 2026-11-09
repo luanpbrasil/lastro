@@ -334,6 +334,221 @@
           "p_soberania_monetaria"
         ]
       }
+    },
+    {
+      "name": "MMT relied on: fiscal rules (an institution) are not listed as disagreeing",
+      "nodes": [
+        {
+          "id": "s_mmt",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "s_mmt",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "s_novoconsenso"
+        ],
+        "disagreeExcludes": [
+          "i_regras_fiscais"
+        ]
+      }
+    },
+    {
+      "name": "marxism relied on: liberalism, procedural democracy and conservatism disagree",
+      "nodes": [
+        {
+          "id": "p_marxismo",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "p_marxismo",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_liberalismo_classico",
+          "p_democracia_procedimental",
+          "p_conservadorismo"
+        ],
+        "disagreeExcludes": [
+          "p_marxismo"
+        ],
+        "readSpeakerIncludes": [
+          "O Capital"
+        ],
+        "readOpposingIncludes": [
+          "Böhm-Bawerk"
+        ]
+      }
+    },
+    {
+      "name": "classical liberalism relied on: schools disagree, labour law and pensions don't",
+      "nodes": [
+        {
+          "id": "f_liberalismo_classico",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "f_liberalismo_classico",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "p_desenvolvimentismo",
+          "p_marxismo",
+          "p_dependencia",
+          "p_protecionismo"
+        ],
+        "disagreeExcludes": [
+          "i_legislacao_trabalhista",
+          "i_previdencia"
+        ]
+      }
+    },
+    {
+      "name": "labour law relied on: classical liberalism disagrees",
+      "nodes": [
+        {
+          "id": "i_legislacao_trabalhista",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "i_legislacao_trabalhista",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_liberalismo_classico"
+        ],
+        "readSpeakerIncludes": [
+          "CLT"
+        ],
+        "readOpposingIncludes": [
+          "Pastore"
+        ]
+      }
+    },
+    {
+      "name": "pensions relied on: classical liberalism disagrees",
+      "nodes": [
+        {
+          "id": "i_previdencia",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "i_previdencia",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_liberalismo_classico"
+        ],
+        "readOpposingIncludes": [
+          "Gentil"
+        ]
+      }
+    },
+    {
+      "name": "coalition presidentialism (no opposes edge): no 'Quem discorda'",
+      "nodes": [
+        {
+          "id": "i_presidencialismo_coalizao",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "i_presidencialismo_coalizao",
+          "role": "relies_on"
+        },
+        "disagreeEmpty": true,
+        "readSpeakerIncludes": [
+          "Abranches"
+        ],
+        "readOpposingIncludes": [
+          "Limongi"
+        ]
+      }
+    },
+    {
+      "name": "conservatism relied on: marxism and libertarianism disagree",
+      "nodes": [
+        {
+          "id": "p_conservadorismo",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "p_conservadorismo",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "p_marxismo",
+          "f_libertarianismo"
+        ],
+        "readSpeakerIncludes": [
+          "Burke"
+        ],
+        "readOpposingIncludes": [
+          "Paine"
+        ]
+      }
+    },
+    {
+      "name": "market failures relied on: libertarianism disagrees",
+      "nodes": [
+        {
+          "id": "s_falhas_mercado",
+          "role": "relies_on"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "s_falhas_mercado",
+          "role": "relies_on"
+        },
+        "disagreeIncludes": [
+          "f_libertarianismo"
+        ],
+        "readSpeakerIncludes": [
+          "Akerlof"
+        ],
+        "readOpposingIncludes": [
+          "Stigler"
+        ]
+      }
+    },
+    {
+      "name": "against the STF: the court is the view that disagrees; Hirschl is on the speaker's line",
+      "nodes": [
+        {
+          "id": "i_stf_controle",
+          "role": "contradicts"
+        }
+      ],
+      "expect": {
+        "lead": {
+          "id": "i_stf_controle",
+          "role": "contradicts"
+        },
+        "disagreeIncludes": [
+          "i_stf_controle"
+        ],
+        "readSpeakerIncludes": [
+          "Hirschl"
+        ],
+        "readOpposingIncludes": [
+          "Bickel"
+        ]
+      }
     }
   ]
 }

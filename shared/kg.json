@@ -1,6 +1,6 @@
 {
- "version": "0.3",
- "note": "22 nodes: 12 economics seed + 10 politics/philosophy bridge nodes (approved by Luan 2026-11-08). Every node has a domain. References are titles from memory and still need a human check before they ship. The graph maps ideas to traditions and institutions only, never to parties or active politicians.",
+ "version": "0.4",
+ "note": "36 nodes: 12 economics seed + 10 politics/philosophy bridge nodes (approved by Luan 2026-11-08) + 14 nodes from the coverage probe (eval/coverage-probe.md, approved by Luan 2026-11-08). Every node has a domain. References are titles from memory and still need a human check before they ship; refs marked unverified are the least certain. The graph maps ideas to traditions and institutions only, never to parties or active politicians.",
  "nodes": [
   {
    "id": "s_mmt",
@@ -47,7 +47,9 @@
     "regime de metas",
     "Banco Central independente",
     "regra de Taylor",
-    "autonomia do Banco Central"
+    "autonomia do Banco Central",
+    "juros restritivos",
+    "Copom"
    ],
    "summary": "Um banco central independente move a taxa de juros para levar a inflação à meta.",
    "claims": [
@@ -185,7 +187,8 @@
     "ajuste fiscal",
     "corte de gastos",
     "contração fiscal expansionista",
-    "responsabilidade fiscal"
+    "responsabilidade fiscal",
+    "equilibrar as contas"
    ],
    "summary": "Um ajuste fiscal crível pode aumentar o crescimento ao melhorar a confiança.",
    "claims": [
@@ -405,7 +408,11 @@
     "Adam Smith",
     "Locke",
     "mão invisível",
-    "Estado mínimo"
+    "Estado mínimo",
+    "liberdade econômica",
+    "liberdade de mercado",
+    "liberalismo econômico",
+    "Lei de Liberdade Econômica"
    ],
    "summary": "Liberdade individual, propriedade e mercado livre; o Estado protege direitos e contratos, mas não dirige a economia.",
    "claims": [
@@ -472,7 +479,9 @@
     "libertário",
     "Nozick",
     "imposto é roubo",
-    "anarcocapitalismo"
+    "anarcocapitalismo",
+    "libertária",
+    "libertários"
    ],
    "summary": "Direitos individuais limitam o que o Estado pode fazer; redistribuir renda por imposto viola esses direitos.",
    "claims": [
@@ -542,7 +551,8 @@
     "estado de bem-estar",
     "welfare state",
     "proteção social",
-    "estado social"
+    "estado social",
+    "socialdemocracia"
    ],
    "summary": "Economia de mercado com Estado forte em saúde, educação, previdência e proteção ao trabalho, financiado por impostos progressivos.",
    "claims": [
@@ -579,7 +589,10 @@
     "CEPAL",
     "industrialização",
     "substituição de importações",
-    "nacional-desenvolvimentismo"
+    "nacional-desenvolvimentismo",
+    "reindustrialização",
+    "política industrial",
+    "mudança estrutural"
    ],
    "summary": "O Estado deve conduzir a industrialização para tirar o país do subdesenvolvimento; o mercado sozinho mantém a dependência de exportar produtos primários.",
    "claims": [
@@ -734,6 +747,574 @@
      "level": "opposing",
      "title": "Stephanie Kelton, The Deficit Myth (2020)"
     }
+   ]
+  },
+  {
+   "id": "p_marxismo",
+   "type": "school",
+   "name": "Marxismo",
+   "aliases": [
+    "marxismo",
+    "marxista",
+    "Marx",
+    "Karl Marx",
+    "O Capital",
+    "mais-valia",
+    "mais-valor",
+    "luta de classes",
+    "materialismo histórico",
+    "socialismo",
+    "comunismo",
+    "Gramsci",
+    "hegemonia cultural",
+    "exploração do trabalho"
+   ],
+   "summary": "O capitalismo é movido pelo conflito entre capital e trabalho: o lucro vem do trabalho não pago, e as crises fazem parte do sistema.",
+   "claims": [
+    "O lucro vem do trabalho não pago ao trabalhador (mais-valia).",
+    "A história é movida pela luta de classes e pela forma como se produz.",
+    "As crises são parte do capitalismo, não acidentes."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Karl Marx e Friedrich Engels, Manifesto do Partido Comunista (1848)"
+    },
+    {
+     "level": "deep",
+     "title": "Karl Marx, O Capital, Livro I (1867)"
+    },
+    {
+     "level": "opposing",
+     "title": "Eugen von Böhm-Bawerk, Karl Marx and the Close of His System (1896)"
+    }
+   ],
+   "domain": [
+    "politica",
+    "economia",
+    "filosofia"
+   ]
+  },
+  {
+   "id": "p_dependencia",
+   "type": "school",
+   "name": "Teoria da dependência",
+   "aliases": [
+    "teoria da dependência",
+    "dependência",
+    "dependentista",
+    "superexploração do trabalho",
+    "subimperialismo",
+    "troca desigual",
+    "Ruy Mauro Marini",
+    "Theotonio dos Santos",
+    "Florestan Fernandes",
+    "colonialidade",
+    "culpa da colonização",
+    "veias abertas",
+    "Galeano"
+   ],
+   "summary": "O subdesenvolvimento não é um atraso a ser superado, é o outro lado do desenvolvimento dos países centrais: a periferia exporta produtos primários e importa tecnologia e capital.",
+   "claims": [
+    "O subdesenvolvimento é produzido pela posição do país na economia mundial.",
+    "A periferia transfere riqueza ao centro pelo comércio e pelas finanças.",
+    "Industrializar não basta se a dependência tecnológica e financeira continua."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Eduardo Galeano, As Veias Abertas da América Latina (1971)"
+    },
+    {
+     "level": "deep",
+     "title": "Ruy Mauro Marini, Dialética da Dependência (1973)"
+    },
+    {
+     "level": "opposing",
+     "title": "Daron Acemoglu e James Robinson, Por que as Nações Fracassam (2012)"
+    }
+   ],
+   "domain": [
+    "politica",
+    "economia"
+   ]
+  },
+  {
+   "id": "s_falhas_mercado",
+   "type": "school",
+   "name": "Regulação e falhas de mercado",
+   "aliases": [
+    "falhas de mercado",
+    "falha de mercado",
+    "regulação",
+    "regulação econômica",
+    "regulamentação",
+    "agência reguladora",
+    "assimetria de informação",
+    "externalidade",
+    "externalidades",
+    "defesa do consumidor",
+    "poder de mercado"
+   ],
+   "summary": "Mercados falham quando uma parte sabe muito mais que a outra, quando há custos para terceiros ou poder de mercado; nesses casos regras e agências do Estado corrigem o resultado.",
+   "claims": [
+    "Quando uma parte sabe muito mais que a outra, o mercado não protege quem compra.",
+    "Custos impostos a terceiros (poluição, vício, risco bancário) justificam regular ou taxar.",
+    "Licenças e agências protegem quem não consegue avaliar o risco sozinho."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Joseph Stiglitz, Economics of the Public Sector (1986)"
+    },
+    {
+     "level": "deep",
+     "title": "George Akerlof, The Market for 'Lemons' (1970)"
+    },
+    {
+     "level": "opposing",
+     "title": "George Stigler, The Theory of Economic Regulation (1971)"
+    }
+   ],
+   "domain": [
+    "economia",
+    "politica"
+   ]
+  },
+  {
+   "id": "p_democracia_procedimental",
+   "type": "school",
+   "name": "Teoria democrática procedimental",
+   "aliases": [
+    "democracia procedimental",
+    "minimalismo democrático",
+    "regras do jogo",
+    "alternância no poder",
+    "democracia liberal",
+    "erosão democrática",
+    "democracia em risco",
+    "Schumpeter",
+    "Przeworski",
+    "Bobbio",
+    "Levitsky",
+    "Como as Democracias Morrem"
+   ],
+   "summary": "Democracia é um método: eleições livres e competitivas, perdedores que aceitam o resultado e regras que valem também para quem está no poder.",
+   "claims": [
+    "Democracia é a competição pelo voto, com alternância de quem governa.",
+    "Ela sobrevive enquanto os perdedores aceitam perder e quem governa não muda as regras a seu favor.",
+    "Tribunais, imprensa e oposição livres protegem as regras do jogo."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Steven Levitsky e Daniel Ziblatt, Como as Democracias Morrem (2018)"
+    },
+    {
+     "level": "deep",
+     "title": "Joseph Schumpeter, Capitalismo, Socialismo e Democracia (1942)"
+    },
+    {
+     "level": "opposing",
+     "title": "Carole Pateman, Participation and Democratic Theory (1970)"
+    }
+   ],
+   "domain": [
+    "politica",
+    "filosofia"
+   ]
+  },
+  {
+   "id": "p_conservadorismo",
+   "type": "school",
+   "name": "Conservadorismo",
+   "aliases": [
+    "conservadorismo",
+    "conservador",
+    "conservadora",
+    "conservadores",
+    "Edmund Burke",
+    "Burke",
+    "Roger Scruton",
+    "tradição",
+    "valores tradicionais",
+    "ordem moral"
+   ],
+   "summary": "Instituições e costumes herdados guardam uma experiência que a razão de uma geração não substitui; mudanças devem ser graduais.",
+   "claims": [
+    "Mudanças sociais devem ser graduais e preservar o que funciona.",
+    "Família, religião e comunidade sustentam a ordem social melhor que o Estado.",
+    "Projetos de refazer a sociedade a partir de uma teoria tendem a fracassar."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Roger Scruton, Como Ser um Conservador (2014)"
+    },
+    {
+     "level": "deep",
+     "title": "Edmund Burke, Reflexões sobre a Revolução na França (1790)"
+    },
+    {
+     "level": "opposing",
+     "title": "Thomas Paine, Os Direitos do Homem (1791)"
+    }
+   ],
+   "domain": [
+    "politica",
+    "filosofia"
+   ]
+  },
+  {
+   "id": "p_protecionismo",
+   "type": "school",
+   "name": "Protecionismo / nacionalismo econômico",
+   "aliases": [
+    "protecionismo",
+    "protecionista",
+    "tarifa de importação",
+    "tarifaço",
+    "guerra comercial",
+    "nacionalismo econômico",
+    "indústria nascente",
+    "conteúdo local",
+    "Friedrich List",
+    "mercantilismo"
+   ],
+   "summary": "Tarifas e barreiras à importação protegem a indústria e o emprego do país até que possam competir, e dão poder de barganha entre países.",
+   "claims": [
+    "Indústrias nascentes precisam de proteção para crescer.",
+    "Depender de importações em setores estratégicos é um risco para o país.",
+    "Os países ricos se industrializaram com proteção e depois pregaram o livre comércio."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Ha-Joon Chang, Chutando a Escada (2002)"
+    },
+    {
+     "level": "deep",
+     "title": "Friedrich List, Sistema Nacional de Economia Política (1841)"
+    },
+    {
+     "level": "opposing",
+     "title": "Douglas Irwin, Free Trade Under Fire (2002)"
+    }
+   ],
+   "domain": [
+    "economia",
+    "politica"
+   ]
+  },
+  {
+   "id": "e_recessao2015",
+   "type": "episode",
+   "name": "Recessão de 2014–16",
+   "aliases": [
+    "recessão de 2015",
+    "recessão de 2014",
+    "recessão de 2015-16",
+    "crise de 2014",
+    "crise de 2015",
+    "2015/16",
+    "grande recessão brasileira",
+    "ajuste de 2015",
+    "pedaladas fiscais"
+   ],
+   "summary": "O PIB caiu cerca de 3,5% em 2015 e 3,3% em 2016, a pior recessão em décadas; o desemprego e a dívida pública subiram, e as contas do governo passaram a ter déficit primário a partir de 2014.",
+   "series": {
+    "indicator": "pib_tri",
+    "from": "2013-01-01",
+    "to": "2017-12-31",
+    "mark": "min"
+   },
+   "claims": [
+    "Para uns, a recessão veio da intervenção do Estado e do descontrole das contas públicas nos anos anteriores.",
+    "Para outros, o ajuste fiscal e a alta de juros de 2015 aprofundaram a queda."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Laura Carvalho, Valsa Brasileira (2018)"
+    },
+    {
+     "level": "deep",
+     "title": "Fernando de Holanda Barbosa Filho, A crise econômica de 2014/2017, Estudos Avançados (2017)"
+    }
+   ],
+   "domain": [
+    "economia",
+    "politica"
+   ]
+  },
+  {
+   "id": "e_plano_real",
+   "type": "episode",
+   "name": "Plano Real (1993–94)",
+   "aliases": [
+    "Plano Real",
+    "URV",
+    "Unidade Real de Valor",
+    "inflação inercial",
+    "hiperinflação",
+    "fim da hiperinflação",
+    "1994"
+   ],
+   "summary": "Em 1994 a URV e depois o real acabaram com a hiperinflação: o IPCA passou de cerca de 2.500% em 1993 para menos de 10% ao ano em 1996.",
+   "series": {
+    "indicator": "ipca_12m",
+    "from": "1993-01-01",
+    "to": "1998-12-31",
+    "mark": "max"
+   },
+   "claims": [
+    "A inflação alta era inercial: os preços subiam porque tinham subido antes.",
+    "A URV alinhou os reajustes e permitiu trocar de moeda sem congelar preços."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Miriam Leitão, Saga Brasileira: a longa luta de um povo por sua moeda (2011)"
+    },
+    {
+     "level": "deep",
+     "title": "Persio Arida e André Lara Resende, Inertial Inflation and Monetary Reform in Brazil (PUC-Rio, Texto para Discussão 85, 1985)"
+    }
+   ],
+   "domain": [
+    "economia"
+   ]
+  },
+  {
+   "id": "i_presidencialismo_coalizao",
+   "type": "institution",
+   "name": "Presidencialismo de coalizão",
+   "aliases": [
+    "presidencialismo de coalizão",
+    "base aliada",
+    "governabilidade",
+    "coalizão de governo",
+    "emendas parlamentares",
+    "emendas de relator",
+    "orçamento secreto",
+    "toma lá dá cá",
+    "Sérgio Abranches"
+   ],
+   "summary": "No Brasil o presidente governa com uma coalizão de muitos partidos no Congresso, trocando cargos no governo e emendas ao orçamento por apoio.",
+   "claims": [
+    "Sem maioria própria, o presidente precisa de coalizões amplas para aprovar qualquer coisa.",
+    "Cargos e emendas são a moeda que mantém a base no Congresso."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Sérgio Abranches, Presidencialismo de Coalizão: raízes e evolução do modelo político brasileiro (2018)"
+    },
+    {
+     "level": "deep",
+     "title": "Sérgio Abranches, Presidencialismo de coalizão: o dilema institucional brasileiro, Dados (1988)"
+    },
+    {
+     "level": "opposing",
+     "title": "Argelina Figueiredo e Fernando Limongi, Executivo e Legislativo na Nova Ordem Constitucional (1999)"
+    }
+   ],
+   "domain": [
+    "politica"
+   ]
+  },
+  {
+   "id": "i_impeachment",
+   "type": "institution",
+   "name": "Impeachment",
+   "aliases": [
+    "impeachment",
+    "impedimento",
+    "crime de responsabilidade",
+    "Lei do Impeachment",
+    "Lei 1.079",
+    "pedido de impeachment",
+    "afastamento do presidente"
+   ],
+   "summary": "Processo em que o Congresso afasta uma autoridade por crime de responsabilidade (Lei 1.079/1950): para o presidente, a Câmara autoriza e o Senado julga; para ministros do STF, o processo corre no Senado.",
+   "claims": [
+    "O impeachment é um julgamento político, mas exige um crime de responsabilidade previsto em lei.",
+    "Perder a maioria no Congresso torna um presidente vulnerável ao impeachment."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Lei nº 1.079/1950 (texto da lei)"
+    },
+    {
+     "level": "deep",
+     "title": "Aníbal Pérez-Liñán, Presidential Impeachment and the New Political Instability in Latin America (2007)"
+    }
+   ],
+   "domain": [
+    "politica"
+   ]
+  },
+  {
+   "id": "i_stf_controle",
+   "type": "institution",
+   "name": "STF e controle de constitucionalidade",
+   "aliases": [
+    "STF",
+    "Supremo",
+    "Supremo Tribunal Federal",
+    "controle de constitucionalidade",
+    "inconstitucional",
+    "ADI",
+    "ADPF",
+    "ativismo judicial",
+    "juristocracia",
+    "judicialização da política",
+    "decisão monocrática",
+    "guardião da Constituição"
+   ],
+   "summary": "O Supremo Tribunal Federal pode anular leis e atos que contrariem a Constituição; até onde vai esse poder é um dos grandes debates da política brasileira.",
+   "claims": [
+    "Um tribunal que pode anular leis protege direitos e minorias da maioria do momento.",
+    "Decisões do STF sobre temas políticos são, para uns, defesa da Constituição e, para outros, ativismo judicial."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Oscar Vilhena Vieira, Supremocracia, Revista Direito GV (2008)"
+    },
+    {
+     "level": "deep",
+     "title": "Alexander Bickel, The Least Dangerous Branch (1962)"
+    },
+    {
+     "level": "opposing",
+     "title": "Ran Hirschl, Towards Juristocracy (2004)"
+    }
+   ],
+   "domain": [
+    "politica"
+   ]
+  },
+  {
+   "id": "i_sistema_eleitoral",
+   "type": "institution",
+   "name": "Sistema eleitoral",
+   "aliases": [
+    "sistema eleitoral",
+    "voto proporcional",
+    "lista aberta",
+    "voto distrital",
+    "distrital misto",
+    "cláusula de barreira",
+    "fundo eleitoral",
+    "urna eletrônica",
+    "voto impresso",
+    "Justiça Eleitoral",
+    "TSE",
+    "Colégio Eleitoral",
+    "segundo turno"
+   ],
+   "summary": "As regras que transformam votos em cargos: no Brasil, maioria em dois turnos para presidente e governador, voto proporcional em lista aberta para deputado, urna eletrônica e Justiça Eleitoral.",
+   "claims": [
+    "O voto proporcional em lista aberta produz muitos partidos no Congresso.",
+    "As regras eleitorais mudam quem ganha, não só como se vota."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Jairo Nicolau, Sistemas Eleitorais (1999)"
+    },
+    {
+     "level": "deep",
+     "title": "Arend Lijphart, Modelos de Democracia (1999)"
+    }
+   ],
+   "domain": [
+    "politica"
+   ]
+  },
+  {
+   "id": "i_legislacao_trabalhista",
+   "type": "institution",
+   "name": "Legislação trabalhista (CLT, reforma de 2017, escala 6x1)",
+   "aliases": [
+    "CLT",
+    "Consolidação das Leis do Trabalho",
+    "reforma trabalhista",
+    "escala 6x1",
+    "fim da escala 6x1",
+    "jornada de trabalho",
+    "carteira assinada",
+    "direitos trabalhistas",
+    "uberização",
+    "trabalho por aplicativo",
+    "pejotização",
+    "terceirização"
+   ],
+   "summary": "A CLT (1943) define os direitos de quem tem carteira assinada; a reforma de 2017 deu mais peso ao que empresas e trabalhadores negociam, e hoje se debatem a escala 6x1 e o trabalho por aplicativo.",
+   "claims": [
+    "A lei trabalhista protege o lado mais fraco da relação de emprego.",
+    "Regras rígidas encarecem o emprego formal e empurram trabalhadores para a informalidade."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Decreto-Lei nº 5.452/1943 (CLT) e Lei nº 13.467/2017 (reforma trabalhista), textos legais"
+    },
+    {
+     "level": "deep",
+     "title": "Ricardo Antunes, O Privilégio da Servidão (2018)"
+    },
+    {
+     "level": "opposing",
+     "title": "José Pastore, A Agonia do Emprego",
+     "unverified": true
+    }
+   ],
+   "domain": [
+    "politica",
+    "economia"
+   ]
+  },
+  {
+   "id": "i_previdencia",
+   "type": "institution",
+   "name": "Previdência (repartição × capitalização)",
+   "aliases": [
+    "previdência",
+    "Previdência Social",
+    "INSS",
+    "reforma da Previdência",
+    "aposentadoria",
+    "repartição",
+    "capitalização",
+    "idade mínima",
+    "déficit da Previdência",
+    "EC 103"
+   ],
+   "summary": "A Previdência pública funciona por repartição: quem trabalha hoje paga a aposentadoria de quem já se aposentou; a reforma de 2019 (EC 103) fixou idade mínima.",
+   "claims": [
+    "Na repartição, o envelhecimento da população pressiona as contas públicas.",
+    "Na capitalização, cada um poupa para a própria aposentadoria, sem solidariedade entre gerações."
+   ],
+   "refs": [
+    {
+     "level": "intro",
+     "title": "Emenda Constitucional nº 103/2019 (texto da reforma)"
+    },
+    {
+     "level": "deep",
+     "title": "Fabio Giambiagi, Reforma da Previdência: o encontro marcado (2007)"
+    },
+    {
+     "level": "opposing",
+     "title": "Denise Lobato Gentil, A política fiscal e a falsa crise da seguridade social brasileira (tese, UFRJ, 2006)"
+    }
+   ],
+   "domain": [
+    "politica",
+    "economia"
    ]
   }
  ],
@@ -904,6 +1485,132 @@
    "type": "opposes",
    "to": "s_dominancia",
    "note": "Emitir a própria moeda não elimina o limite: dívida alta força o BC a acomodar, e vem inflação."
+  },
+  {
+   "from": "p_marxismo",
+   "type": "opposes",
+   "to": "f_liberalismo_classico",
+   "note": "O mercado livre gera prosperidade ou exploração do trabalho?"
+  },
+  {
+   "from": "p_dependencia",
+   "type": "opposes",
+   "to": "f_liberalismo_classico",
+   "note": "O atraso vem da posição do país na economia mundial ou de instituições e políticas internas?"
+  },
+  {
+   "from": "s_falhas_mercado",
+   "type": "opposes",
+   "to": "f_libertarianismo",
+   "note": "Regras e licenças protegem quem compra e trabalha, ou só limitam a liberdade de contratar?"
+  },
+  {
+   "from": "p_democracia_procedimental",
+   "type": "opposes",
+   "to": "p_marxismo",
+   "note": "Democracia é a regra do jogo eleitoral, ou ela esconde a dominação de classe?"
+  },
+  {
+   "from": "p_conservadorismo",
+   "type": "opposes",
+   "to": "p_marxismo",
+   "note": "Reformar devagar a partir da tradição ou transformar a estrutura da sociedade?"
+  },
+  {
+   "from": "p_conservadorismo",
+   "type": "opposes",
+   "to": "f_libertarianismo",
+   "note": "O Estado deve ser neutro sobre costumes ou proteger valores e instituições tradicionais?"
+  },
+  {
+   "from": "p_protecionismo",
+   "type": "opposes",
+   "to": "f_liberalismo_classico",
+   "note": "Livre comércio enriquece os dois lados ou deixa o país sem indústria?"
+  },
+  {
+   "from": "f_liberalismo_classico",
+   "type": "opposes",
+   "to": "i_legislacao_trabalhista",
+   "note": "Proteção legal ao trabalhador ou liberdade de contratar e menos informalidade?"
+  },
+  {
+   "from": "f_liberalismo_classico",
+   "type": "opposes",
+   "to": "i_previdencia",
+   "note": "Repartição solidária entre gerações ou capitalização individual?"
+  },
+  {
+   "from": "p_socialdemocracia",
+   "type": "derives_from",
+   "to": "p_marxismo",
+   "note": "Ramo reformista: mudar o capitalismo por eleições, não por revolução."
+  },
+  {
+   "from": "p_dependencia",
+   "type": "derives_from",
+   "to": "p_desenvolvimentismo",
+   "note": "Radicaliza a ideia de centro e periferia da CEPAL."
+  },
+  {
+   "from": "p_marxismo",
+   "type": "grounds",
+   "to": "p_dependencia",
+   "note": "Vertente marxista: Marini, Theotonio dos Santos."
+  },
+  {
+   "from": "p_protecionismo",
+   "type": "grounds",
+   "to": "p_desenvolvimentismo",
+   "note": "Indústria nascente como base da substituição de importações."
+  },
+  {
+   "from": "p_democracia_procedimental",
+   "type": "justifies",
+   "to": "i_sistema_eleitoral",
+   "note": "Eleições livres e competitivas são o núcleo da democracia."
+  },
+  {
+   "from": "p_democracia_procedimental",
+   "type": "justifies",
+   "to": "i_stf_controle",
+   "note": "Um tribunal independente protege as regras do jogo."
+  },
+  {
+   "from": "i_presidencialismo_coalizao",
+   "type": "derives_from",
+   "to": "i_sistema_eleitoral",
+   "note": "Voto proporcional com muitos partidos obriga o presidente a montar coalizões."
+  },
+  {
+   "from": "p_socialdemocracia",
+   "type": "justifies",
+   "to": "i_legislacao_trabalhista",
+   "note": "O Estado protege quem trabalha."
+  },
+  {
+   "from": "p_socialdemocracia",
+   "type": "justifies",
+   "to": "i_previdencia",
+   "note": "Previdência pública e solidária é parte do Estado de bem-estar."
+  },
+  {
+   "from": "s_dominancia",
+   "type": "tested_in",
+   "to": "e_recessao2015",
+   "note": "Déficit e dívida em alta, juros altos e recessão: citado como dominância fiscal."
+  },
+  {
+   "from": "s_austeridade",
+   "type": "tested_in",
+   "to": "e_recessao2015",
+   "note": "O ajuste de 2015: os dois lados citam o episódio."
+  },
+  {
+   "from": "s_monetarismo",
+   "type": "tested_in",
+   "to": "e_plano_real",
+   "note": "O Real atacou a inércia, não só a moeda; monetaristas e inercialistas leem o sucesso de forma diferente."
   }
  ]
 }

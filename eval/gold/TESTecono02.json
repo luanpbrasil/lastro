@@ -1,0 +1,74 @@
+{
+ "videoId": "TESTecono02",
+ "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+ "transcript": "eval/transcripts/TESTecono02.json",
+ "note": "Graph expansion lastro-16 (approved by Luan 2026-11-08): each new p7 node is reachable from a plain statement of its idea. Lines are 6 s long.",
+ "cases": [
+  {
+   "name": "Plano Real",
+   "quoteContains": "inflacao inercial",
+   "expectNodeAny": [
+    "e_plano_real"
+   ],
+   "expectStartS": 6
+  },
+  {
+   "name": "2014-16 recession",
+   "quoteContains": "pior em decadas",
+   "expectNodeAny": [
+    "e_recessao2015"
+   ],
+   "expectStartS": 12
+  },
+  {
+   "name": "protectionism",
+   "quoteContains": "proteger a industria nacional",
+   "expectNodeAny": [
+    "p_protecionismo",
+    "p_desenvolvimentismo"
+   ],
+   "expectStartS": 18
+  },
+  {
+   "name": "market failure and regulation",
+   "quoteContains": "precisa de regulacao",
+   "expectNodeAny": [
+    "s_falhas_mercado"
+   ],
+   "expectStartS": 24
+  },
+  {
+   "name": "labour law",
+   "quoteContains": [
+    "escala seis por um",
+    "a clt protege"
+   ],
+   "expectNodeAny": [
+    "i_legislacao_trabalhista"
+   ],
+   "expectStartS": 30
+  },
+  {
+   "name": "pensions",
+   "quoteContains": "paga a aposentadoria",
+   "expectNodeAny": [
+    "i_previdencia"
+   ],
+   "expectStartS": 36
+  },
+  {
+   "name": "dependency theory",
+   "quoteContains": "periferia do sistema",
+   "expectNodeAny": [
+    "p_dependencia",
+    "p_desenvolvimentismo"
+   ],
+   "expectStartS": 42
+  },
+  {
+   "name": "call to subscribe: no card",
+   "quoteContains": "deixa o like",
+   "expectNoCard": true
+  }
+ ]
+}

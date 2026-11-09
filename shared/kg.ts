@@ -13,7 +13,8 @@ export interface KgNode {
   aliases: string[];
   summary: string;
   claims: string[];
-  refs: { level: RefLevel; title: string; url?: string }[];
+  /** unverified: the title is from memory and the least certain; check it before shipping. */
+  refs: { level: RefLevel; title: string; url?: string; unverified?: boolean }[];
   series?: { indicator: string; from: string; to: string; mark?: "min" | "max" };
 }
 
@@ -74,7 +75,8 @@ export function testedIn(id: string): { node: KgNode; note?: string }[] {
 export function kgPromptText(): string {
   const lines: string[] = [];
   for (const n of KG.nodes) {
-    lines.push(`- ${n.id} [${n.type} · ${n.domain.join("/")}] ${n.name}: ${n.summary}`);
+    const aka = n.aliases.length ? ` (também: ${n.aliases.join("; ")})` : "";
+    lines.push(`- ${n.id} [${n.type} · ${n.domain.join("/")}] ${n.name}${aka}: ${n.summary}`);
     for (const c of n.claims) lines.push(`    · ${c}`);
   }
   lines.push("", "Relações:");
