@@ -1,19 +1,25 @@
 import type { Segment } from "../../../shared/schema";
 import type { ErrorCode } from "../types";
 
-/** Each upload pays for the fixed prompt once, so longer uploads fit more video in the free daily neurons. */
-const FLUSH_EVERY_MS = 90_000;
-const BATCH_SEGMENTS = 80;
-const BATCH_CHARS = 4000;
+/**
+ * Fast feedback: the first upload goes 15 s after listening starts, then one every 30 s, or sooner once enough
+ * speech has built up (~45 s of talk). The Worker refuses uploads less than 10 s apart, so this never floods it.
+ */
+const FIRST_FLUSH_MS = 15_000;
+const FLUSH_EVERY_MS = 30_000;
+const FLUSH_CHARS = 900;
+const BATCH_SEGMENTS = 160;
+const BATCH_CHARS = 8000;
 const TOO_FAST_WAIT_MS = 11_000;
 const TOO_FAST_RETRIES = 2;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** Collects final transcript segments and sends them to the Worker about every 90 s. */
+/** Collects final transcript segments and sends them to the Worker about every 30 s. */
 export class TranscriptUploader {
   private buffer: Segment[] = [];
   private timer: number | null = null;
+  private first: number | null = null;
   private sending: Promise<void> | null = null;
   private finishing = false;
 
@@ -21,6 +27,8 @@ export class TranscriptUploader {
   constructor(
     private videoId: string,
     private session: string,
+    /** The language speech recognition is set to, so the model knows what it's reading. */
+    private lang: string,
     private onBlocked: (code: ErrorCode) => void,
     private onSent: (segments: number) => void,
   ) {}
@@ -30,21 +38,25 @@ export class TranscriptUploader {
   }
 
   private body(segments: Segment[]): string {
-    return JSON.stringify({ session: this.session, segments });
+    return JSON.stringify({ session: this.session, lang: this.lang, segments });
   }
 
   start(): void {
+    this.first ??= window.setTimeout(() => void this.flush(), FIRST_FLUSH_MS);
     this.timer ??= window.setInterval(() => void this.flush(), FLUSH_EVERY_MS);
   }
 
   add(segment: Segment): void {
     this.buffer.push(segment);
+    if (!this.sending && this.buffer.reduce((n, s) => n + s.t.length, 0) >= FLUSH_CHARS) void this.flush();
   }
 
   /** Send everything left. */
   async finish(): Promise<void> {
     if (this.timer !== null) window.clearInterval(this.timer);
+    if (this.first !== null) window.clearTimeout(this.first);
     this.timer = null;
+    this.first = null;
     this.finishing = true;
     await this.sending;
     await this.flush();

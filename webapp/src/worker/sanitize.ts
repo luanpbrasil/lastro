@@ -19,12 +19,16 @@ export function cleanTitle(title: string): string {
   return cleanSpeech(title, 200);
 }
 
-/** A paraphrase states what the speaker said ("O falante afirma que…"). */
-const ATTRIBUTED = /^(o|a) (falante|palestrante|entrevistad[oa]|apresentador[a]?|convidad[oa]|autor[a]?)\b/i;
+
 /** Links, addresses, handles and markup have no place in a card, whatever the video says. */
 const LINKISH = /https?:|www\.|\.(com|net|org|br|io|xyz|ly|me|app|site)\b|@\w|[<>{}[\]`\\|]/i;
 
-/** The paraphrase is the only free text the model writes into a card, so it is where an injection would show. */
+/**
+ * The paraphrase and headline are the only free text the model writes into a card, so that is where an injection
+ * would show. Cards are rendered as text, never HTML; this keeps out links, handles and markup. The paraphrase is
+ * written in the video's language, so its wording ("The speaker…", "O falante…", "El orador…") isn't checked.
+ */
+export const isSafeText = (s: string) => !LINKISH.test(s);
 export function isSafeParaphrase(p: string): boolean {
-  return p.length >= 15 && p.length <= 400 && ATTRIBUTED.test(p) && !LINKISH.test(p);
+  return p.length >= 15 && p.length <= 400 && isSafeText(p);
 }

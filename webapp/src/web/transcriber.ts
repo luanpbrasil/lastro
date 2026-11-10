@@ -1,4 +1,5 @@
 import type { Segment } from "../../../shared/schema";
+import { t } from "./i18n";
 
 /** The first words of a result reach us about this long after they were spoken. */
 const RECOGNITION_LAG_MS = 1000;
@@ -33,10 +34,10 @@ const Ctor = (window as unknown as { SpeechRecognition?: RecognitionCtor; webkit
 export const isSupported = (): boolean => !!Ctor && !!navigator.mediaDevices?.getDisplayMedia;
 
 const FATAL_ERRORS: Record<string, string> = {
-  "not-allowed": "O navegador não permitiu o reconhecimento de fala.",
-  "service-not-allowed": "O navegador não permitiu o reconhecimento de fala.",
-  "language-not-supported": "O Chrome não reconhece português neste computador.",
-  "audio-capture": "Não foi possível ler o áudio da aba.",
+  "not-allowed": t("capture.notAllowed"),
+  "service-not-allowed": t("capture.notAllowed"),
+  "language-not-supported": t("capture.language"),
+  "audio-capture": t("capture.audio"),
 };
 
 export interface TranscriberHooks {
@@ -57,6 +58,9 @@ export class TabTranscriber {
   private networkFailures = 0;
   private ended: (() => void) | null = null;
 
+  /** BCP 47 tag of the language spoken in the video, e.g. "en-US" or "pt-BR". Set before start(). */
+  lang = "pt-BR";
+
   constructor(private hooks: TranscriberHooks) {}
 
   /** Must be called from a click: Chrome asks which tab to share. */
@@ -75,12 +79,12 @@ export class TabTranscriber {
     try {
       stream = await navigator.mediaDevices.getDisplayMedia(options);
     } catch {
-      throw new CaptureError("Compartilhamento cancelado.");
+      throw new CaptureError(t("capture.cancelled"));
     }
     const track = stream.getAudioTracks()[0];
     if (!track) {
       stream.getTracks().forEach((t) => t.stop());
-      throw new CaptureError("Sem áudio: ao compartilhar, escolha esta aba e ative “Compartilhar áudio da aba”.");
+      throw new CaptureError(t("capture.noAudio"));
     }
     this.stream = stream;
     this.active = true;
@@ -108,7 +112,7 @@ export class TabTranscriber {
 
   private listen(track: MediaStreamTrack): void {
     const r = new Ctor!();
-    r.lang = "pt-BR";
+    r.lang = this.lang;
     r.continuous = true;
     r.interimResults = true;
     const started = new Map<number, { ms: number; playing: boolean }>();
@@ -136,7 +140,7 @@ export class TabTranscriber {
 
     r.onerror = (e) => {
       if (FATAL_ERRORS[e.error]) this.finish(FATAL_ERRORS[e.error]);
-      else if (e.error === "network" && ++this.networkFailures >= MAX_NETWORK_FAILURES) this.finish("O serviço de reconhecimento de fala do Chrome não respondeu.");
+      else if (e.error === "network" && ++this.networkFailures >= MAX_NETWORK_FAILURES) this.finish(t("capture.network"));
     };
 
     // Chrome ends a "continuous" session after silence or about a minute: start a new one on the same track.

@@ -1,6 +1,7 @@
 import type { VideoSummary, VideosResponse } from "../types";
+import { intlLocale, plural, t } from "./i18n";
 
-const relative = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
+const relative = new Intl.RelativeTimeFormat(intlLocale, { numeric: "auto" });
 const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["day", 86_400_000],
   ["hour", 3_600_000],
@@ -13,7 +14,6 @@ function ago(ms: number): string {
   return "";
 }
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -22,7 +22,7 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: 
   return e;
 }
 
-/** "Vídeos já analisados": the latest videos with saved ideas. Opening one shows its cards at once. */
+/** "Recently analysed": the latest videos with saved ideas. Opening one shows its cards at once. */
 export class History {
   private videos: VideoSummary[] = [];
   private current = "";
@@ -70,11 +70,11 @@ export class History {
     thumb.height = 180;
 
     const text = el("span", "text");
-    text.append(el("span", "title", v.title || "Vídeo sem título"));
+    text.append(el("span", "title", v.title || t("history.untitled")));
     if (v.author) text.append(el("span", "channel", v.author));
     const meta = el("span", "meta");
-    meta.append(el("span", "pill", v.cards ? plural(v.cards, "ideia", "ideias") : "nenhuma ideia"));
-    if (v.facts) meta.append(el("span", "pill fact", plural(v.facts, "número conferido", "números conferidos")));
+    meta.append(el("span", "", v.cards ? plural(v.cards, "history.idea", "history.ideas") : t("history.noIdeas")));
+    if (v.facts) meta.append(el("span", "fact", plural(v.facts, "history.checkedOne", "history.checked")));
     meta.append(el("span", "when", ago(v.analysedAt)));
     text.append(meta);
 

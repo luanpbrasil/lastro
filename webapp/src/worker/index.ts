@@ -1,15 +1,17 @@
 import type { Segment } from "../../../shared/schema";
 import { sha256Hex } from "../../../shared/transcript";
-import { MAX_CHUNK_CHARS, MAX_SEGMENTS, TURNSTILE_ACTION, type CardsResponse, type ErrorCode, type SessionResponse, type StoredCard, type TranscriptResponse, type VideosResponse } from "../types";
-import { factCheckChunk, MAX_NEURONS_PER_CALL } from "./factcheck";
+import { MAX_CHUNK_CHARS, MAX_SEGMENTS, type CardsResponse, type CheckedCard, type LanguageResponse, type ErrorCode, type SessionResponse, type StoredCard, type TranscriptResponse, type VideosResponse } from "../types";
+import { CLAUDE_MODEL, factCheckChunk, factCheckWithClaude, MAX_NEURONS_PER_CALL, MAX_USD_PER_CALL, WORKERS_AI_MODEL } from "./factcheck";
+import { detectLanguage } from "./language";
 import { cleanSpeech, cleanTitle } from "./sanitize";
 
 interface Env {
   AI: Ai;
   DB: D1Database;
   API_LIMITER: RateLimit;
-  TURNSTILE_SECRET?: string;
-  TURNSTILE_SITE_KEY?: string;
+  /** Secret. When set, Claude Haiku is the main model and Workers AI the fallback. */
+  ANTHROPIC_API_KEY?: string;
+  DAILY_USD_CAP?: string;
   IP_DAILY_VIDEO_CAP?: string;
   DAILY_NEURON_CAP?: string;
   MAX_MINUTES_PER_VIDEO?: string;
@@ -19,12 +21,12 @@ interface Env {
 
 const BUCKET_MS = 10_000;
 const MAX_VIDEO_MS = 24 * 3600 * 1000;
-const MAX_BODY_CHARS = 32_000;
+const MAX_BODY_CHARS = 48_000;
 /** A chunk still pending after this long was lost with its Worker. */
 const STALE_MS = 2 * 60 * 1000;
 const SESSION_TTL_MS = 2 * 3600 * 1000;
-const CONTEXT_SEGMENTS = 4;
-const KNOWN_IDEAS = 12;
+const CONTEXT_SEGMENTS = 10;
+const KNOWN_IDEAS = 20;
 const MAX_CARDS_PER_POLL = 100;
 /** A session can only send text as fast as someone can speak it, so nobody can pour in hours of text at once. */
 const CHARS_PER_SECOND = 30;
@@ -51,7 +53,7 @@ const refuse = (error: ErrorCode, status: number) => json({ error }, status);
 
 /**
  * Writes must come from this site's own page: JSON only (an HTML form can't send it) and, when the browser says where
- * the request comes from, the same origin. Scripts outside a browser are stopped by the bot check instead.
+ * the request comes from, the same origin.
  */
 function checkWrite(req: Request, url: URL): Response | null {
   if (!/^application\/json\b/i.test(req.headers.get("content-type") ?? "")) return refuse("bad_request", 415);
@@ -73,10 +75,10 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
     if (bad) return bad;
   } else if (req.method !== "GET") return refuse("bad_request", 405);
 
-  if (url.pathname === "/api/config" && req.method === "GET") return json({ turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? "" });
   if (url.pathname === "/api/videos" && req.method === "GET") return getVideos(env);
-  const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards)$/);
-  if (m && m[2] === "sessions" && req.method === "POST") return postSession(req, env, url, m[1]);
+  const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards|language)$/);
+  if (m && m[2] === "language" && req.method === "GET") return getLanguage(env, m[1]);
+  if (m && m[2] === "sessions" && req.method === "POST") return postSession(req, env, m[1]);
   if (m && m[2] === "transcript" && req.method === "POST") return postTranscript(req, env, ctx, m[1]);
   if (m && m[2] === "cards" && req.method === "GET") {
     const after = url.searchParams.get("after") ?? "0";
@@ -125,20 +127,6 @@ function parseSegments(raw: unknown): Segment[] | null {
   return out.sort((a, b) => a.s - b.s);
 }
 
-/** Ask Cloudflare whether this page view passed the bot check. Cloudflare's test keys report another hostname, so they only pass locally. */
-async function passedBotCheck(env: Env, url: URL, req: Request, token: string): Promise<boolean> {
-  const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token, remoteip: req.headers.get("cf-connecting-ip") ?? undefined }),
-    signal: AbortSignal.timeout(4000),
-  });
-  const outcome = (await r.json()) as { success?: boolean; hostname?: string; action?: string };
-  const local = url.hostname === "localhost" || url.hostname === "127.0.0.1";
-  // The action ties the token to this site's "listen" widget, so a token solved elsewhere with the same key doesn't work.
-  return outcome.success === true && (local || (outcome.hostname === url.hostname && outcome.action === TURNSTILE_ACTION));
-}
-
 /** The video's row, created on first sight with its title from YouTube. Null when YouTube says the video doesn't exist. */
 async function ensureVideo(env: Env, id: string): Promise<{ title: string } | null> {
   const row = await env.DB.prepare("SELECT title FROM videos WHERE id = ?").bind(id).first<{ title: string }>();
@@ -162,13 +150,8 @@ async function ensureVideo(env: Env, id: string): Promise<{ title: string } | nu
   return { title };
 }
 
-/** Bot check first, then a token that lets this page send transcript for this one video. */
-async function postSession(req: Request, env: Env, url: URL, videoId: string): Promise<Response> {
-  if (!env.TURNSTILE_SECRET) return refuse("unavailable", 503);
-  const token = (await readBody(req))?.turnstileToken;
-  if (typeof token !== "string" || !token || token.length > 2048) return refuse("bot_check", 403);
-  const passed = await passedBotCheck(env, url, req, token).catch(() => false);
-  if (!passed) return refuse("bot_check", 403);
+/** A token that lets this page send transcript for this one video. */
+async function postSession(req: Request, env: Env, videoId: string): Promise<Response> {
   if (!(await ensureVideo(env, videoId))) return refuse("video_not_found", 404);
 
   const now = Date.now();
@@ -184,9 +167,12 @@ async function postSession(req: Request, env: Env, url: URL, videoId: string): P
   const [slot, mine, usage] = await env.DB.batch<{ n: number }>([
     env.DB.prepare("SELECT COUNT(*) AS n FROM daily_videos WHERE day = ? AND video_id = ?").bind(day, videoId),
     env.DB.prepare("SELECT COUNT(*) AS n FROM daily_videos WHERE day = ? AND ip_hash = ?").bind(day, ipHash),
-    env.DB.prepare("SELECT COALESCE(SUM(neurons), 0) AS n FROM usage_daily WHERE day = ?").bind(day),
+    env.DB.prepare("SELECT COALESCE(SUM(neurons), 0) AS n, COALESCE(SUM(usd), 0) AS usd FROM usage_daily WHERE day = ?").bind(day),
   ]);
-  if (usage.results[0].n + MAX_NEURONS_PER_CALL > num(env.DAILY_NEURON_CAP, 9000)) return refuse("neurons", 429);
+  const spent = usage.results[0] as { n: number; usd?: number };
+  const claudeRoom = !!env.ANTHROPIC_API_KEY && (spent.usd ?? 0) + MAX_USD_PER_CALL <= num(env.DAILY_USD_CAP, 1);
+  const neuronRoom = spent.n + MAX_NEURONS_PER_CALL <= num(env.DAILY_NEURON_CAP, 9000);
+  if (!claudeRoom && !neuronRoom) return refuse("neurons", 429);
   if (slot.results[0].n === 0) {
     if (mine.results[0].n >= num(env.IP_DAILY_VIDEO_CAP, 3)) return refuse("ip_videos", 429);
   }
@@ -234,6 +220,8 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
   };
 
   const video = await env.DB.prepare("SELECT title FROM videos WHERE id = ?").bind(videoId).first<{ title: string }>();
+  // The language the viewer set for speech recognition, so the model knows what it's reading.
+  const lang = typeof body?.lang === "string" && LANG_TAG.test(body.lang) ? body.lang : null;
   if (!video) return finish("video_not_found", refuse("video_not_found", 404));
 
   await env.DB.batch([
@@ -268,10 +256,10 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
   }
 
   const day = today();
-  const refused = await reserve(env, day, videoId, paced.ip_hash);
-  if (refused) {
+  const reserved = await reserve(env, day, videoId, paced.ip_hash);
+  if (typeof reserved === "string") {
     await release();
-    return finish(refused, refuse(refused, 429));
+    return finish(reserved, refuse(reserved, 429));
   }
   logUpload(env, ctx, videoId, tokenHash, "accepted", segments);
   const startMs = kept[0].s;
@@ -280,7 +268,7 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
 
   // The model can take longer than the 30 s allowed after a response, so hold the response open while it runs.
   // waitUntil only matters if the page goes away meanwhile.
-  const work = runChunk(env, day, videoId, chunkId, video.title, kept);
+  const work = runChunk(env, day, videoId, chunkId, video.title, lang, kept, reserved.provider);
   ctx.waitUntil(work);
   await work;
   return json(reply, 202);
@@ -299,8 +287,14 @@ function logUpload(env: Env, ctx: ExecutionContext, videoId: string, sessionHash
   );
 }
 
-/** The two hard limits before an AI call: videos per connection, then the free neurons. Both are single atomic statements, so simultaneous requests can't pass together. */
-async function reserve(env: Env, day: string, videoId: string, ipHash: string): Promise<ErrorCode | null> {
+type Provider = "claude" | "workers-ai";
+
+/**
+ * The hard limits before an AI call: videos per connection, then a budget for the model. Claude comes first while
+ * its daily dollar cap has room, then the free Workers AI neurons. Each is a single atomic statement, so simultaneous
+ * requests can't pass together. `SELECT … WHERE` also refuses the day's first call when a cap is 0.
+ */
+async function reserve(env: Env, day: string, videoId: string, ipHash: string): Promise<ErrorCode | { provider: Provider }> {
   const [, slot] = await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO daily_videos (day, video_id, ip_hash) SELECT ?1, ?2, ?3
@@ -310,43 +304,120 @@ async function reserve(env: Env, day: string, videoId: string, ipHash: string): 
     env.DB.prepare("SELECT 1 AS ok FROM daily_videos WHERE day = ? AND video_id = ?").bind(day, videoId),
   ]);
   if (slot.results.length === 0) return "ip_videos";
-  const budget = await env.DB.prepare(
-    "INSERT INTO usage_daily (day, neurons) VALUES (?1, ?2) ON CONFLICT (day) DO UPDATE SET neurons = neurons + ?2 WHERE neurons + ?2 <= ?3 RETURNING neurons",
+  if (env.ANTHROPIC_API_KEY && (await reserveUsd(env, day))) return { provider: "claude" };
+  return (await reserveNeurons(env, day)) ? { provider: "workers-ai" } : "neurons";
+}
+
+async function reserveUsd(env: Env, day: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    "INSERT INTO usage_daily (day, usd) SELECT ?1, ?2 WHERE ?2 <= ?3 ON CONFLICT (day) DO UPDATE SET usd = usd + ?2 WHERE usd + ?2 <= ?3 RETURNING usd",
+  )
+    .bind(day, MAX_USD_PER_CALL, num(env.DAILY_USD_CAP, 1))
+    .first();
+  return row !== null;
+}
+
+async function reserveNeurons(env: Env, day: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    "INSERT INTO usage_daily (day, neurons) SELECT ?1, ?2 WHERE ?2 <= ?3 ON CONFLICT (day) DO UPDATE SET neurons = neurons + ?2 WHERE neurons + ?2 <= ?3 RETURNING neurons",
   )
     .bind(day, MAX_NEURONS_PER_CALL, num(env.DAILY_NEURON_CAP, 9000))
     .first();
-  return budget ? null : "neurons";
+  return row !== null;
 }
 
-async function runChunk(env: Env, day: string, videoId: string, chunkId: number, title: string, segments: Segment[]): Promise<void> {
+/** Give back what a call didn't use: `actual` replaces the reservation in the day's total. */
+function settle(env: Env, day: string, provider: Provider, actual: number) {
+  return provider === "claude"
+    ? env.DB.prepare("UPDATE usage_daily SET usd = usd + ? WHERE day = ?").bind(actual - MAX_USD_PER_CALL, day)
+    : env.DB.prepare("UPDATE usage_daily SET neurons = neurons + ? WHERE day = ?").bind(actual - MAX_NEURONS_PER_CALL, day);
+}
+
+async function runChunk(env: Env, day: string, videoId: string, chunkId: number, title: string, lang: string | null, segments: Segment[], provider: Provider): Promise<void> {
+  // Whatever is still reserved when something fails, so the catch can give it back.
+  let holding: Provider | null = provider;
+  // Cards are saved one by one as the model writes them, so the page's next poll shows them.
+  const insert = env.DB.prepare("INSERT INTO cards (video_id, chunk_id, start_ms, card) VALUES (?, ?, ?, ?)");
+  let saved = 0;
+  let facts = 0;
+  const save = async (c: CheckedCard) => {
+    await insert.bind(videoId, chunkId, c.startMs, JSON.stringify(c)).run();
+    saved++;
+    if (c.check?.official) facts++;
+  };
+  const finishChunk = (model: string, neurons: number, usd: number, spend: ReturnType<typeof settle>) =>
+    env.DB.batch([
+      env.DB.prepare("UPDATE videos SET card_count = card_count + ?, fact_count = fact_count + ?, analysed_at = ? WHERE id = ?").bind(saved, facts, Date.now(), videoId),
+      env.DB.prepare("UPDATE chunks SET status = 'done', neurons = ?, usd = ?, model = ? WHERE id = ?").bind(neurons, usd, model, chunkId),
+      spend,
+    ]);
   try {
     const startMs = segments[0].s;
+    // The stretch before this one, for context. Chrome's phrases can last a minute, so look back generously.
     const [prev, known] = await env.DB.batch<Record<string, string>>([
-      env.DB.prepare("SELECT segments FROM chunks WHERE video_id = ? AND id <> ? AND status <> 'failed' AND end_ms BETWEEN ? AND ? ORDER BY end_ms DESC LIMIT 1").bind(videoId, chunkId, startMs - 5000, startMs + 1000),
+      env.DB.prepare("SELECT segments FROM chunks WHERE video_id = ? AND id <> ? AND status <> 'failed' AND start_ms < ? AND end_ms >= ? ORDER BY end_ms DESC LIMIT 1").bind(videoId, chunkId, startMs, startMs - 120_000),
       env.DB.prepare("SELECT json_extract(card, '$.paraphrase') AS p FROM cards WHERE video_id = ? ORDER BY id DESC LIMIT ?").bind(videoId, KNOWN_IDEAS),
     ]);
     const context = prev.results[0] ? (JSON.parse(prev.results[0].segments) as Segment[]).slice(-CONTEXT_SEGMENTS) : [];
-    const result = await factCheckChunk(env.AI, { title, context, segments, knownIdeas: known.results.map((r) => r.p) });
+    const input = { title, lang, context, segments, knownIdeas: known.results.map((r) => r.p) };
 
-    const insert = env.DB.prepare("INSERT INTO cards (video_id, chunk_id, start_ms, card) VALUES (?, ?, ?, ?)");
-    const facts = result.cards.filter((c) => c.kind === "fact").length;
-    await env.DB.batch([
-      ...result.cards.map((c) => insert.bind(videoId, chunkId, c.startMs, JSON.stringify(c))),
-      env.DB.prepare("UPDATE videos SET card_count = card_count + ?, fact_count = fact_count + ?, analysed_at = ? WHERE id = ?").bind(result.cards.length, facts, Date.now(), videoId),
-      env.DB.prepare("UPDATE chunks SET status = 'done', neurons = ? WHERE id = ?").bind(result.neurons, chunkId),
-      env.DB.prepare("UPDATE usage_daily SET neurons = neurons + ? WHERE day = ?").bind(result.neurons - MAX_NEURONS_PER_CALL, day),
-    ]);
-    console.log(JSON.stringify({ event: "chunk", videoId, chunkId, segments: segments.length, cards: result.cards.length, neurons: result.neurons }));
+    if (provider === "claude") {
+      const t0 = Date.now();
+      try {
+        const r = await factCheckWithClaude(env.ANTHROPIC_API_KEY!, input, save);
+        holding = null;
+        await finishChunk(CLAUDE_MODEL, 0, r.usd, settle(env, day, "claude", r.usd));
+        console.log(JSON.stringify({ event: "chunk", videoId, chunkId, model: CLAUDE_MODEL, segments: segments.length, cards: saved, usd: r.usd, ms: Date.now() - t0 }));
+        return;
+      } catch (err) {
+        console.error(JSON.stringify({ event: "claude_failed", videoId, chunkId, saved, ms: Date.now() - t0, error: describe(err) }));
+        if (saved > 0) {
+          // Cut off after some cards: keep them rather than analyse the stretch twice. The cost isn't known, so the reservation stands.
+          holding = null;
+          await finishChunk(CLAUDE_MODEL, 0, MAX_USD_PER_CALL, settle(env, day, "claude", MAX_USD_PER_CALL));
+          return;
+        }
+        // Down, rate-limited, timed out or refused before any card: give the reservation back and let Workers AI try.
+        // A failed call is billed only for what it used, and a refusal's cost isn't known here, so this can undercount.
+        holding = null;
+        await env.DB.prepare("UPDATE usage_daily SET usd = usd - ? WHERE day = ?").bind(MAX_USD_PER_CALL, day).run();
+        if (!(await reserveNeurons(env, day))) throw new Error(`claude failed and no neurons left: ${describe(err)}`);
+        holding = "workers-ai";
+      }
+    }
+    const r = await factCheckChunk(env.AI, input);
+    for (const c of r.cards) await save(c);
+    holding = null;
+    await finishChunk(WORKERS_AI_MODEL, r.neurons, 0, settle(env, day, "workers-ai", r.neurons));
+    console.log(JSON.stringify({ event: "chunk", videoId, chunkId, model: WORKERS_AI_MODEL, segments: segments.length, cards: saved, neurons: r.neurons }));
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    const message = describe(err);
     console.error("chunk failed", chunkId, message);
-    // Free the stretch of video so a later viewer can try it again, and give back the reservation.
+    // Free the stretch of video so a later viewer can try it again, and give back what is still reserved.
+    // Cards already saved stay; the stretch is only freed when there are none, so it is never analysed twice.
     await env.DB.batch([
-      env.DB.prepare("UPDATE chunks SET status = 'failed', error = ? WHERE id = ?").bind(message.slice(0, 300), chunkId),
-      env.DB.prepare("DELETE FROM coverage WHERE chunk_id = ?").bind(chunkId),
-      env.DB.prepare("UPDATE usage_daily SET neurons = neurons - ? WHERE day = ?").bind(MAX_NEURONS_PER_CALL, day),
+      env.DB.prepare("UPDATE chunks SET status = ?, error = ? WHERE id = ?").bind(saved ? "done" : "failed", message.slice(0, 300), chunkId),
+      ...(saved ? [] : [env.DB.prepare("DELETE FROM coverage WHERE chunk_id = ?").bind(chunkId)]),
+      ...(holding ? [settle(env, day, holding, 0)] : []),
     ]);
   }
+}
+
+const describe = (err: unknown) => (err instanceof Error ? `${err.name}: ${err.message}` : String(err));
+
+const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,4})?$/;
+
+/**
+ * The language a video is spoken in, looked up once and kept with the video. Failures aren't kept, so a later
+ * visit tries again; the per-connection rate limit bounds how often YouTube is asked.
+ */
+async function getLanguage(env: Env, videoId: string): Promise<Response> {
+  if (!(await ensureVideo(env, videoId))) return refuse("video_not_found", 404);
+  const row = await env.DB.prepare("SELECT title, lang, lang_source FROM videos WHERE id = ?").bind(videoId).first<{ title: string; lang: string | null; lang_source: LanguageResponse["source"] }>();
+  if (row?.lang) return json({ lang: row.lang, source: row.lang_source } satisfies LanguageResponse);
+  const found = await detectLanguage(videoId, row?.title ?? "");
+  if (found) await env.DB.prepare("UPDATE videos SET lang = ?, lang_source = ? WHERE id = ?").bind(found.lang, found.source, videoId).run();
+  return json({ lang: found?.lang ?? null, source: found?.source ?? null } satisfies LanguageResponse);
 }
 
 const HISTORY_SIZE = 24;

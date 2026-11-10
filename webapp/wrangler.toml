@@ -3,21 +3,21 @@ main = "src/worker/index.ts"
 compatibility_date = "2026-11-01"
 compatibility_flags = ["nodejs_compat"]
 
-[build]
-command = "node build.mjs"
+# Static assets (the page) are built and wired up by Vite: see vite.config.ts.
 
-[assets]
-directory = "dist"
-
-# Workers AI. `wrangler dev` also calls the real service, so local runs use your account's neurons.
+# Workers AI. `vite dev` also calls the real service, so local runs use your account's neurons.
 [ai]
 binding = "AI"
 
-# Secret: TURNSTILE_SECRET comes from webapp/.dev.vars locally (never committed)
-# and from `wrangler secret put TURNSTILE_SECRET` when deployed.
+# Secret: ANTHROPIC_API_KEY comes from webapp/.dev.vars locally (never committed) and from
+# `pnpm wrangler secret put ANTHROPIC_API_KEY` when deployed. With it, Claude Haiku analyses each upload and
+# Workers AI is the fallback (no key, Claude down or refusing, or the dollar cap reached). Without it, Workers AI only.
 
 [vars]
-# The only daily ceiling: Workers AI use per UTC day. Workers AI gives 10000 neurons a day for free; this stays under
+# Most the Anthropic API may cost per UTC day, in US dollars. One 3-minute upload costs about $0.001-0.003.
+# Reserved before each call, so simultaneous requests can't overrun it. 0 sends everything to Workers AI.
+DAILY_USD_CAP = "1"
+# Workers AI use per UTC day (the fallback). Workers AI gives 10000 neurons a day for free; this stays under
 # it with room for the measurement to be a little off. Lower it if anything else on the account uses Workers AI,
 # or set it to 0 to stop new analyses at once.
 DAILY_NEURON_CAP = "9000"
@@ -29,13 +29,11 @@ MAX_MINUTES_PER_VIDEO = "15"
 IP_SESSION_CAP = "6"
 # Days to keep the transcript log (every upload's text and outcome; nothing about the sender).
 LOG_RETENTION_DAYS = "30"
-# Cloudflare's always-pass test key, which only works on localhost. Replace it before deploying.
-TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "lastro-live"
-# Local dev uses a simulated database. Replace with the id from `wrangler d1 create lastro-live` before deploying.
+# Local dev uses a simulated database. Replace with the id from `pnpm wrangler d1 create lastro-live` before deploying.
 database_id = "REPLACE_WITH_D1_ID"
 migrations_dir = "migrations"
 

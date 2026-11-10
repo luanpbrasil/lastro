@@ -18,7 +18,8 @@ This takes about 10 minutes. You need a terminal, but no coding.
 ### 1. What you need
 
 - **Google Chrome** (or another Chromium browser: Edge, Brave, Arc).
-- **Node.js 20 or newer** ([nodejs.org](https://nodejs.org), "LTS" download). Check with `node -v`. Tested with Node 26.
+- **Node.js 22.12 or newer** ([nodejs.org](https://nodejs.org), "LTS" download). Check with `node -v`. Tested with Node 24.
+- **pnpm**: run `corepack enable` once (it comes with Node) and the version pinned in `package.json` is used. Check with `pnpm -v`.
 - **git**, to download the code.
 - **An Anthropic API key** (from [console.anthropic.com](https://console.anthropic.com)), for videos that have not been analysed on your machine yet. One video costs about $0.002. See [No API key?](#no-api-key) below.
 
@@ -35,11 +36,11 @@ cd lastro
 ```
 
 ```bash
-npm install
+pnpm install
 ```
 
 ```bash
-npm run build:demo
+pnpm build:demo
 ```
 
 This creates the folder `extension/dist-demo`: the extension you load into Chrome.
@@ -65,7 +66,7 @@ Don't type the key into a terminal command: it would stay in your shell history.
 ### 4. Start the local server
 
 ```bash
-npm run dev:worker
+pnpm dev:worker
 ```
 
 Leave this terminal open while you use Lastro. It runs on `http://127.0.0.1:8787`. The extension only talks to this address (and to the public BCB/IBGE data APIs). Check that it is up: open http://127.0.0.1:8787/health in the browser.
@@ -104,7 +105,7 @@ Today you need a key for the first viewing of each video: the cache lives on the
 | The pill says / you see | Fix |
 |---|---|
 | No pill on YouTube | Reload the YouTube tab. If you rebuilt the extension, first press the reload arrow on Lastro in `chrome://extensions`. |
-| `servidor fora do ar` | The local server isn't running: start `npm run dev:worker` and reload the tab. |
+| `servidor fora do ar` | The local server isn't running: start `pnpm dev:worker` and reload the tab. |
 | `analysis failed` | The key is missing or wrong in `.dev.vars`. Fix it, stop the server (Ctrl+C), start it again, reload the tab. |
 | `sem legendas` | The video has no captions, or they didn't load. Wait for any ad to finish and reload the tab. |
 | `erro 402` / `erro 429` | The server's spending or daily limit was reached (`MAX_SPEND_USD`, `DAILY_CAP` in `wrangler.toml`). |
@@ -152,16 +153,16 @@ Decides whether a video is about economia, politica or filosofia (or none). `eco
 - Inputs today: title + description only. Captions were blocked by YouTube during collection.
 - Test (101 videos from 17 unseen channels, human labels): see `eval/classifier/final.md`. With the economia-OR-politica rule, economia recall is 0.96 and 79% of triggered videos are economia or politica (`eval/classifier/or_rule.md`).
 
-Retrain: `npm run topics:train`, then `npm run topics:parity`.
+Retrain: `pnpm topics:train`, then `pnpm topics:parity`.
 
 ## Development
 
 ```bash
-npm run dev:worker   # Worker on http://127.0.0.1:8787
-npm run build:ext    # dev build → extension/dist (adds a debug line: first-card latency and cost)
-npm run watch:ext    # same, rebuilding on change
-npm run build:demo   # demo build → extension/dist-demo (no debug line)
-npm run typecheck
+pnpm dev:worker   # Worker on http://127.0.0.1:8787
+pnpm build:ext    # dev build → extension/dist (adds a debug line: first-card latency and cost)
+pnpm watch:ext    # same, rebuilding on change
+pnpm build:demo   # demo build → extension/dist-demo (no debug line)
+pnpm typecheck
 ```
 
 Point the extension at another Worker: `node extension/build.mjs --prod --worker https://your-worker.workers.dev`.
@@ -173,8 +174,8 @@ Check spend: `curl http://127.0.0.1:8787/spend`.
 ## Checks
 
 ```bash
-npm run eval    # card stance logic + model labels vs gold, on recorded streams ($0)
-npm run facts   # hits every official data source once (free APIs)
+pnpm eval    # card stance logic + model labels vs gold, on recorded streams ($0)
+pnpm facts   # hits every official data source once (free APIs)
 ```
 
 ## Status

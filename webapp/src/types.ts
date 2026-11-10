@@ -1,11 +1,9 @@
 import type { Card, Segment } from "../../shared/schema";
 
 /** Limits for one POST /transcript. The page stays well under them. */
-export const MAX_SEGMENTS = 100;
-export const MAX_CHUNK_CHARS = 6000;
+export const MAX_SEGMENTS = 200;
+export const MAX_CHUNK_CHARS = 10_000;
 export const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
-/** The Turnstile action of the listen widget, checked by the Worker. */
-export const TURNSTILE_ACTION = "listen";
 
 export interface OfficialValue {
   label: string;
@@ -15,6 +13,8 @@ export interface OfficialValue {
   value: number;
   date: string;
   periodLabel: string;
+  /** A thinned slice of the official series around the value, for the card's chart. Cards saved before it have none. */
+  series?: { date: string; value: number }[];
 }
 
 /** Result of checking a fact card against the official series. `official` is null when no value could be fetched. */
@@ -23,11 +23,14 @@ export interface FactCheck {
   official: OfficialValue | null;
 }
 
-export type CheckedCard = Omit<Card, "modelQuote"> & { check: FactCheck | null };
+/** `headline`: a few words naming the claim, in the language of the video (cards saved before it have none). */
+export type CheckedCard = Omit<Card, "modelQuote"> & { headline?: string; check: FactCheck | null };
 export type StoredCard = CheckedCard & { id: number };
 
 export interface TranscriptRequest {
   session: string;
+  /** BCP 47 tag speech recognition is set to */
+  lang?: string;
   segments: Segment[];
 }
 
@@ -45,8 +48,10 @@ export interface VideosResponse {
   videos: VideoSummary[];
 }
 
-export interface SessionRequest {
-  turnstileToken: string;
+/** GET /api/videos/:id/language. `lang` is BCP 47 as YouTube writes it ("pt-BR", "en"); null when unknown. */
+export interface LanguageResponse {
+  lang: string | null;
+  source: "audio" | "captions" | "title" | null;
 }
 
 export interface SessionResponse {
@@ -57,7 +62,6 @@ export interface SessionResponse {
 export type ErrorCode =
   | "bad_request"
   | "forbidden"
-  | "bot_check"
   | "video_not_found"
   | "session_invalid"
   | "too_fast"

@@ -10,5 +10,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src/worker", "src/types.ts"]
+  "include": ["src/worker", "src/types.ts", "vite.config.ts"]
 }
