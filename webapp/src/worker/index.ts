@@ -10,7 +10,6 @@ interface Env {
   API_LIMITER: RateLimit;
   TURNSTILE_SECRET?: string;
   TURNSTILE_SITE_KEY?: string;
-  DAILY_VIDEO_CAP?: string;
   IP_DAILY_VIDEO_CAP?: string;
   DAILY_NEURON_CAP?: string;
   MAX_MINUTES_PER_VIDEO?: string;
@@ -182,15 +181,13 @@ async function postSession(req: Request, env: Env, url: URL, videoId: string): P
   ]);
 
   // Say so before the viewer shares the tab. The slot itself is only taken by the first analysed text.
-  const [slot, all, mine, usage] = await env.DB.batch<{ n: number }>([
+  const [slot, mine, usage] = await env.DB.batch<{ n: number }>([
     env.DB.prepare("SELECT COUNT(*) AS n FROM daily_videos WHERE day = ? AND video_id = ?").bind(day, videoId),
-    env.DB.prepare("SELECT COUNT(*) AS n FROM daily_videos WHERE day = ?").bind(day),
     env.DB.prepare("SELECT COUNT(*) AS n FROM daily_videos WHERE day = ? AND ip_hash = ?").bind(day, ipHash),
     env.DB.prepare("SELECT COALESCE(SUM(neurons), 0) AS n FROM usage_daily WHERE day = ?").bind(day),
   ]);
   if (usage.results[0].n + MAX_NEURONS_PER_CALL > num(env.DAILY_NEURON_CAP, 9000)) return refuse("neurons", 429);
   if (slot.results[0].n === 0) {
-    if (all.results[0].n >= num(env.DAILY_VIDEO_CAP, 20)) return refuse("daily_videos", 429);
     if (mine.results[0].n >= num(env.IP_DAILY_VIDEO_CAP, 3)) return refuse("ip_videos", 429);
   }
 
@@ -302,18 +299,17 @@ function logUpload(env: Env, ctx: ExecutionContext, videoId: string, sessionHash
   );
 }
 
-/** The two hard limits before an AI call. Both are single atomic statements, so simultaneous requests can't pass together. */
+/** The two hard limits before an AI call: videos per connection, then the free neurons. Both are single atomic statements, so simultaneous requests can't pass together. */
 async function reserve(env: Env, day: string, videoId: string, ipHash: string): Promise<ErrorCode | null> {
   const [, slot] = await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO daily_videos (day, video_id, ip_hash) SELECT ?1, ?2, ?3
-       WHERE (SELECT COUNT(*) FROM daily_videos WHERE day = ?1) < ?4
-         AND (SELECT COUNT(*) FROM daily_videos WHERE day = ?1 AND ip_hash = ?3) < ?5
+       WHERE (SELECT COUNT(*) FROM daily_videos WHERE day = ?1 AND ip_hash = ?3) < ?4
        ON CONFLICT (day, video_id) DO NOTHING`,
-    ).bind(day, videoId, ipHash, num(env.DAILY_VIDEO_CAP, 20), num(env.IP_DAILY_VIDEO_CAP, 3)),
+    ).bind(day, videoId, ipHash, num(env.IP_DAILY_VIDEO_CAP, 3)),
     env.DB.prepare("SELECT 1 AS ok FROM daily_videos WHERE day = ? AND video_id = ?").bind(day, videoId),
   ]);
-  if (slot.results.length === 0) return "daily_videos";
+  if (slot.results.length === 0) return "ip_videos";
   const budget = await env.DB.prepare(
     "INSERT INTO usage_daily (day, neurons) VALUES (?1, ?2) ON CONFLICT (day) DO UPDATE SET neurons = neurons + ?2 WHERE neurons + ?2 <= ?3 RETURNING neurons",
   )

@@ -17,14 +17,13 @@ binding = "AI"
 # and from `wrangler secret put TURNSTILE_SECRET` when deployed.
 
 [vars]
-# Different videos analysed per UTC day, all users together. Set to 0 to stop new analyses at once.
-DAILY_VIDEO_CAP = "20"
-# Different videos one connection can start per UTC day.
-IP_DAILY_VIDEO_CAP = "3"
-# Hard ceiling on Workers AI use per UTC day. Workers AI gives 10000 neurons a day for free; this stays under it with
-# room for the measurement to be a little off. Lower it if anything else on the account uses Workers AI.
+# The only daily ceiling: Workers AI use per UTC day. Workers AI gives 10000 neurons a day for free; this stays under
+# it with room for the measurement to be a little off. Lower it if anything else on the account uses Workers AI,
+# or set it to 0 to stop new analyses at once.
 DAILY_NEURON_CAP = "9000"
-# Listening time analysed per video. About 20 videos of 15 minutes fit in the neuron cap.
+# Different videos one connection can start per UTC day, so one person can't use up the day's neurons.
+IP_DAILY_VIDEO_CAP = "3"
+# Listening time analysed per video, so one long video can't use up the day's neurons.
 MAX_MINUTES_PER_VIDEO = "15"
 # Listening sessions one connection can hold in 2 hours.
 IP_SESSION_CAP = "6"

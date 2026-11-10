@@ -64,7 +64,6 @@ export type ErrorCode =
   | "rate_limited"
   | "ip_sessions"
   | "ip_videos"
-  | "daily_videos"
   | "neurons"
   | "video_limit"
   | "unavailable";

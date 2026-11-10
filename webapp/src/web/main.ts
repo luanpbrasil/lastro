@@ -17,7 +17,6 @@ const REFUSALS: Partial<Record<ErrorCode, string>> = {
   rate_limited: "Muitas requisições desta conexão. Aguarde um minuto.",
   ip_sessions: "Muitas sessões desta conexão. Tente mais tarde.",
   ip_videos: "Esta conexão já analisou o máximo de vídeos de hoje.",
-  daily_videos: "O limite de vídeos analisados hoje foi atingido. Tente amanhã.",
   neurons: "O limite de análises de hoje foi atingido. Tente amanhã.",
   video_limit: "Este vídeo atingiu o limite de tempo analisado.",
   unavailable: "Serviço indisponível agora.",

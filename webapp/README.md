@@ -60,7 +60,7 @@ Everything is sized to stay inside Cloudflare's free allowances.
 | D1 | 5 M rows read, 100 k written/day | Indexed queries. The history reads at most 24 rows |
 | Turnstile, static assets | Free | – |
 
-GLM 4.7 Flash uses about 40 neurons per 90-second upload, so 9000 neurons is about 20 videos of 15 minutes. The neuron cap is the hard guarantee: whichever limit comes first stops new analyses until 00:00 UTC.
+GLM 4.7 Flash uses about 40 neurons per 90-second upload, so 9000 neurons is about 300 minutes of video a day, however many videos that is. When the cap is reached, new analyses stop until 00:00 UTC and saved cards keep working.
 
 Cloudflare's free allowance is per account. If anything else on the account uses Workers AI, lower `DAILY_NEURON_CAP`. On the Workers Free plan Cloudflare never bills; on the Paid plan the cap is what keeps the bill at zero. Free Workers also get 10 ms of CPU per request: the app's work is light, but check `wrangler tail` for CPU errors after deploying.
 
@@ -70,10 +70,9 @@ All set in `wrangler.toml`. A refused request never reaches the AI.
 
 | Limit | Default | What it stops |
 |---|---|---|
-| `DAILY_VIDEO_CAP` | 20 different videos per UTC day | Total daily use. Set it to 0 to stop new analyses at once |
-| `IP_DAILY_VIDEO_CAP` | 3 videos per connection per day | One person using up the day's videos |
-| `DAILY_NEURON_CAP` | 9000 per day | Spending, whatever else happens |
-| `MAX_MINUTES_PER_VIDEO` | 15 minutes analysed | One long video using up the budget |
+| `DAILY_NEURON_CAP` | 9000 per day | The only daily ceiling: stays inside the free 10000. Set it to 0 to stop new analyses at once |
+| `IP_DAILY_VIDEO_CAP` | 3 videos per connection per day | One person using up the day's neurons |
+| `MAX_MINUTES_PER_VIDEO` | 15 minutes analysed | One long video using up the day's neurons |
 | `IP_SESSION_CAP` | 6 sessions per connection per 2 hours | Repeatedly opening sessions |
 | Bot check | Required for every session, tied to this site's hostname and its "listen" widget | Scripts |
 | Real-time pacing | 30 characters/s, one upload per 10 s | Pouring in hours of text at once |
