@@ -105,6 +105,21 @@ const en = {
   "card.reading": "Further reading",
   "card.readSpeaker": "to understand this view",
   "card.readOpposing": "the opposing view",
+
+  // Chrome extension (extension/): the pill and the note above it, on YouTube
+  "ext.captions": "reading captions…",
+  "ext.panel": "reading the transcript…",
+  "ext.analysing": "analysing · {pct}%",
+  "ext.offTopic": "not about the economy",
+  "ext.analyse": "Analyse this video",
+  "ext.reload": "reload the page",
+  "ext.noCaptions": "no captions",
+  "ext.listenHint": "This video has no captions Lastro can read. To listen to it instead, click Lastro in Chrome’s toolbar{key}.",
+  "ext.listenKey": " or press {key}",
+  "ext.listening": "Listening to this tab in {lang}. Ideas show up about half a minute after they are said. Click Lastro in the toolbar again to stop.",
+  "ext.listenStopped": "Stopped listening.",
+  "ext.unavailable": "server unavailable",
+  "ext.stopped": "stopped",
 };
 
 const pt: typeof en = {
@@ -204,6 +219,20 @@ const pt: typeof en = {
   "card.reading": "Para ir além",
   "card.readSpeaker": "para entender esta visão",
   "card.readOpposing": "a visão contrária",
+
+  "ext.captions": "lendo legendas…",
+  "ext.panel": "lendo a transcrição…",
+  "ext.analysing": "analisando · {pct}%",
+  "ext.offTopic": "fora do tema",
+  "ext.analyse": "Analisar este vídeo",
+  "ext.reload": "recarregue a página",
+  "ext.noCaptions": "sem legendas",
+  "ext.listenHint": "Este vídeo não tem legendas que o Lastro consiga ler. Para ouvi-lo, clique no Lastro na barra do Chrome{key}.",
+  "ext.listenKey": " ou aperte {key}",
+  "ext.listening": "Ouvindo esta aba em {lang}. As ideias aparecem cerca de meio minuto depois da fala. Clique no Lastro na barra de novo para parar.",
+  "ext.listenStopped": "Parou de ouvir.",
+  "ext.unavailable": "servidor fora do ar",
+  "ext.stopped": "parado",
 };
 
 export type Key = keyof typeof en;
@@ -213,6 +242,11 @@ const table = locale === "pt" ? pt : en;
 export function t(key: Key, vars: Record<string, string | number> = {}): string {
   return table[key].replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));
 }
+
+const KNOWN_REFUSALS = ["video_not_found", "session_invalid", "rate_limited", "ip_sessions", "ip_videos", "neurons", "video_limit", "unavailable"] as const;
+/** Why the Worker refused, for the viewer (ErrorCode from src/types.ts). */
+export const refusal = (code: string): string =>
+  (KNOWN_REFUSALS as readonly string[]).includes(code) ? t(`refusal.${code as (typeof KNOWN_REFUSALS)[number]}`) : t("refusal.other");
 
 /** Plural helper: `t1` when n is 1, else `tn` with {n}. */
 export const plural = (n: number, one: Key, many: Key) => (n === 1 ? t(one) : t(many, { n }));

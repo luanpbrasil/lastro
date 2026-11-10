@@ -51,6 +51,7 @@ export class Overlay {
   private pill = el("div", "ov-pill");
   private statusEl = el("span", "ov-status");
   private pauseBtn = el("button", "ov-pause");
+  private action = el("button", "ov-action");
   private mode: "none" | "card" | "list" = "none";
   private nav: CardNav | null = null;
   onPauseClick: () => void = () => {};
@@ -73,7 +74,9 @@ export class Overlay {
     // The chip sits beside the pill, so its coming and going never moves the panel above.
     const dock = el("div", "ov-dock");
     dock.append(this.chip, this.pill);
-    root.replaceChildren(this.slot, dock);
+    this.action.type = "button";
+    this.action.hidden = true;
+    root.replaceChildren(this.slot, this.action, dock);
     // ← → step through the cards and Esc closes, while focus is in the overlay.
     root.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.mode !== "none") {
@@ -83,6 +86,7 @@ export class Overlay {
       else if (this.mode === "card" && e.key === "ArrowRight" && this.nav?.onNext) this.nav.onNext();
       else return;
       e.preventDefault();
+      e.stopPropagation(); // not the player's own shortcuts too (on YouTube, ← → seek)
     });
     this.setPill("on", "");
   }
@@ -93,6 +97,18 @@ export class Overlay {
     this.pauseBtn.textContent = state === "paused" ? "▶" : "❚❚";
     this.pauseBtn.title = state === "paused" ? t("pill.resume") : t("pill.pause");
     this.pauseBtn.setAttribute("aria-label", this.pauseBtn.title);
+  }
+
+  /**
+   * A button above the pill ("Analyse this video"), or a note when there's no `onClick` ("No captions…").
+   * Null hides it. Hidden while a card or the list is open.
+   */
+  setAction(label: string | null, onClick?: () => void): void {
+    this.action.hidden = !label;
+    this.action.textContent = label ?? "";
+    this.action.classList.toggle("note", !onClick);
+    this.action.tabIndex = onClick ? 0 : -1;
+    this.action.onclick = onClick ? () => onClick() : null;
   }
 
   /** Ideas that came up but haven't popped yet (one pop-up every 20 s at most). */

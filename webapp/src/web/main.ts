@@ -1,6 +1,6 @@
 import type { CardsResponse, ErrorCode, LanguageResponse, SessionResponse } from "../types";
 import { History } from "./history";
-import { plural, t, translatePage } from "./i18n";
+import { plural, refusal, t, translatePage } from "./i18n";
 import { LANGUAGES, nameOf, recognitionTag } from "./languages";
 import { Overlay, type PillState } from "./overlay";
 import { CardTimeline } from "./timeline";
@@ -13,9 +13,6 @@ import { parseVideoId, Player } from "./youtube";
 const POLL_ACTIVE_MS = 3000;
 const POLL_IDLE_MS = 30_000;
 translatePage();
-const KNOWN_REFUSALS = ["video_not_found", "session_invalid", "rate_limited", "ip_sessions", "ip_videos", "neurons", "video_limit", "unavailable"] as const;
-const refusal = (code: ErrorCode) =>
-  (KNOWN_REFUSALS as readonly string[]).includes(code) ? t(`refusal.${code as (typeof KNOWN_REFUSALS)[number]}`) : t("refusal.other");
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const form = $<HTMLFormElement>("form");

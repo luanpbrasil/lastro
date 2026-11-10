@@ -1,8 +1,10 @@
 # Lastro (web app)
 
-A web version of Lastro with no extension. Paste a YouTube link, press **Listen to this video**, and the page transcribes the tab's audio and shows fact-checked context cards.
+A web version of Lastro. Paste a YouTube link, press **Listen to this video**, and the page transcribes the tab's audio and shows fact-checked context cards.
 
-Two pages: the app at `/` (`index.html`) and a landing page at `/about` (`about.html`). The app's interface is in English or Brazilian Portuguese, from the system language (`src/web/i18n.ts`); the landing page is in English. The model writes each card's headline and paraphrase in the language of the video. The knowledge-graph names and summaries from `../shared/` stay in Portuguese.
+This folder also holds a Chrome extension (`extension/`) that brings the same overlay and cards onto youtube.com itself, analysing videos from their captions: see [Chrome extension](#chrome-extension). The page and the extension share the interface code in `src/web/` and the Worker.
+
+Three pages: the app at `/` (`index.html`), a landing page at `/about` (`about.html`) and the privacy policy at `/privacy` (`privacy.html`, also the Chrome Web Store listing's privacy policy; keep it in step with what the Worker stores). The app's interface is in English or Brazilian Portuguese, from the system language (`src/web/i18n.ts`); the landing page is in English. The model writes each card's headline and paraphrase in the language of the video. The knowledge-graph names and summaries from `../shared/` stay in Portuguese.
 
 ```
 Page: YouTube IFrame player
@@ -135,6 +137,49 @@ With 30-second uploads, Claude Haiku costs about $0.001 per upload, about $0.10 
 
 Cloudflare's free allowance is per account. If anything else on the account uses Workers AI, lower `DAILY_NEURON_CAP`. On the Workers Free plan Cloudflare never bills; on the Paid plan the cap is what keeps the bill at zero. Free Workers also get 10 ms of CPU per request: the app's work is light, but check `wrangler tail` for CPU errors after deploying.
 
+## Chrome extension
+
+`extension/` is Lastro for youtube.com, built from this app's code: the same overlay (`src/web/overlay.ts`, `overlay.css`, `cardview.ts`, `timeline.ts`), strings (`i18n.ts`), uploader and speech recognition (`transcriber.ts`), and the same Worker and D1. It replaces the first extension (`../extension`) and its Worker for this app; the two can be installed side by side, but there's no reason to.
+
+```
+YouTube tab
+  │  hook.ts (page world)      passes on the player's own caption responses and video details; no extra requests
+  │  content.ts                the overlay, in a shadow root inside the player; the video's clock
+  │    1. the video's saved cards, at once (GET /cards, as on the page)
+  │    2. economy or politics video (title + description, ../shared/topics.ts), or "Analyse this video":
+  │       its captions (turned on and hidden while read; for an auto-dubbed video, the original language's track),
+  │       else YouTube's transcript panel
+  │       → GET /coverage, then POST /sessions {source: "captions"} and ~2500-character chunks to POST /transcript,
+  │         from the playhead forward, then the rest; parts the video already has cards for are skipped
+  │    3. no captions: "click Lastro in the toolbar" → listening
+  ▼
+background.ts (service worker): every Worker request, from the extension's origin
+  │  toolbar icon / Alt+Shift+L → chrome.tabCapture stream id → offscreen.ts
+  ▼
+offscreen.ts: holds the tab's audio (and plays it back: capturing mutes the tab), SpeechListener → phrases → the tab,
+  which times them on the video and uploads them like the page (POST /sessions, POST /transcript every 30 s)
+```
+
+Captions cards are ready before their moment: the chunk around the playhead goes first, each answered once its cards are saved, so a 10-minute video is analysed in about a minute and an hour in a few. A card analysed for a part already behind the playhead goes to the list instead of popping up. Listening works like the page: ideas show up about half a minute after they're said.
+
+Chrome only gives an extension a tab's audio after the viewer invokes it, so listening starts from the toolbar icon (or its shortcut), not from a button in the overlay. Clicking it again stops. On a video whose captions are being used, the icon opens the list of ideas.
+
+**Build and load**
+
+```bash
+pnpm ext:build                      # → extension/dist, talking to https://lastro.lovu.club
+node extension/build.mjs --worker https://<other-worker>   # another deployment
+pnpm ext:dev                        # rebuilds on change, talking to `pnpm dev` (http://127.0.0.1:8788)
+```
+
+Then in Chrome: `chrome://extensions` → Developer mode → **Load unpacked** → `webapp/extension/dist`. After a rebuild, press the reload arrow on the extension's card; open YouTube tabs pick it up without a reload.
+
+**The Worker side.** The Worker accepts writes from the extension's origin as well as its own (`EXTENSION_ORIGINS` in `wrangler.toml`, `chrome-extension://<id>`). The `key` in `extension/manifest.json` (a public key; there's no private key to keep) fixes the unpacked extension's id to `ohhohhbaolbbkfkfmjamaghddfchejkk`. The Chrome Web Store gives an item its own id: after uploading, add `chrome-extension://<store id>` to `EXTENSION_ORIGINS` and redeploy. Like the same-site check, this keeps other websites from using the API through their visitors' browsers; it isn't authentication, so the caps below are what bound use. Captions sessions (`source: "captions"`, migration `0007`) may send ten times faster than speech, with their own cap per video (`MAX_CAPTION_MINUTES_PER_VIDEO`).
+
+**Who can install it.** Publish it as **Private** in the Chrome Web Store with a list of trusted testers (Google accounts), or share the `dist` folder zipped for **Load unpacked**.
+
+**Checking listening.** The offscreen page counts what it hears: on `chrome://extensions`, under Lastro, inspect `offscreen.html` while listening and type `lastroStats` (phrases, words, errors, audio level).
+
 ## Abuse limits
 
 All set in `wrangler.toml`. A refused request never reaches the AI.
@@ -145,15 +190,18 @@ All set in `wrangler.toml`. A refused request never reaches the AI.
 | `DAILY_NEURON_CAP` | 9000 per day | Workers AI use: stays inside the free 10000. Set both caps to 0 to stop new analyses at once |
 | `IP_DAILY_VIDEO_CAP` | 3 videos per connection per day | One person using up the day's neurons |
 | `MAX_MINUTES_PER_VIDEO` | 15 minutes analysed | One long video using up the day's neurons |
+| `MAX_CAPTION_MINUTES_PER_VIDEO` | 60 minutes analysed, from captions (the extension) | The same, for captions |
 | `IP_SESSION_CAP` | 6 sessions per connection per 2 hours | Repeatedly opening sessions |
-| Real-time pacing | 30 characters/s, one upload per 10 s | Pouring in hours of text at once |
+| Real-time pacing | 30 characters/s (captions: 300), one upload per 10 s | Pouring in hours of text at once |
 | `API_LIMITER` | 60 requests per minute per connection, approximate | Flooding the API |
 
 A video takes one slot per day however many people listen to it, and already-covered parts cost nothing.
 
+With the extension, every economics video someone opens takes a session and, if new, a video slot. Three videos a day and six sessions every 2 hours per connection suit the page's occasional listening; for regular extension use, raise `IP_DAILY_VIDEO_CAP` and `IP_SESSION_CAP` (the dollar and neuron caps still bound the total).
+
 ## Endpoint protection
 
-- **Same-site writes only.** POSTs must be JSON, and are refused when the browser reports another origin (`Origin`, `Sec-Fetch-Site`). Request bodies over 48 KB are refused before they are read.
+- **Same-site writes only.** POSTs must be JSON, and are refused when the browser reports another origin (`Origin`, `Sec-Fetch-Site`), except the Lastro extension's (`EXTENSION_ORIGINS`). Request bodies over 48 KB are refused before they are read.
 - **Strict validation.** Video ids, cursors, segment times and text lengths are all checked. Unknown routes and methods get 404 or 405.
 - **No internals in errors.** Every error is a short code. Unexpected failures are logged and answered with `unavailable`.
 - **Security headers.** `public/_headers` sets a CSP that only allows YouTube's player, plus `frame-ancestors 'none'`, so no other site can frame the page and trick someone into sharing a tab. It also sets nosniff, a referrer policy and HSTS. API responses send `default-src 'none'`.

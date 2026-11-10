@@ -29,7 +29,7 @@ export type StoredCard = CheckedCard & { id: number };
 
 export interface TranscriptRequest {
   session: string;
-  /** BCP 47 tag speech recognition is set to */
+  /** BCP 47 tag of the captions, or the one speech recognition is set to */
   lang?: string;
   segments: Segment[];
 }
@@ -52,6 +52,16 @@ export interface VideosResponse {
 export interface LanguageResponse {
   lang: string | null;
   source: "audio" | "captions" | "title" | null;
+}
+
+/** POST /api/videos/:id/sessions. `captions`: the video's captions, sent by the extension (faster pacing, own cap). */
+export interface SessionRequest {
+  source?: "speech" | "captions";
+}
+
+/** GET /api/videos/:id/coverage: the stretches already transcribed, as [startMs, endMs]. */
+export interface CoverageResponse {
+  ranges: [number, number][];
 }
 
 export interface SessionResponse {

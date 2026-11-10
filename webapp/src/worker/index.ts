@@ -1,6 +1,6 @@
 import type { Segment } from "../../../shared/schema";
 import { sha256Hex } from "../../../shared/transcript";
-import { MAX_CHUNK_CHARS, MAX_SEGMENTS, type CardsResponse, type CheckedCard, type LanguageResponse, type ErrorCode, type SessionResponse, type StoredCard, type TranscriptResponse, type VideosResponse } from "../types";
+import { MAX_CHUNK_CHARS, MAX_SEGMENTS, type CardsResponse, type CheckedCard, type CoverageResponse, type LanguageResponse, type ErrorCode, type SessionResponse, type StoredCard, type TranscriptResponse, type VideosResponse } from "../types";
 import { CLAUDE_MODEL, factCheckChunk, factCheckWithClaude, MAX_NEURONS_PER_CALL, MAX_USD_PER_CALL, WORKERS_AI_MODEL } from "./factcheck";
 import { detectLanguage } from "./language";
 import { cleanSpeech, cleanTitle } from "./sanitize";
@@ -17,7 +17,13 @@ interface Env {
   MAX_MINUTES_PER_VIDEO?: string;
   IP_SESSION_CAP?: string;
   LOG_RETENTION_DAYS?: string;
+  /** Captions time analysed per video, for sessions that send a video's captions (the Chrome extension). */
+  MAX_CAPTION_MINUTES_PER_VIDEO?: string;
+  /** The Chrome extension's origins ("chrome-extension://<id>", comma-separated), allowed to send like the page. */
+  EXTENSION_ORIGINS?: string;
 }
+
+type TextSource = "speech" | "captions";
 
 const BUCKET_MS = 10_000;
 const MAX_VIDEO_MS = 24 * 3600 * 1000;
@@ -32,6 +38,13 @@ const MAX_CARDS_PER_POLL = 100;
 const CHARS_PER_SECOND = 30;
 const CHAR_BURST = 1200;
 const MIN_CHUNK_INTERVAL_MS = 10_000;
+/**
+ * Captions come whole with the video, so a captions session may send faster than anyone speaks: about ten times,
+ * enough to analyse an hour of video in a few minutes. Its own cap per video (MAX_CAPTION_MINUTES_PER_VIDEO) and the
+ * daily budget still bound it.
+ */
+const CAPTION_CHARS_PER_SECOND = 300;
+const CAPTION_BURST = 12_000;
 
 const today = () => new Date().toISOString().slice(0, 10);
 const bucketOf = (s: Segment) => Math.floor(s.s / BUCKET_MS);
@@ -51,16 +64,23 @@ function json(body: unknown, status = 200): Response {
 }
 const refuse = (error: ErrorCode, status: number) => json({ error }, status);
 
+const EXTENSION_ORIGIN = /^chrome-extension:\/\/[a-p]{32}$/;
+const isExtension = (env: Env, origin: string) =>
+  EXTENSION_ORIGIN.test(origin) && (env.EXTENSION_ORIGINS ?? "").split(",").some((o) => o.trim() === origin);
+
 /**
- * Writes must come from this site's own page: JSON only (an HTML form can't send it) and, when the browser says where
- * the request comes from, the same origin.
+ * Writes must come from this site's own page or the Lastro extension: JSON only (an HTML form can't send it) and, when
+ * the browser says where the request comes from, this origin or an allowed extension. Other websites can't make
+ * their visitors' browsers send text here. This isn't authentication (any program can set these headers): the
+ * per-connection and daily caps are what bound use.
  */
-function checkWrite(req: Request, url: URL): Response | null {
+function checkWrite(req: Request, url: URL, env: Env): Response | null {
   if (!/^application\/json\b/i.test(req.headers.get("content-type") ?? "")) return refuse("bad_request", 415);
   const origin = req.headers.get("origin");
-  if (origin && origin !== url.origin) return refuse("forbidden", 403);
+  const extension = !!origin && isExtension(env, origin);
+  if (origin && origin !== url.origin && !extension) return refuse("forbidden", 403);
   const site = req.headers.get("sec-fetch-site");
-  if (site && site !== "same-origin" && site !== "none") return refuse("forbidden", 403);
+  if (!extension && site && site !== "same-origin" && site !== "none") return refuse("forbidden", 403);
   if (Number(req.headers.get("content-length") ?? "0") > MAX_BODY_CHARS) return refuse("bad_request", 413);
   return null;
 }
@@ -71,13 +91,14 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
   const { success } = await env.API_LIMITER.limit({ key: await hashIp(req) });
   if (!success) return refuse("rate_limited", 429);
   if (req.method === "POST") {
-    const bad = checkWrite(req, url);
+    const bad = checkWrite(req, url, env);
     if (bad) return bad;
   } else if (req.method !== "GET") return refuse("bad_request", 405);
 
   if (url.pathname === "/api/videos" && req.method === "GET") return getVideos(env);
-  const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards|language)$/);
+  const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards|language|coverage)$/);
   if (m && m[2] === "language" && req.method === "GET") return getLanguage(env, m[1]);
+  if (m && m[2] === "coverage" && req.method === "GET") return getCoverage(env, m[1]);
   if (m && m[2] === "sessions" && req.method === "POST") return postSession(req, env, m[1]);
   if (m && m[2] === "transcript" && req.method === "POST") return postTranscript(req, env, ctx, m[1]);
   if (m && m[2] === "cards" && req.method === "GET") {
@@ -150,8 +171,9 @@ async function ensureVideo(env: Env, id: string): Promise<{ title: string } | nu
   return { title };
 }
 
-/** A token that lets this page send transcript for this one video. */
+/** A token that lets this page send transcript for this one video: speech heard in the tab, or the video's captions. */
 async function postSession(req: Request, env: Env, videoId: string): Promise<Response> {
+  const source: TextSource = (await readBody(req))?.source === "captions" ? "captions" : "speech";
   if (!(await ensureVideo(env, videoId))) return refuse("video_not_found", 404);
 
   const now = Date.now();
@@ -180,9 +202,9 @@ async function postSession(req: Request, env: Env, videoId: string): Promise<Res
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   const session = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
   const created = await env.DB.prepare(
-    "INSERT INTO sessions (token_hash, video_id, ip_hash, created_at) SELECT ?1, ?2, ?3, ?4 WHERE (SELECT COUNT(*) FROM sessions WHERE ip_hash = ?3) < ?5 RETURNING token_hash",
+    "INSERT INTO sessions (token_hash, video_id, ip_hash, created_at, source) SELECT ?1, ?2, ?3, ?4, ?6 WHERE (SELECT COUNT(*) FROM sessions WHERE ip_hash = ?3) < ?5 RETURNING token_hash",
   )
-    .bind(await sha256Hex(session), videoId, ipHash, now, num(env.IP_SESSION_CAP, 6))
+    .bind(await sha256Hex(session), videoId, ipHash, now, num(env.IP_SESSION_CAP, 6), source)
     .first();
   if (!created) return refuse("ip_sessions", 429);
   const body: SessionResponse = { session };
@@ -201,11 +223,12 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
   const paced = await env.DB.prepare(
     `UPDATE sessions SET chars = chars + ?1, last_chunk_at = ?2
      WHERE token_hash = ?3 AND video_id = ?4 AND created_at >= ?5
-       AND ?2 - last_chunk_at >= ?6 AND chars + ?1 <= (?2 - created_at) / 1000.0 * ?7 + ?8
-     RETURNING ip_hash`,
+       AND ?2 - last_chunk_at >= ?6
+       AND chars + ?1 <= (?2 - created_at) / 1000.0 * (CASE source WHEN 'captions' THEN ?9 ELSE ?7 END) + (CASE source WHEN 'captions' THEN ?10 ELSE ?8 END)
+     RETURNING ip_hash, source`,
   )
-    .bind(chars, now, tokenHash, videoId, now - SESSION_TTL_MS, MIN_CHUNK_INTERVAL_MS, CHARS_PER_SECOND, CHAR_BURST)
-    .first<{ ip_hash: string }>();
+    .bind(chars, now, tokenHash, videoId, now - SESSION_TTL_MS, MIN_CHUNK_INTERVAL_MS, CHARS_PER_SECOND, CHAR_BURST, CAPTION_CHARS_PER_SECOND, CAPTION_BURST)
+    .first<{ ip_hash: string; source: string }>();
   if (!paced) {
     const known = await env.DB.prepare("SELECT 1 FROM sessions WHERE token_hash = ? AND video_id = ? AND created_at >= ?").bind(tokenHash, videoId, now - SESSION_TTL_MS).first();
     if (!known) return refuse("session_invalid", 403);
@@ -220,7 +243,8 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
   };
 
   const video = await env.DB.prepare("SELECT title FROM videos WHERE id = ?").bind(videoId).first<{ title: string }>();
-  // The language the viewer set for speech recognition, so the model knows what it's reading.
+  const source: TextSource = paced.source === "captions" ? "captions" : "speech";
+  // The language of the captions, or the one the viewer set for speech recognition, so the model knows what it's reading.
   const lang = typeof body?.lang === "string" && LANG_TAG.test(body.lang) ? body.lang : null;
   if (!video) return finish("video_not_found", refuse("video_not_found", 404));
 
@@ -250,7 +274,8 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
     await release();
     return finish("skipped", json(reply));
   }
-  if ((results[results.length - 1].results[0].n ?? 0) * BUCKET_MS > num(env.MAX_MINUTES_PER_VIDEO, 15) * 60_000) {
+  const maxMinutes = source === "captions" ? num(env.MAX_CAPTION_MINUTES_PER_VIDEO, 60) : num(env.MAX_MINUTES_PER_VIDEO, 15);
+  if ((results[results.length - 1].results[0].n ?? 0) * BUCKET_MS > maxMinutes * 60_000) {
     await release();
     return finish("video_limit", refuse("video_limit", 413));
   }
@@ -268,7 +293,7 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
 
   // The model can take longer than the 30 s allowed after a response, so hold the response open while it runs.
   // waitUntil only matters if the page goes away meanwhile.
-  const work = runChunk(env, day, videoId, chunkId, video.title, lang, kept, reserved.provider);
+  const work = runChunk(env, day, videoId, chunkId, { title: video.title, lang, source }, kept, reserved.provider);
   ctx.waitUntil(work);
   await work;
   return json(reply, 202);
@@ -333,7 +358,15 @@ function settle(env: Env, day: string, provider: Provider, actual: number) {
     : env.DB.prepare("UPDATE usage_daily SET neurons = neurons + ? WHERE day = ?").bind(actual - MAX_NEURONS_PER_CALL, day);
 }
 
-async function runChunk(env: Env, day: string, videoId: string, chunkId: number, title: string, lang: string | null, segments: Segment[], provider: Provider): Promise<void> {
+async function runChunk(
+  env: Env,
+  day: string,
+  videoId: string,
+  chunkId: number,
+  about: { title: string; lang: string | null; source: TextSource },
+  segments: Segment[],
+  provider: Provider,
+): Promise<void> {
   // Whatever is still reserved when something fails, so the catch can give it back.
   let holding: Provider | null = provider;
   // Cards are saved one by one as the model writes them, so the page's next poll shows them.
@@ -359,7 +392,7 @@ async function runChunk(env: Env, day: string, videoId: string, chunkId: number,
       env.DB.prepare("SELECT json_extract(card, '$.paraphrase') AS p FROM cards WHERE video_id = ? ORDER BY id DESC LIMIT ?").bind(videoId, KNOWN_IDEAS),
     ]);
     const context = prev.results[0] ? (JSON.parse(prev.results[0].segments) as Segment[]).slice(-CONTEXT_SEGMENTS) : [];
-    const input = { title, lang, context, segments, knownIdeas: known.results.map((r) => r.p) };
+    const input = { ...about, context, segments, knownIdeas: known.results.map((r) => r.p) };
 
     if (provider === "claude") {
       const t0 = Date.now();
@@ -418,6 +451,22 @@ async function getLanguage(env: Env, videoId: string): Promise<Response> {
   const found = await detectLanguage(videoId, row?.title ?? "");
   if (found) await env.DB.prepare("UPDATE videos SET lang = ?, lang_source = ? WHERE id = ?").bind(found.lang, found.source, videoId).run();
   return json({ lang: found?.lang ?? null, source: found?.source ?? null } satisfies LanguageResponse);
+}
+
+/**
+ * The stretches of a video that already have a transcript (analysed, or being analysed), as [startMs, endMs] ranges,
+ * so the extension sends only the rest of its captions. Fetched once per video, not polled.
+ */
+async function getCoverage(env: Env, videoId: string): Promise<Response> {
+  const rows = await env.DB.prepare("SELECT bucket FROM coverage WHERE video_id = ? ORDER BY bucket").bind(videoId).all<{ bucket: number }>();
+  const ranges: [number, number][] = [];
+  for (const { bucket } of rows.results) {
+    const start = bucket * BUCKET_MS;
+    const last = ranges[ranges.length - 1];
+    if (last && last[1] === start) last[1] = start + BUCKET_MS;
+    else ranges.push([start, start + BUCKET_MS]);
+  }
+  return json({ ranges } satisfies CoverageResponse);
 }
 
 const HISTORY_SIZE = 24;

@@ -39,7 +39,7 @@ const SYSTEM = `You are Lastro. You read the live transcript of a YouTube video 
 About the transcript
 - It comes from Chrome's live speech recognition, about thirty seconds at a time. It has little or no punctuation, sentences run together or stop mid-way, and words are often misheard, especially names, acronyms and numbers ("se lique" is the Selic, "ipeca" is the IPCA, "quêines" is Keynes; "thirteen point seven five percent" and "treze vírgula setenta e cinco por cento" are 13.75%).
 - Read through those errors: work out what the speaker meant and write the paraphrase, kind, nodes and numbers from that meaning.
-- The video may be in any language. Understand it in its own language. "Speech recognition language", when given, is the language Chrome was set to; if the text reads like another language misheard, work out what was said anyway.
+- The video may be in any language. Understand it in its own language. "Speech recognition language", when given, is the language Chrome was set to; if the text reads like another language misheard, work out what was said anyway. "Text from: the video's YouTube captions" means the text is the video's captions instead; automatic captions have the same kinds of recognition errors.
 - The "Context" block is the end of the previous stretch, there only so you understand how this one begins. Make units only from the "Transcript" block.
 - "Ideas already recorded" lists earlier cards of this video. Don't repeat one unless the speaker adds a new number or a new argument to it.
 
@@ -88,8 +88,10 @@ const PERIOD = /^\d{4}(-\d{2})?$/;
 
 export interface ChunkInput {
   title: string;
-  /** The language the viewer set for speech recognition (BCP 47), if any. */
+  /** The language of the captions, or the one the viewer set for speech recognition (BCP 47), if any. */
   lang?: string | null;
+  /** Where the text comes from: Chrome's speech recognition in the tab (default) or the video's YouTube captions. */
+  source?: "speech" | "captions";
   context: Segment[];
   segments: Segment[];
   knownIdeas: string[];
@@ -104,10 +106,11 @@ interface AiOutput {
 const lines = (segs: Segment[]) => segs.map((s) => `(${fmtTime(s.s)}) ${s.t}`).join("\n");
 
 /** Every piece of text here was cleaned by sanitize.ts (title, transcript) or passed toCard (known ideas). */
-function buildPrompt({ title, lang, context, segments, knownIdeas }: ChunkInput): string {
+function buildPrompt({ title, lang, source, context, segments, knownIdeas }: ChunkInput): string {
   const parts = [`Video title: ${title}`];
   // Validated as a BCP 47 tag by the Worker, so it can't carry anything else into the prompt.
-  if (lang) parts.push(`Speech recognition language: ${lang}`);
+  if (source === "captions") parts.push(`Text from: the video's YouTube captions${lang ? `, language ${lang}` : ""}`);
+  else if (lang) parts.push(`Speech recognition language: ${lang}`);
   if (knownIdeas.length) parts.push(`Ideas already recorded:\n${knownIdeas.map((p) => `- ${p}`).join("\n")}`);
   if (context.length) parts.push(`Context:\n${lines(context)}`);
   parts.push(`Transcript:\n${lines(segments)}`);

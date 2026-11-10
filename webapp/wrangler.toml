@@ -25,10 +25,15 @@ DAILY_NEURON_CAP = "9000"
 IP_DAILY_VIDEO_CAP = "3"
 # Listening time analysed per video, so one long video can't use up the day's neurons.
 MAX_MINUTES_PER_VIDEO = "15"
+# Captions time analysed per video, for the Chrome extension, which sends a video's captions instead of listening.
+MAX_CAPTION_MINUTES_PER_VIDEO = "60"
 # Listening sessions one connection can hold in 2 hours.
 IP_SESSION_CAP = "6"
 # Days to keep the transcript log (every upload's text and outcome; nothing about the sender).
 LOG_RETENTION_DAYS = "30"
+# The Lastro Chrome extension's origin (comma-separate several). This id comes from the "key" in
+# extension/manifest.json; after publishing to the Chrome Web Store, add the store's id too.
+EXTENSION_ORIGINS = "chrome-extension://ohhohhbaolbbkfkfmjamaghddfchejkk"
 
 [[d1_databases]]
 binding = "DB"
