@@ -25,8 +25,32 @@ export type CheckedCard = Omit<Card, "modelQuote"> & { check: FactCheck | null }
 export type StoredCard = CheckedCard & { id: number };
 
 export interface TranscriptRequest {
+  session: string;
   segments: Segment[];
 }
+
+export interface SessionRequest {
+  turnstileToken: string;
+}
+
+export interface SessionResponse {
+  session: string;
+}
+
+/** Why the Worker refused. The page turns each code into a message. */
+export type ErrorCode =
+  | "bad_request"
+  | "bot_check"
+  | "video_not_found"
+  | "session_invalid"
+  | "too_fast"
+  | "rate_limited"
+  | "ip_sessions"
+  | "ip_videos"
+  | "daily_videos"
+  | "neurons"
+  | "video_limit"
+  | "unavailable";
 
 export interface TranscriptResponse {
   /** Segments that will be analysed. */

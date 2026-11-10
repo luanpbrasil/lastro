@@ -9,16 +9,26 @@ command = "node build.mjs"
 [assets]
 directory = "dist"
 
-# Secret: ANTHROPIC_API_KEY comes from webapp/.dev.vars locally (never committed)
-# and from `wrangler secret put ANTHROPIC_API_KEY` when deployed.
+# Workers AI. `wrangler dev` also calls the real service, so local runs use your account's neurons.
+[ai]
+binding = "AI"
+
+# Secret: TURNSTILE_SECRET comes from webapp/.dev.vars locally (never committed)
+# and from `wrangler secret put TURNSTILE_SECRET` when deployed.
 
 [vars]
-# The Worker stops calling Claude once the ledger reaches this (USD). Cards already stored keep working.
-MAX_SPEND_USD = "3"
-# Transcript chunks analysed per UTC day, all users together. An hour of video is about 120 chunks.
-DAILY_CHUNK_CAP = "2000"
-# Transcript chunks analysed per client IP per UTC day. IPs are stored only as a short hash.
-IP_DAILY_CHUNK_CAP = "240"
+# Different videos analysed per UTC day, all users together. Set to 0 to stop new analyses at once.
+DAILY_VIDEO_CAP = "20"
+# Different videos one connection can start per UTC day.
+IP_DAILY_VIDEO_CAP = "3"
+# Hard ceiling on Workers AI use per UTC day. 30000 is 20 videos of 30 minutes, about US$ 0.22 above the free 10000.
+DAILY_NEURON_CAP = "30000"
+# Listening time analysed per video.
+MAX_MINUTES_PER_VIDEO = "30"
+# Listening sessions one connection can hold in 2 hours.
+IP_SESSION_CAP = "6"
+# Cloudflare's always-pass test key, which only works on localhost. Replace it before deploying.
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 
 [[d1_databases]]
 binding = "DB"
@@ -26,3 +36,12 @@ database_name = "lastro-live"
 # Local dev uses a simulated database. Replace with the id from `wrangler d1 create lastro-live` before deploying.
 database_id = "REPLACE_WITH_D1_ID"
 migrations_dir = "migrations"
+
+# Per connection, across all API routes. A page polls at most 15 times a minute.
+[[ratelimits]]
+name = "API_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 60
+  period = 60

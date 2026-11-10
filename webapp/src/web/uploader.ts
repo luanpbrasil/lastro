@@ -1,24 +1,35 @@
 import type { Segment } from "../../../shared/schema";
+import type { ErrorCode } from "../types";
 
-const FLUSH_EVERY_MS = 30_000;
+const FLUSH_EVERY_MS = 60_000;
 const BATCH_SEGMENTS = 80;
 const BATCH_CHARS = 4000;
+const TOO_FAST_WAIT_MS = 11_000;
+const TOO_FAST_RETRIES = 2;
 
-/** Collects final transcript segments and sends them to the Worker about every 30 s. */
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Collects final transcript segments and sends them to the Worker about once a minute. */
 export class TranscriptUploader {
   private buffer: Segment[] = [];
   private timer: number | null = null;
   private sending: Promise<void> | null = null;
+  private finishing = false;
 
-  /** `onBlocked` runs when the Worker refuses more text (spend or daily limit). */
+  /** `onBlocked` runs when the Worker refuses more text for this listening session. */
   constructor(
     private videoId: string,
-    private onBlocked: (status: number) => void,
+    private session: string,
+    private onBlocked: (code: ErrorCode) => void,
     private onSent: (segments: number) => void,
   ) {}
 
   private get url(): string {
     return `/api/videos/${this.videoId}/transcript`;
+  }
+
+  private body(segments: Segment[]): string {
+    return JSON.stringify({ session: this.session, segments });
   }
 
   start(): void {
@@ -33,6 +44,7 @@ export class TranscriptUploader {
   async finish(): Promise<void> {
     if (this.timer !== null) window.clearInterval(this.timer);
     this.timer = null;
+    this.finishing = true;
     await this.sending;
     await this.flush();
   }
@@ -40,8 +52,7 @@ export class TranscriptUploader {
   /** Last chance when the page is closing: fetch would be cancelled. */
   beacon(): void {
     if (!this.buffer.length) return;
-    const body = JSON.stringify({ segments: this.takeBatch() });
-    navigator.sendBeacon(this.url, new Blob([body], { type: "application/json" }));
+    navigator.sendBeacon(this.url, new Blob([this.body(this.takeBatch())], { type: "application/json" }));
   }
 
   private takeBatch(): Segment[] {
@@ -56,25 +67,33 @@ export class TranscriptUploader {
     return this.sending;
   }
 
+  private post(batch: Segment[]): Promise<Response | null> {
+    return fetch(this.url, { method: "POST", headers: { "content-type": "application/json" }, body: this.body(batch) }).catch(() => null);
+  }
+
   private async drain(): Promise<void> {
     while (this.buffer.length) {
       const batch = this.takeBatch();
-      let status = 0;
-      try {
-        status = (await fetch(this.url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ segments: batch }) })).status;
-      } catch {
-        /* offline: status stays 0 */
+      let r = await this.post(batch);
+      // The last words often arrive right after a regular upload: wait for the Worker's pacing instead of losing them.
+      for (let i = 0; this.finishing && r?.status === 425 && i < TOO_FAST_RETRIES; i++) {
+        await sleep(TOO_FAST_WAIT_MS);
+        r = await this.post(batch);
       }
-      if (status === 0 || status >= 500) {
-        this.buffer.unshift(...batch); // try again at the next flush
+      if (!r || r.status >= 500 || r.status === 425) {
+        this.buffer.unshift(...batch); // try again at the next upload
         return;
       }
-      if (status === 402 || status === 429) {
+      if (r.ok) {
+        this.onSent(batch.length);
+        continue;
+      }
+      if (r.status !== 400) {
+        const { error } = (await r.json().catch(() => ({ error: "unavailable" }))) as { error: ErrorCode };
         this.buffer = [];
-        this.onBlocked(status);
+        this.onBlocked(error);
         return;
       }
-      if (status < 300) this.onSent(batch.length);
     }
   }
 }

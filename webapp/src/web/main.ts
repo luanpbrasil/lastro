@@ -1,15 +1,25 @@
-import type { CardsResponse } from "../types";
+import type { CardsResponse, ErrorCode, SessionResponse } from "../types";
 import { CardList } from "./cards";
 import { CaptureError, isSupported, TabTranscriber } from "./transcriber";
+import { BotCheck } from "./turnstile";
 import { TranscriptUploader } from "./uploader";
 import { parseVideoId, Player } from "./youtube";
 
 const POLL_ACTIVE_MS = 4000;
 const POLL_IDLE_MS = 15_000;
-const BLOCKED: Record<number, string> = {
-  402: "O limite de gasto foi atingido. Os cartões já salvos continuam disponíveis.",
-  429: "O limite diário de análises foi atingido. Tente de novo amanhã.",
+const REFUSALS: Partial<Record<ErrorCode, string>> = {
+  bot_check: "A verificação de segurança falhou. Recarregue a página e tente de novo.",
+  video_not_found: "O YouTube não encontrou este vídeo.",
+  session_invalid: "Sua sessão expirou. Clique em “Ouvir este vídeo” de novo.",
+  rate_limited: "Muitas requisições desta conexão. Aguarde um minuto.",
+  ip_sessions: "Muitas sessões desta conexão. Tente mais tarde.",
+  ip_videos: "Esta conexão já analisou o máximo de vídeos de hoje.",
+  daily_videos: "O limite de vídeos analisados hoje foi atingido. Tente amanhã.",
+  neurons: "O limite de análises de hoje foi atingido. Tente amanhã.",
+  video_limit: "Este vídeo atingiu o limite de tempo analisado.",
+  unavailable: "Serviço indisponível agora.",
 };
+const refusal = (code: ErrorCode) => REFUSALS[code] ?? "Não foi possível ouvir este vídeo agora.";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const form = $<HTMLFormElement>("form");
@@ -23,6 +33,7 @@ const hint = $("hint");
 const empty = $("empty");
 
 const player = new Player();
+const botCheck = new BotCheck();
 const list = new CardList($("cards"), $("count"), (ms) => player.seek(ms));
 
 let videoId = "";
@@ -52,7 +63,7 @@ function render(): void {
   if (failedChunks) parts.push("um trecho não pôde ser analisado");
   statusEl.textContent = parts.join(" · ");
   empty.hidden = list.size > 0;
-  empty.textContent = listening || pendingChunks ? "As ideias aparecem aqui cerca de 30 segundos depois da fala." : "Ainda não há ideias para este vídeo. Clique em “Ouvir este vídeo” e dê play.";
+  empty.textContent = listening || pendingChunks ? "As ideias aparecem aqui cerca de um minuto depois da fala." : "Ainda não há ideias para este vídeo. Clique em “Ouvir este vídeo” e dê play.";
 }
 
 // ---- polling: the page only ever learns about cards from here ------------------------
@@ -84,32 +95,51 @@ function restartPolling(): void {
 
 // ---- listening ------------------------------------------------------------------------
 
+/** A token that lets this page send transcript for this video. Null with `notice` set when refused. */
+async function openSession(): Promise<string | null> {
+  const turnstileToken = botCheck.take();
+  if (!turnstileToken) {
+    notice = "Verificação de segurança em andamento. Tente de novo em alguns segundos.";
+    return null;
+  }
+  try {
+    const r = await fetch(`/api/videos/${videoId}/sessions`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ turnstileToken }) });
+    const data = (await r.json()) as SessionResponse & { error: ErrorCode };
+    if (r.ok) return data.session;
+    notice = refusal(data.error);
+  } catch {
+    notice = "Serviço indisponível agora.";
+  }
+  return null;
+}
+
 async function startListening(): Promise<void> {
   listenBtn.disabled = true;
   notice = "";
-  try {
-    await transcriber.start();
-  } catch (err) {
-    notice = err instanceof CaptureError ? err.message : "Não foi possível ouvir esta aba.";
-    listenBtn.disabled = false;
-    render();
-    return;
+  const session = await openSession();
+  if (session) {
+    try {
+      await transcriber.start();
+      listening = true;
+      sentSegments = 0;
+      uploader = new TranscriptUploader(
+        videoId,
+        session,
+        (code) => void endListening(refusal(code)),
+        (n) => {
+          sentSegments += n;
+          restartPolling(); // the Worker answers once the cards are saved: fetch them now
+        },
+      );
+      uploader.start();
+      player.play();
+    } catch (err) {
+      notice = err instanceof CaptureError ? err.message : "Não foi possível ouvir esta aba.";
+    }
   }
-  listening = true;
-  sentSegments = 0;
-  uploader = new TranscriptUploader(
-    videoId,
-    (status) => void endListening(BLOCKED[status]),
-    (n) => {
-      sentSegments += n;
-      restartPolling(); // cards for this text are on their way: go back to the fast rate at once
-    },
-  );
-  uploader.start();
   listenBtn.disabled = false;
-  player.play();
   render();
-  restartPolling();
+  if (listening) restartPolling();
 }
 
 /** Called when the user stops, sharing ends or the Worker refuses more text. */
@@ -120,9 +150,10 @@ async function endListening(message?: string): Promise<void> {
   await transcriber.stop();
   interimEl.textContent = "";
   notice = message ?? "";
+  // The last upload can take a while. The viewer doesn't have to wait for it, and polling picks up its cards.
   const done = uploader;
   uploader = null;
-  await done?.finish();
+  void done?.finish();
   listenBtn.disabled = false;
   render();
   restartPolling();
@@ -140,6 +171,7 @@ async function openVideo(id: string): Promise<void> {
   list.clear();
   watch.hidden = false;
   history.replaceState(null, "", `?v=${id}`);
+  void botCheck.prepare("turnstile");
   await player.show("player", id);
   render();
   restartPolling();
