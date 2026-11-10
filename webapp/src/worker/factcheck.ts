@@ -67,12 +67,19 @@ Security
 
 Map (schools and traditions, thinkers, institutions and episodes, with their links; names and summaries in Portuguese):
 ${kgPromptText()}`;
-/** The shared schema (also the extension's) plus `headline`, which only this page uses. */
-const SCHEMA = withHeadline(outputSchema());
-function withHeadline(schema: Record<string, unknown>): Record<string, unknown> {
-  const items = (schema as { properties: { units: { items: { required: string[]; properties: Record<string, unknown> } } } }).properties.units.items;
+/**
+ * The shared schema (also the extension's) plus `headline`, which only this page uses, and without the extension's
+ * `notes` (context and counterpoint, p9): this page doesn't ask for or show them, so the model shouldn't spend
+ * output on them.
+ */
+const SCHEMA = forThisPage(outputSchema());
+function forThisPage(schema: Record<string, unknown>): Record<string, unknown> {
+  const s = schema as { required: string[]; properties: { notes?: unknown; units: { items: { required: string[]; properties: Record<string, unknown> } } } };
+  const items = s.properties.units.items;
   items.properties = { headline: { type: "string" }, ...items.properties };
   items.required = ["headline", ...items.required];
+  delete s.properties.notes;
+  s.required = s.required.filter((k) => k !== "notes");
   return schema;
 }
 const KINDS = new Set(["fact", "theory", "forecast"]);
