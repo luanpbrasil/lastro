@@ -21,12 +21,15 @@ binding = "AI"
 DAILY_VIDEO_CAP = "20"
 # Different videos one connection can start per UTC day.
 IP_DAILY_VIDEO_CAP = "3"
-# Hard ceiling on Workers AI use per UTC day. 30000 is 20 videos of 30 minutes, about US$ 0.22 above the free 10000.
-DAILY_NEURON_CAP = "30000"
-# Listening time analysed per video.
-MAX_MINUTES_PER_VIDEO = "30"
+# Hard ceiling on Workers AI use per UTC day. Workers AI gives 10000 neurons a day for free; this stays under it with
+# room for the measurement to be a little off. Lower it if anything else on the account uses Workers AI.
+DAILY_NEURON_CAP = "9000"
+# Listening time analysed per video. About 20 videos of 15 minutes fit in the neuron cap.
+MAX_MINUTES_PER_VIDEO = "15"
 # Listening sessions one connection can hold in 2 hours.
 IP_SESSION_CAP = "6"
+# Days to keep the transcript log (every upload's text and outcome; nothing about the sender).
+LOG_RETENTION_DAYS = "30"
 # Cloudflare's always-pass test key, which only works on localhost. Replace it before deploying.
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 

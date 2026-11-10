@@ -30,7 +30,7 @@
           <span id="status" role="status"></span>
         </div>
         <div id="turnstile"></div>
-        <p id="hint" class="hint">Na janela do Chrome, escolha <strong>esta aba</strong> e ative <strong>“Compartilhar áudio da aba”</strong>. O Chrome usa um serviço de reconhecimento de fala para transcrever o áudio.</p>
+        <p id="hint" class="hint">Na janela do Chrome, escolha <strong>esta aba</strong> e ative <strong>“Compartilhar áudio da aba”</strong>. O Chrome usa um serviço de reconhecimento de fala para transcrever o áudio. Para evitar abusos, guardamos a transcrição enviada por 30 dias, sem dados sobre você.</p>
         <p id="interim" class="interim" aria-live="off"></p>
       </div>
       <aside class="ideas">
@@ -38,6 +38,12 @@
         <p id="empty" class="empty"></p>
         <div id="cards" class="cards"></div>
       </aside>
+    </section>
+
+    <section class="history" aria-labelledby="history-title">
+      <h2 id="history-title">Vídeos já analisados</h2>
+      <p id="history-empty" class="empty" hidden>Nenhum vídeo foi analisado ainda. Seja o primeiro: cole um link acima.</p>
+      <ul id="history" class="history-grid"></ul>
     </section>
   </main>
   <script src="/app.js"></script>

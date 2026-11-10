@@ -4,6 +4,8 @@ import type { Card, Segment } from "../../shared/schema";
 export const MAX_SEGMENTS = 100;
 export const MAX_CHUNK_CHARS = 6000;
 export const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+/** The Turnstile action of the listen widget, checked by the Worker. */
+export const TURNSTILE_ACTION = "listen";
 
 export interface OfficialValue {
   label: string;
@@ -29,6 +31,20 @@ export interface TranscriptRequest {
   segments: Segment[];
 }
 
+export interface VideoSummary {
+  id: string;
+  title: string;
+  author: string;
+  cards: number;
+  facts: number;
+  /** ms since epoch of the latest analysis */
+  analysedAt: number;
+}
+
+export interface VideosResponse {
+  videos: VideoSummary[];
+}
+
 export interface SessionRequest {
   turnstileToken: string;
 }
@@ -40,6 +56,7 @@ export interface SessionResponse {
 /** Why the Worker refused. The page turns each code into a message. */
 export type ErrorCode =
   | "bad_request"
+  | "forbidden"
   | "bot_check"
   | "video_not_found"
   | "session_invalid"

@@ -32,11 +32,14 @@ function factBlock(card: StoredCard): HTMLElement {
     v.append(el("span", `verdict ${verdict}`, verdict), el("span", "muted", `valor citado no vídeo: ${fmtNum(card.claimed_value, official.unit)}`));
     body.append(v);
   }
-  const src = el("a", "muted", `Fonte: ${official.source}`);
-  src.href = official.sourceUrl;
-  src.target = "_blank";
-  src.rel = "noopener";
-  body.append(src);
+  // Only official https links: never let stored data turn into a javascript: or other link.
+  if (/^https:\/\/[^\s]+$/.test(official.sourceUrl)) {
+    const src = el("a", "muted", `Fonte: ${official.source}`);
+    src.href = official.sourceUrl;
+    src.target = "_blank";
+    src.rel = "noopener noreferrer";
+    body.append(src);
+  }
   return labelled("Dado oficial", body);
 }
 

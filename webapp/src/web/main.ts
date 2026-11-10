@@ -1,12 +1,15 @@
 import type { CardsResponse, ErrorCode, SessionResponse } from "../types";
 import { CardList } from "./cards";
+import { History } from "./history";
 import { CaptureError, isSupported, TabTranscriber } from "./transcriber";
 import { BotCheck } from "./turnstile";
 import { TranscriptUploader } from "./uploader";
 import { parseVideoId, Player } from "./youtube";
 
-const POLL_ACTIVE_MS = 4000;
-const POLL_IDLE_MS = 15_000;
+// Worker requests and D1 reads count against the free plan: poll fast only while something is being analysed,
+// and not at all from a background tab that isn't listening.
+const POLL_ACTIVE_MS = 5000;
+const POLL_IDLE_MS = 30_000;
 const REFUSALS: Partial<Record<ErrorCode, string>> = {
   bot_check: "A verificação de segurança falhou. Recarregue a página e tente de novo.",
   video_not_found: "O YouTube não encontrou este vídeo.",
@@ -35,6 +38,12 @@ const empty = $("empty");
 const player = new Player();
 const botCheck = new BotCheck();
 const list = new CardList($("cards"), $("count"), (ms) => player.seek(ms));
+const history = new History($("history"), $("history-empty"), (id) => {
+  input.value = `https://www.youtube.com/watch?v=${id}`;
+  formError.hidden = true;
+  void openVideo(id);
+  watch.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 
 let videoId = "";
 let cursor = 0;
@@ -63,7 +72,7 @@ function render(): void {
   if (failedChunks) parts.push("um trecho não pôde ser analisado");
   statusEl.textContent = parts.join(" · ");
   empty.hidden = list.size > 0;
-  empty.textContent = listening || pendingChunks ? "As ideias aparecem aqui cerca de um minuto depois da fala." : "Ainda não há ideias para este vídeo. Clique em “Ouvir este vídeo” e dê play.";
+  empty.textContent = listening || pendingChunks ? "As ideias aparecem aqui cerca de dois minutos depois da fala." : "Ainda não há ideias para este vídeo. Clique em “Ouvir este vídeo” e dê play.";
 }
 
 // ---- polling: the page only ever learns about cards from here ------------------------
@@ -79,15 +88,19 @@ async function poll(generation: number): Promise<void> {
       pendingChunks = data.pendingChunks;
       failedChunks = data.failedChunks;
       list.add(data.cards, listening);
+      if (data.cards.length) void history.load(); // new ideas: counts and order in the history changed
       render();
     }
   } catch {
     /* offline: the next poll tries again */
   }
-  if (generation === pollGeneration) pollTimer = window.setTimeout(() => void poll(generation), listening || pendingChunks ? POLL_ACTIVE_MS : POLL_IDLE_MS);
+  if (generation !== pollGeneration) return;
+  if (document.hidden && !listening) return; // resumed by visibilitychange
+  pollTimer = window.setTimeout(() => void poll(generation), listening || pendingChunks ? POLL_ACTIVE_MS : POLL_IDLE_MS);
 }
 
 function restartPolling(): void {
+  if (!videoId) return;
   pollGeneration++;
   if (pollTimer !== null) window.clearTimeout(pollTimer);
   void poll(pollGeneration);
@@ -170,7 +183,8 @@ async function openVideo(id: string): Promise<void> {
   notice = "";
   list.clear();
   watch.hidden = false;
-  history.replaceState(null, "", `?v=${id}`);
+  window.history.replaceState(null, "", `?v=${id}`);
+  history.select(id);
   void botCheck.prepare("turnstile");
   await player.show("player", id);
   render();
@@ -186,6 +200,10 @@ form.onsubmit = (e) => {
 
 listenBtn.onclick = () => void (listening ? endListening() : startListening());
 window.addEventListener("pagehide", () => uploader?.beacon());
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) restartPolling();
+});
+void history.load();
 
 if (!isSupported()) {
   listenBtn.disabled = true;

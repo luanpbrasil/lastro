@@ -1,7 +1,8 @@
 import type { Segment } from "../../../shared/schema";
 import { sha256Hex } from "../../../shared/transcript";
-import { MAX_CHUNK_CHARS, MAX_SEGMENTS, type CardsResponse, type ErrorCode, type SessionResponse, type StoredCard, type TranscriptResponse } from "../types";
+import { MAX_CHUNK_CHARS, MAX_SEGMENTS, TURNSTILE_ACTION, type CardsResponse, type ErrorCode, type SessionResponse, type StoredCard, type TranscriptResponse, type VideosResponse } from "../types";
 import { factCheckChunk, MAX_NEURONS_PER_CALL } from "./factcheck";
+import { cleanSpeech, cleanTitle } from "./sanitize";
 
 interface Env {
   AI: Ai;
@@ -14,6 +15,7 @@ interface Env {
   DAILY_NEURON_CAP?: string;
   MAX_MINUTES_PER_VIDEO?: string;
   IP_SESSION_CAP?: string;
+  LOG_RETENTION_DAYS?: string;
 }
 
 const BUCKET_MS = 10_000;
@@ -35,24 +37,65 @@ const bucketOf = (s: Segment) => Math.floor(s.s / BUCKET_MS);
 const num = (v: string | undefined, fallback: number) => (v === undefined || v === "" || !Number.isFinite(Number(v)) ? fallback : Number(v));
 const hashIp = async (req: Request) => (await sha256Hex(`lastro-live:${req.headers.get("cf-connecting-ip") ?? "local"}`)).slice(0, 16);
 
+const API_HEADERS = {
+  "content-type": "application/json; charset=utf-8",
+  "cache-control": "no-store",
+  "x-content-type-options": "nosniff",
+  "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+  "referrer-policy": "no-referrer",
+};
+
 function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  return new Response(JSON.stringify(body), { status, headers: API_HEADERS });
 }
 const refuse = (error: ErrorCode, status: number) => json({ error }, status);
 
+/**
+ * Writes must come from this site's own page: JSON only (an HTML form can't send it) and, when the browser says where
+ * the request comes from, the same origin. Scripts outside a browser are stopped by the bot check instead.
+ */
+function checkWrite(req: Request, url: URL): Response | null {
+  if (!/^application\/json\b/i.test(req.headers.get("content-type") ?? "")) return refuse("bad_request", 415);
+  const origin = req.headers.get("origin");
+  if (origin && origin !== url.origin) return refuse("forbidden", 403);
+  const site = req.headers.get("sec-fetch-site");
+  if (site && site !== "same-origin" && site !== "none") return refuse("forbidden", 403);
+  if (Number(req.headers.get("content-length") ?? "0") > MAX_BODY_CHARS) return refuse("bad_request", 413);
+  return null;
+}
+
+async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  const url = new URL(req.url);
+  if (!url.pathname.startsWith("/api/")) return refuse("bad_request", 404);
+  const { success } = await env.API_LIMITER.limit({ key: await hashIp(req) });
+  if (!success) return refuse("rate_limited", 429);
+  if (req.method === "POST") {
+    const bad = checkWrite(req, url);
+    if (bad) return bad;
+  } else if (req.method !== "GET") return refuse("bad_request", 405);
+
+  if (url.pathname === "/api/config" && req.method === "GET") return json({ turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? "" });
+  if (url.pathname === "/api/videos" && req.method === "GET") return getVideos(env);
+  const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards)$/);
+  if (m && m[2] === "sessions" && req.method === "POST") return postSession(req, env, url, m[1]);
+  if (m && m[2] === "transcript" && req.method === "POST") return postTranscript(req, env, ctx, m[1]);
+  if (m && m[2] === "cards" && req.method === "GET") {
+    const after = url.searchParams.get("after") ?? "0";
+    if (!/^\d{1,10}$/.test(after)) return refuse("bad_request", 400);
+    return getCards(env, m[1], Number(after));
+  }
+  return refuse("bad_request", 404);
+}
+
 export default {
   async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const url = new URL(req.url);
-    if (!url.pathname.startsWith("/api/")) return refuse("bad_request", 404);
-    const { success } = await env.API_LIMITER.limit({ key: await hashIp(req) });
-    if (!success) return refuse("rate_limited", 429);
-
-    if (url.pathname === "/api/config" && req.method === "GET") return json({ turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? "" });
-    const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards)$/);
-    if (m && m[2] === "sessions" && req.method === "POST") return postSession(req, env, url, m[1]);
-    if (m && m[2] === "transcript" && req.method === "POST") return postTranscript(req, env, ctx, m[1]);
-    if (m && m[2] === "cards" && req.method === "GET") return getCards(env, m[1], Number(url.searchParams.get("after") ?? "0"));
-    return refuse("bad_request", 404);
+    try {
+      return await route(req, env, ctx);
+    } catch (err) {
+      // Never send internals (SQL, stack traces) to the client.
+      console.error("unhandled", err instanceof Error ? err.message : String(err));
+      return refuse("unavailable", 500);
+    }
   },
 };
 
@@ -74,11 +117,12 @@ function parseSegments(raw: unknown): Segment[] | null {
   for (const x of raw as Partial<Segment>[]) {
     const { s, d, t } = x ?? {};
     if (typeof s !== "number" || typeof d !== "number" || typeof t !== "string") return null;
-    if (!Number.isFinite(s) || !Number.isFinite(d) || s < 0 || s > MAX_VIDEO_MS || d < 0 || !t.trim()) return null;
+    if (!Number.isFinite(s) || !Number.isFinite(d) || s < 0 || s > MAX_VIDEO_MS || d < 0 || d > MAX_VIDEO_MS) return null;
     chars += t.length;
-    out.push({ s: Math.round(s), d: Math.round(d), t: t.trim() });
+    const text = cleanSpeech(t);
+    if (text) out.push({ s: Math.round(s), d: Math.round(d), t: text });
   }
-  if (chars > MAX_CHUNK_CHARS) return null;
+  if (chars > MAX_CHUNK_CHARS || out.length === 0) return null;
   return out.sort((a, b) => a.s - b.s);
 }
 
@@ -90,9 +134,10 @@ async function passedBotCheck(env: Env, url: URL, req: Request, token: string): 
     body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token, remoteip: req.headers.get("cf-connecting-ip") ?? undefined }),
     signal: AbortSignal.timeout(4000),
   });
-  const outcome = (await r.json()) as { success?: boolean; hostname?: string };
+  const outcome = (await r.json()) as { success?: boolean; hostname?: string; action?: string };
   const local = url.hostname === "localhost" || url.hostname === "127.0.0.1";
-  return outcome.success === true && (local || outcome.hostname === url.hostname);
+  // The action ties the token to this site's "listen" widget, so a token solved elsewhere with the same key doesn't work.
+  return outcome.success === true && (local || (outcome.hostname === url.hostname && outcome.action === TURNSTILE_ACTION));
 }
 
 /** The video's row, created on first sight with its title from YouTube. Null when YouTube says the video doesn't exist. */
@@ -107,8 +152,9 @@ async function ensureVideo(env: Env, id: string): Promise<{ title: string } | nu
     if (r.status === 400 || r.status === 404) return null;
     if (r.ok) {
       const j = (await r.json()) as { title?: string; author_name?: string };
-      title = String(j.title ?? "").slice(0, 300);
-      author = String(j.author_name ?? "").slice(0, 200);
+      // The video's owner chooses the title, so it goes into the prompt only after the same cleaning as the transcript.
+      title = cleanTitle(String(j.title ?? ""));
+      author = cleanTitle(String(j.author_name ?? ""));
     }
   } catch {
     /* the title only helps the model: go on without it */
@@ -132,6 +178,7 @@ async function postSession(req: Request, env: Env, url: URL, videoId: string): P
   await env.DB.batch([
     env.DB.prepare("DELETE FROM sessions WHERE created_at < ?").bind(now - SESSION_TTL_MS),
     env.DB.prepare("DELETE FROM daily_videos WHERE day < ?").bind(day),
+    env.DB.prepare("DELETE FROM transcript_log WHERE created_at < ?").bind(now - num(env.LOG_RETENTION_DAYS, 30) * 86_400_000),
   ]);
 
   // Say so before the viewer shares the tab. The slot itself is only taken by the first analysed text.
@@ -141,7 +188,7 @@ async function postSession(req: Request, env: Env, url: URL, videoId: string): P
     env.DB.prepare("SELECT COUNT(*) AS n FROM daily_videos WHERE day = ? AND ip_hash = ?").bind(day, ipHash),
     env.DB.prepare("SELECT COALESCE(SUM(neurons), 0) AS n FROM usage_daily WHERE day = ?").bind(day),
   ]);
-  if (usage.results[0].n + MAX_NEURONS_PER_CALL > num(env.DAILY_NEURON_CAP, 30000)) return refuse("neurons", 429);
+  if (usage.results[0].n + MAX_NEURONS_PER_CALL > num(env.DAILY_NEURON_CAP, 9000)) return refuse("neurons", 429);
   if (slot.results[0].n === 0) {
     if (all.results[0].n >= num(env.DAILY_VIDEO_CAP, 20)) return refuse("daily_videos", 429);
     if (mine.results[0].n >= num(env.IP_DAILY_VIDEO_CAP, 3)) return refuse("ip_videos", 429);
@@ -178,11 +225,19 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
     .first<{ ip_hash: string }>();
   if (!paced) {
     const known = await env.DB.prepare("SELECT 1 FROM sessions WHERE token_hash = ? AND video_id = ? AND created_at >= ?").bind(tokenHash, videoId, now - SESSION_TTL_MS).first();
-    return known ? refuse("too_fast", 425) : refuse("session_invalid", 403);
+    if (!known) return refuse("session_invalid", 403);
+    logUpload(env, ctx, videoId, tokenHash, "too_fast", segments);
+    return refuse("too_fast", 425);
   }
 
+  // From here the session is valid: every outcome goes to the transcript log.
+  const finish = (outcome: string, res: Response) => {
+    logUpload(env, ctx, videoId, tokenHash, outcome, segments);
+    return res;
+  };
+
   const video = await env.DB.prepare("SELECT title FROM videos WHERE id = ?").bind(videoId).first<{ title: string }>();
-  if (!video) return refuse("video_not_found", 404);
+  if (!video) return finish("video_not_found", refuse("video_not_found", 404));
 
   await env.DB.batch([
     env.DB.prepare("DELETE FROM coverage WHERE video_id = ? AND chunk_id IN (SELECT id FROM chunks WHERE video_id = ? AND status = 'pending' AND created_at < ?)").bind(videoId, videoId, now - STALE_MS),
@@ -208,19 +263,20 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
   const reply: TranscriptResponse = { accepted: kept.length, skipped: segments.length - kept.length };
   if (kept.length === 0) {
     await release();
-    return json(reply);
+    return finish("skipped", json(reply));
   }
-  if ((results[results.length - 1].results[0].n ?? 0) * BUCKET_MS > num(env.MAX_MINUTES_PER_VIDEO, 30) * 60_000) {
+  if ((results[results.length - 1].results[0].n ?? 0) * BUCKET_MS > num(env.MAX_MINUTES_PER_VIDEO, 15) * 60_000) {
     await release();
-    return refuse("video_limit", 413);
+    return finish("video_limit", refuse("video_limit", 413));
   }
 
   const day = today();
   const refused = await reserve(env, day, videoId, paced.ip_hash);
   if (refused) {
     await release();
-    return refused;
+    return finish(refused, refuse(refused, 429));
   }
+  logUpload(env, ctx, videoId, tokenHash, "accepted", segments);
   const startMs = kept[0].s;
   const endMs = Math.max(...kept.map((s) => s.s + s.d));
   await env.DB.prepare("UPDATE chunks SET start_ms = ?, end_ms = ?, segments = ? WHERE id = ?").bind(startMs, endMs, JSON.stringify(kept), chunkId).run();
@@ -233,8 +289,21 @@ async function postTranscript(req: Request, env: Env, ctx: ExecutionContext, vid
   return json(reply, 202);
 }
 
+/**
+ * Record an upload for abuse investigations: what was sent and what happened, nothing about who sent it.
+ * Never returned by the API, deleted after LOG_RETENTION_DAYS. Written after the response so it never slows the page.
+ */
+function logUpload(env: Env, ctx: ExecutionContext, videoId: string, sessionHash: string, outcome: string, segments: Segment[]): void {
+  ctx.waitUntil(
+    env.DB.prepare("INSERT INTO transcript_log (created_at, video_id, session_hash, outcome, segments) VALUES (?, ?, ?, ?, ?)")
+      .bind(Date.now(), videoId, sessionHash, outcome, JSON.stringify(segments))
+      .run()
+      .catch((err) => console.error("log failed", err instanceof Error ? err.message : String(err))),
+  );
+}
+
 /** The two hard limits before an AI call. Both are single atomic statements, so simultaneous requests can't pass together. */
-async function reserve(env: Env, day: string, videoId: string, ipHash: string): Promise<Response | null> {
+async function reserve(env: Env, day: string, videoId: string, ipHash: string): Promise<ErrorCode | null> {
   const [, slot] = await env.DB.batch([
     env.DB.prepare(
       `INSERT INTO daily_videos (day, video_id, ip_hash) SELECT ?1, ?2, ?3
@@ -244,13 +313,13 @@ async function reserve(env: Env, day: string, videoId: string, ipHash: string): 
     ).bind(day, videoId, ipHash, num(env.DAILY_VIDEO_CAP, 20), num(env.IP_DAILY_VIDEO_CAP, 3)),
     env.DB.prepare("SELECT 1 AS ok FROM daily_videos WHERE day = ? AND video_id = ?").bind(day, videoId),
   ]);
-  if (slot.results.length === 0) return refuse("daily_videos", 429);
+  if (slot.results.length === 0) return "daily_videos";
   const budget = await env.DB.prepare(
     "INSERT INTO usage_daily (day, neurons) VALUES (?1, ?2) ON CONFLICT (day) DO UPDATE SET neurons = neurons + ?2 WHERE neurons + ?2 <= ?3 RETURNING neurons",
   )
-    .bind(day, MAX_NEURONS_PER_CALL, num(env.DAILY_NEURON_CAP, 30000))
+    .bind(day, MAX_NEURONS_PER_CALL, num(env.DAILY_NEURON_CAP, 9000))
     .first();
-  return budget ? null : refuse("neurons", 429);
+  return budget ? null : "neurons";
 }
 
 async function runChunk(env: Env, day: string, videoId: string, chunkId: number, title: string, segments: Segment[]): Promise<void> {
@@ -264,8 +333,10 @@ async function runChunk(env: Env, day: string, videoId: string, chunkId: number,
     const result = await factCheckChunk(env.AI, { title, context, segments, knownIdeas: known.results.map((r) => r.p) });
 
     const insert = env.DB.prepare("INSERT INTO cards (video_id, chunk_id, start_ms, card) VALUES (?, ?, ?, ?)");
+    const facts = result.cards.filter((c) => c.kind === "fact").length;
     await env.DB.batch([
       ...result.cards.map((c) => insert.bind(videoId, chunkId, c.startMs, JSON.stringify(c))),
+      env.DB.prepare("UPDATE videos SET card_count = card_count + ?, fact_count = fact_count + ?, analysed_at = ? WHERE id = ?").bind(result.cards.length, facts, Date.now(), videoId),
       env.DB.prepare("UPDATE chunks SET status = 'done', neurons = ? WHERE id = ?").bind(result.neurons, chunkId),
       env.DB.prepare("UPDATE usage_daily SET neurons = neurons + ? WHERE day = ?").bind(result.neurons - MAX_NEURONS_PER_CALL, day),
     ]);
@@ -280,6 +351,19 @@ async function runChunk(env: Env, day: string, videoId: string, chunkId: number,
       env.DB.prepare("UPDATE usage_daily SET neurons = neurons - ? WHERE day = ?").bind(MAX_NEURONS_PER_CALL, day),
     ]);
   }
+}
+
+const HISTORY_SIZE = 24;
+
+/** The most recently analysed videos, for the history on the page. Reads at most HISTORY_SIZE rows. */
+async function getVideos(env: Env): Promise<Response> {
+  const rows = await env.DB.prepare("SELECT id, title, author, card_count, fact_count, analysed_at FROM videos WHERE analysed_at IS NOT NULL ORDER BY analysed_at DESC LIMIT ?")
+    .bind(HISTORY_SIZE)
+    .all<{ id: string; title: string; author: string; card_count: number; fact_count: number; analysed_at: number }>();
+  const body: VideosResponse = {
+    videos: rows.results.map((r) => ({ id: r.id, title: r.title, author: r.author, cards: r.card_count, facts: r.fact_count, analysedAt: r.analysed_at })),
+  };
+  return json(body);
 }
 
 async function getCards(env: Env, videoId: string, after: number): Promise<Response> {

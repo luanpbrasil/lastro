@@ -1,3 +1,5 @@
+import { TURNSTILE_ACTION } from "../types";
+
 interface TurnstileApi {
   render(el: string, options: Record<string, unknown>): string;
   reset(widget: string): void;
@@ -36,6 +38,7 @@ export class BotCheck {
     });
     this.widget = window.turnstile!.render(`#${elementId}`, {
       sitekey: config.turnstileSiteKey,
+      action: TURNSTILE_ACTION,
       appearance: "interaction-only",
       callback: (t: string) => (this.token = t),
       "expired-callback": () => (this.token = ""),

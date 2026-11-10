@@ -1,7 +1,8 @@
 import type { Segment } from "../../../shared/schema";
 import type { ErrorCode } from "../types";
 
-const FLUSH_EVERY_MS = 60_000;
+/** Each upload pays for the fixed prompt once, so longer uploads fit more video in the free daily neurons. */
+const FLUSH_EVERY_MS = 90_000;
 const BATCH_SEGMENTS = 80;
 const BATCH_CHARS = 4000;
 const TOO_FAST_WAIT_MS = 11_000;
@@ -9,7 +10,7 @@ const TOO_FAST_RETRIES = 2;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** Collects final transcript segments and sends them to the Worker about once a minute. */
+/** Collects final transcript segments and sends them to the Worker about every 90 s. */
 export class TranscriptUploader {
   private buffer: Segment[] = [];
   private timer: number | null = null;
