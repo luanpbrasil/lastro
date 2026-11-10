@@ -1,0 +1,12 @@
+{
+  "name": "lastro-live",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:local": "wrangler d1 migrations apply lastro-live --local",
+    "db:remote": "wrangler d1 migrations apply lastro-live --remote",
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.web.json"
+  }
+}

@@ -1,0 +1,28 @@
+name = "lastro-live"
+main = "src/worker/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "node build.mjs"
+
+[assets]
+directory = "dist"
+
+# Secret: ANTHROPIC_API_KEY comes from webapp/.dev.vars locally (never committed)
+# and from `wrangler secret put ANTHROPIC_API_KEY` when deployed.
+
+[vars]
+# The Worker stops calling Claude once the ledger reaches this (USD). Cards already stored keep working.
+MAX_SPEND_USD = "3"
+# Transcript chunks analysed per UTC day, all users together. An hour of video is about 120 chunks.
+DAILY_CHUNK_CAP = "2000"
+# Transcript chunks analysed per client IP per UTC day. IPs are stored only as a short hash.
+IP_DAILY_CHUNK_CAP = "240"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lastro-live"
+# Local dev uses a simulated database. Replace with the id from `wrangler d1 create lastro-live` before deploying.
+database_id = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
