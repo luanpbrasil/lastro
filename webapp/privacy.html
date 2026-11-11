@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lastro privacy policy</title>
+  <meta name="description" content="What the Lastro website and Chrome extension send, keep and share.">
+  <meta name="theme-color" content="#F3F1EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111210" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/src/web/style.css">
+</head>
+<body class="doc-page">
+<main class="doc">
+  <a class="brand" href="/about" aria-label="Lastro, about">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1E4D3B"/><rect x="9" y="7" width="4" height="18" fill="#F5F3EE"/><rect x="9" y="21" width="15" height="4" fill="#F5F3EE"/><rect x="17" y="14" width="7" height="5" fill="#C9A24A"/></svg>
+    Lastro
+  </a>
+
+  <article lang="en">
+    <h1>Privacy policy</h1>
+    <p class="doc-meta">Last updated 10 November 2026 · <a href="#pt">Em português</a></p>
+
+    <p>This policy covers the Lastro website (lastro.lovu.club) and the Lastro Chrome extension. Lastro shows context cards for economics and politics videos on YouTube. You don’t need an account, and Lastro never asks for your name or email address.</p>
+
+    <h2>What Lastro sends to its server</h2>
+    <ul>
+      <li><strong>Which video.</strong> When you open a YouTube video with the extension, or on the website, Lastro asks its server for the cards saved for that video and the language it’s spoken in, by the video’s ID. The server keeps a record of each video it has looked up (its ID, title and channel), not of who asked.</li>
+      <li><strong>The video’s words, when a video is analysed.</strong> The extension sends the video’s YouTube captions. When you choose to listen to a video (the website’s “Listen to this video” button, or the extension’s toolbar icon), Chrome’s speech recognition transcribes the tab’s audio and Lastro sends the text. Chrome’s speech recognition may send that audio to Google to transcribe it, under Google’s privacy policy.</li>
+      <li><strong>Your IP address,</strong> as every web request does. Lastro uses it only in hashed form, to apply usage limits.</li>
+    </ul>
+
+    <h2>What is kept, and for how long</h2>
+    <div class="doc-table">
+      <table>
+        <thead><tr><th>What</th><th>How long</th><th>Who can see it</th></tr></thead>
+        <tbody>
+          <tr><td>A video’s cards (with short quotes from the video) and the transcript of the parts that were analysed</td><td data-label="How long">Kept with the video</td><td data-label="Who can see it">Anyone: cards are shown to everyone who opens the video, and the video appears under “Recently analysed”. Nothing links them to the person whose browser sent the text.</td></tr>
+          <tr><td>A log of each upload: the text and what happened to it, with a hash of the listening session</td><td data-label="How long">30 days</td><td data-label="Who can see it">Only Lastro’s operators, to investigate abuse</td></tr>
+          <tr><td>Listening sessions: a random token (stored only as a hash), the video, and a hash of your IP address</td><td data-label="How long">Expire after 2 hours, then deleted</td><td data-label="Who can see it">No one</td></tr>
+          <tr><td>The day’s usage limits: a hash of your IP address and the videos analysed from it</td><td data-label="How long">Until the next day</td><td data-label="Who can see it">No one</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Who else processes it</h2>
+    <ul>
+      <li><strong>Cloudflare</strong> hosts Lastro’s server and database, and runs Workers AI, one of the two models that write the cards.</li>
+      <li><strong>Anthropic</strong> runs Claude, the other model. Each analysis sends it the video’s title and the transcript text, nothing about you.</li>
+      <li><strong>YouTube</strong> is asked, by the video’s ID only, for the video’s title and spoken language.</li>
+      <li><strong>Banco Central do Brasil and IBGE</strong> provide the official figures; their public data is fetched without any information about you.</li>
+    </ul>
+    <p>Each of these services handles the data under its own terms. Lastro doesn’t sell data or share it for any purpose other than writing the cards.</p>
+
+    <h2>What Lastro doesn’t do</h2>
+    <ul>
+      <li>It has no accounts and collects no names, email addresses or payment details.</li>
+      <li>It uses no advertising or tracking cookies.</li>
+      <li>The extension runs only on youtube.com. It doesn’t read other websites, and doesn’t record your clicks or what you type.</li>
+      <li>On your device, the website remembers the language you picked for listening, and the extension remembers which tab it is listening to until the browser closes.</li>
+    </ul>
+
+    <h2>Removing a video’s cards</h2>
+    <p>To have a video’s cards and transcript removed, write to the contact on Lastro’s Chrome Web Store page with the video’s link.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, the new version will be posted here with a new date.</p>
+  </article>
+
+  <article lang="pt-BR" id="pt">
+    <h1>Política de privacidade</h1>
+    <p class="doc-meta">Atualizada em 10 de novembro de 2026 · <a href="#top">In English</a></p>
+
+    <p>Esta política vale para o site do Lastro (lastro.lovu.club) e para a extensão do Lastro para o Chrome. O Lastro mostra cartões de contexto em vídeos de economia e política no YouTube. Não é preciso criar conta, e o Lastro nunca pede seu nome ou e-mail.</p>
+
+    <h2>O que o Lastro envia ao servidor</h2>
+    <ul>
+      <li><strong>Qual vídeo.</strong> Quando você abre um vídeo do YouTube com a extensão, ou no site, o Lastro pede ao servidor os cartões já salvos daquele vídeo e o idioma em que ele é falado, pelo ID do vídeo. O servidor guarda um registro de cada vídeo consultado (ID, título e canal), não de quem pediu.</li>
+      <li><strong>As palavras do vídeo, quando ele é analisado.</strong> A extensão envia as legendas do vídeo no YouTube. Quando você escolhe ouvir um vídeo (o botão “Ouvir este vídeo” no site, ou o ícone da extensão na barra do Chrome), o reconhecimento de fala do Chrome transcreve o áudio da aba e o Lastro envia o texto. O reconhecimento de fala do Chrome pode enviar esse áudio ao Google para transcrevê-lo, conforme a política de privacidade do Google.</li>
+      <li><strong>Seu endereço IP,</strong> como em qualquer acesso à internet. O Lastro o usa só em forma de hash, para aplicar limites de uso.</li>
+    </ul>
+
+    <h2>O que fica guardado, e por quanto tempo</h2>
+    <div class="doc-table">
+      <table>
+        <thead><tr><th>O quê</th><th>Por quanto tempo</th><th>Quem pode ver</th></tr></thead>
+        <tbody>
+          <tr><td>Os cartões de um vídeo (com trechos curtos do vídeo) e a transcrição das partes analisadas</td><td data-label="Por quanto tempo">Ficam com o vídeo</td><td data-label="Quem pode ver">Qualquer pessoa: os cartões aparecem para todos que abrem o vídeo, e o vídeo aparece em “Analisados recentemente”. Nada os liga a quem enviou o texto.</td></tr>
+          <tr><td>Um registro de cada envio: o texto e o que aconteceu com ele, com um hash da sessão</td><td data-label="Por quanto tempo">30 dias</td><td data-label="Quem pode ver">Só quem opera o Lastro, para investigar abusos</td></tr>
+          <tr><td>Sessões de escuta: um código aleatório (guardado só como hash), o vídeo e um hash do seu IP</td><td data-label="Por quanto tempo">Expiram em 2 horas e depois são apagadas</td><td data-label="Quem pode ver">Ninguém</td></tr>
+          <tr><td>Os limites do dia: um hash do seu IP e os vídeos analisados a partir dele</td><td data-label="Por quanto tempo">Até o dia seguinte</td><td data-label="Quem pode ver">Ninguém</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Quem mais processa esses dados</h2>
+    <ul>
+      <li><strong>Cloudflare</strong> hospeda o servidor e o banco de dados do Lastro, e roda o Workers AI, um dos dois modelos que escrevem os cartões.</li>
+      <li><strong>Anthropic</strong> roda o Claude, o outro modelo. Cada análise envia a ele o título do vídeo e o texto da transcrição, nada sobre você.</li>
+      <li><strong>YouTube</strong> recebe só o ID do vídeo, para informar o título e o idioma falado.</li>
+      <li><strong>Banco Central do Brasil e IBGE</strong> fornecem os dados oficiais; esses dados públicos são consultados sem nenhuma informação sobre você.</li>
+    </ul>
+    <p>Cada um desses serviços trata os dados conforme os próprios termos. O Lastro não vende dados nem os compartilha para nenhum fim além de escrever os cartões.</p>
+
+    <h2>O que o Lastro não faz</h2>
+    <ul>
+      <li>Não tem contas e não coleta nomes, e-mails nem dados de pagamento.</li>
+      <li>Não usa cookies de publicidade ou rastreamento.</li>
+      <li>A extensão só funciona no youtube.com. Ela não lê outros sites e não registra seus cliques nem o que você digita.</li>
+      <li>No seu aparelho, o site lembra o idioma que você escolheu para ouvir, e a extensão lembra qual aba está ouvindo até o navegador fechar.</li>
+    </ul>
+
+    <h2>Remover os cartões de um vídeo</h2>
+    <p>Para pedir que os cartões e a transcrição de um vídeo sejam removidos, escreva para o contato da página do Lastro na Chrome Web Store, com o link do vídeo.</p>
+
+    <h2>Mudanças</h2>
+    <p>Se esta política mudar, a nova versão será publicada aqui com a nova data.</p>
+  </article>
+</main>
+</body>
+</html>

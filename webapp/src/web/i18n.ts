@@ -1,0 +1,261 @@
+/**
+ * Interface strings in English and Brazilian Portuguese, picked from the system language. The cards' own text
+ * (quote, paraphrase, headline) is written by the model in the language of the video, not translated here.
+ */
+export type Locale = "en" | "pt";
+
+export const locale: Locale = (navigator.languages?.[0] ?? navigator.language ?? "en").toLowerCase().startsWith("pt") ? "pt" : "en";
+/** For Intl number and date formatting. */
+export const intlLocale = locale === "pt" ? "pt-BR" : "en-US";
+
+const en = {
+  "page.title": "Lastro",
+  "brand.label": "Lastro",
+  "form.label": "YouTube link",
+  "form.placeholder": "Paste a YouTube link about the economy",
+  "form.open": "Open video",
+  "form.error": "That doesn’t look like a link to a YouTube video.",
+  "nav.how": "How it works",
+  "listen.start": "Listen to this video",
+  "listen.stop": "Stop listening",
+  "lang.title": "Language spoken in the video",
+  "lang.detected": "detected",
+  "hint.privacy": "Chrome transcribes the tab’s audio with its speech recognition service, and the transcript is analysed by Claude or Cloudflare Workers AI. To prevent abuse we keep the transcript for 30 days, with nothing about you.",
+  "hint.unsupported": "Listening only works in Chrome on a computer. Here you can still read the ideas already saved for each video.",
+  "history.title": "Recently analysed",
+  "history.empty": "No video has been analysed yet. Paste a link above to be the first.",
+  "history.untitled": "Untitled video",
+  "history.ideas": "{n} ideas",
+  "history.idea": "1 idea",
+  "history.noIdeas": "no ideas",
+  "history.checked": "{n} numbers checked",
+  "history.checkedOne": "1 number checked",
+
+  "status.share": "In Chrome’s dialog, choose this tab and turn on “Share tab audio”.",
+  "status.listening": "Listening…",
+  "status.heard": "Listening · {heard} heard, {sent} analysed",
+  "status.analysing": "Analysing…",
+  "status.failed": "one stretch couldn’t be analysed",
+  "status.delay": "ideas show up about half a minute after they are said",
+  "status.quiet": "Nothing recognised yet. Is the video in {lang}? Stop, pick its language, and listen again.",
+  "status.detected": "{lang}, detected {from}.",
+  "source.audio": "from the video’s original audio",
+  "source.captions": "from YouTube’s automatic captions",
+  "source.title": "from the title",
+
+  "refusal.video_not_found": "YouTube couldn’t find this video.",
+  "refusal.session_invalid": "Your session expired. Press “Listen to this video” again.",
+  "refusal.rate_limited": "Too many requests from this connection. Wait a minute.",
+  "refusal.ip_sessions": "Too many sessions from this connection. Try again later.",
+  "refusal.ip_videos": "This connection has analysed today’s maximum number of videos.",
+  "refusal.neurons": "Today’s analysis limit has been reached. Try again tomorrow.",
+  "refusal.video_limit": "This video has reached the limit of analysed time.",
+  "refusal.unavailable": "The service is unavailable right now.",
+  "refusal.other": "This video can’t be listened to right now.",
+  "capture.tab": "This tab couldn’t be listened to.",
+  "capture.cancelled": "Sharing was cancelled.",
+  "capture.noAudio": "No audio: when sharing, choose this tab and turn on “Share tab audio”.",
+  "capture.notAllowed": "The browser didn’t allow speech recognition.",
+  "capture.language": "Chrome can’t recognise this language on this computer. Pick another one.",
+  "capture.audio": "The tab’s audio couldn’t be read.",
+  "capture.network": "Chrome’s speech recognition service didn’t respond.",
+
+  "pill.title": "See every idea in this video",
+  "pill.ideas": "{n} ideas",
+  "pill.idea": "1 idea",
+  "pill.none": "no ideas yet",
+  "pill.listening": "listening",
+  "pill.analysing": "analysing…",
+  "pill.paused": "paused",
+  "pill.pause": "Pause pop-ups",
+  "pill.resume": "Resume pop-ups",
+  "chip.queued": "+{n} new · see all",
+  "list.title": "Ideas in this video",
+  "list.count": "{n} · {passed} so far",
+  "list.analysing": "Analysing what was said…",
+  "list.empty": "No ideas in this video yet. Press “Listen to this video” and play it.",
+  "list.now": "Now · {t}",
+  "list.jump": "Jump to {t}",
+  "nav.all": "All ideas",
+  "nav.prev": "Previous idea",
+  "nav.next": "Next idea",
+  "nav.position": "{i} of {n}",
+  "close": "Close",
+
+  "kind.fact": "Fact",
+  "kind.theory": "Theory",
+  "kind.forecast": "Forecast",
+  "card.seek": "Go to this moment in the video",
+  "card.mentions": "said {n} times",
+  "card.behind": "The idea behind it",
+  "role.relies_on": "Builds on {name}",
+  "role.echoes": "Echoes {name}",
+  "role.contradicts": "Goes against {name}",
+  "card.thatView": "That view says: {summary}",
+  "card.official": "Official figure",
+  "card.officialMissing": "The official source couldn’t be reached for this period.",
+  "card.notChecked": "Not checked: Lastro has official series only for Brazil (Banco Central, IBGE), and none matches this figure.",
+  "card.latest": "latest, {when}",
+  "card.quoted": "quoted in the video: {v}",
+  "card.source": "Source: {s}",
+  "verdict.confere": "Matches",
+  "verdict.diferente": "Differs",
+  "card.disagree": "Who disagrees",
+  "card.tested": "Has it been tested?",
+  "card.reading": "Further reading",
+  "card.readSpeaker": "to understand this view",
+  "card.readOpposing": "the opposing view",
+
+  // Chrome extension (extension/): the pill and the note above it, on YouTube
+  "ext.captions": "reading captions…",
+  "ext.panel": "reading the transcript…",
+  "ext.analysing": "analysing · {pct}%",
+  "ext.offTopic": "not about the economy",
+  "ext.analyse": "Analyse this video",
+  "ext.reload": "reload the page",
+  "ext.noCaptions": "no captions",
+  "ext.listenHint": "This video has no captions Lastro can read. To listen to it instead, click Lastro in Chrome’s toolbar{key}.",
+  "ext.listenKey": " or press {key}",
+  "ext.listening": "Listening to this tab in {lang}. Ideas show up about half a minute after they are said. Click Lastro in the toolbar again to stop.",
+  "ext.listenStopped": "Stopped listening.",
+  "ext.unavailable": "server unavailable",
+  "ext.stopped": "stopped",
+};
+
+const pt: typeof en = {
+  "page.title": "Lastro",
+  "brand.label": "Lastro",
+  "form.label": "Link do YouTube",
+  "form.placeholder": "Cole o link de um vídeo do YouTube sobre economia",
+  "form.open": "Abrir vídeo",
+  "form.error": "Esse link não parece ser de um vídeo do YouTube.",
+  "nav.how": "Como funciona",
+  "listen.start": "Ouvir este vídeo",
+  "listen.stop": "Parar de ouvir",
+  "lang.title": "Idioma falado no vídeo",
+  "lang.detected": "detectado",
+  "hint.privacy": "O Chrome transcreve o áudio da aba com o serviço de reconhecimento de fala dele, e a transcrição é analisada pelo Claude ou pelo Cloudflare Workers AI. Para evitar abusos, guardamos a transcrição por 30 dias, sem nenhum dado sobre você.",
+  "hint.unsupported": "Ouvir um vídeo só funciona no Chrome para computador. Aqui você ainda vê as ideias já salvas de cada vídeo.",
+  "history.title": "Analisados recentemente",
+  "history.empty": "Nenhum vídeo foi analisado ainda. Cole um link acima e seja o primeiro.",
+  "history.untitled": "Vídeo sem título",
+  "history.ideas": "{n} ideias",
+  "history.idea": "1 ideia",
+  "history.noIdeas": "nenhuma ideia",
+  "history.checked": "{n} números conferidos",
+  "history.checkedOne": "1 número conferido",
+
+  "status.share": "Na janela do Chrome, escolha esta aba e ative “Compartilhar áudio da aba”.",
+  "status.listening": "Ouvindo…",
+  "status.heard": "Ouvindo · {heard} ouvidas, {sent} analisadas",
+  "status.analysing": "Analisando…",
+  "status.failed": "um trecho não pôde ser analisado",
+  "status.delay": "as ideias aparecem cerca de meio minuto depois da fala",
+  "status.quiet": "Nada reconhecido ainda. O vídeo está em {lang}? Pare, escolha o idioma dele e ouça de novo.",
+  "status.detected": "{lang}, detectado {from}.",
+  "source.audio": "pelo áudio original do vídeo",
+  "source.captions": "pelas legendas automáticas do YouTube",
+  "source.title": "pelo título",
+
+  "refusal.video_not_found": "O YouTube não encontrou este vídeo.",
+  "refusal.session_invalid": "Sua sessão expirou. Clique em “Ouvir este vídeo” de novo.",
+  "refusal.rate_limited": "Muitas requisições desta conexão. Aguarde um minuto.",
+  "refusal.ip_sessions": "Muitas sessões desta conexão. Tente mais tarde.",
+  "refusal.ip_videos": "Esta conexão já analisou o máximo de vídeos de hoje.",
+  "refusal.neurons": "O limite de análises de hoje foi atingido. Tente amanhã.",
+  "refusal.video_limit": "Este vídeo atingiu o limite de tempo analisado.",
+  "refusal.unavailable": "O serviço está indisponível agora.",
+  "refusal.other": "Não foi possível ouvir este vídeo agora.",
+  "capture.tab": "Não foi possível ouvir esta aba.",
+  "capture.cancelled": "O compartilhamento foi cancelado.",
+  "capture.noAudio": "Sem áudio: ao compartilhar, escolha esta aba e ative “Compartilhar áudio da aba”.",
+  "capture.notAllowed": "O navegador não permitiu o reconhecimento de fala.",
+  "capture.language": "O Chrome não reconhece este idioma neste computador. Escolha outro.",
+  "capture.audio": "Não foi possível ler o áudio da aba.",
+  "capture.network": "O serviço de reconhecimento de fala do Chrome não respondeu.",
+
+  "pill.title": "Ver todas as ideias deste vídeo",
+  "pill.ideas": "{n} ideias",
+  "pill.idea": "1 ideia",
+  "pill.none": "nenhuma ideia ainda",
+  "pill.listening": "ouvindo",
+  "pill.analysing": "analisando…",
+  "pill.paused": "pausado",
+  "pill.pause": "Pausar os cartões",
+  "pill.resume": "Retomar os cartões",
+  "chip.queued": "+{n} novas · ver todas",
+  "list.title": "Ideias neste vídeo",
+  "list.count": "{n} · {passed} até agora",
+  "list.analysing": "Analisando o que foi dito…",
+  "list.empty": "Ainda não há ideias neste vídeo. Clique em “Ouvir este vídeo” e dê play.",
+  "list.now": "Agora · {t}",
+  "list.jump": "Ir para {t}",
+  "nav.all": "Todas as ideias",
+  "nav.prev": "Ideia anterior",
+  "nav.next": "Próxima ideia",
+  "nav.position": "{i} de {n}",
+  "close": "Fechar",
+
+  "kind.fact": "Fato",
+  "kind.theory": "Teoria",
+  "kind.forecast": "Previsão",
+  "card.seek": "Ir para este momento do vídeo",
+  "card.mentions": "dito {n} vezes",
+  "card.behind": "A ideia por trás",
+  "role.relies_on": "Apoia-se em {name}",
+  "role.echoes": "Lembra {name}",
+  "role.contradicts": "Vai contra {name}",
+  "card.thatView": "Essa visão diz: {summary}",
+  "card.official": "Dado oficial",
+  "card.officialMissing": "Não foi possível consultar a fonte oficial para esse período.",
+  "card.notChecked": "Não conferido: o Lastro só tem séries oficiais do Brasil (Banco Central, IBGE), e nenhuma corresponde a este número.",
+  "card.latest": "mais recente, {when}",
+  "card.quoted": "citado no vídeo: {v}",
+  "card.source": "Fonte: {s}",
+  "verdict.confere": "Confere",
+  "verdict.diferente": "Diferente",
+  "card.disagree": "Quem discorda",
+  "card.tested": "Já foi testado?",
+  "card.reading": "Para ir além",
+  "card.readSpeaker": "para entender esta visão",
+  "card.readOpposing": "a visão contrária",
+
+  "ext.captions": "lendo legendas…",
+  "ext.panel": "lendo a transcrição…",
+  "ext.analysing": "analisando · {pct}%",
+  "ext.offTopic": "fora do tema",
+  "ext.analyse": "Analisar este vídeo",
+  "ext.reload": "recarregue a página",
+  "ext.noCaptions": "sem legendas",
+  "ext.listenHint": "Este vídeo não tem legendas que o Lastro consiga ler. Para ouvi-lo, clique no Lastro na barra do Chrome{key}.",
+  "ext.listenKey": " ou aperte {key}",
+  "ext.listening": "Ouvindo esta aba em {lang}. As ideias aparecem cerca de meio minuto depois da fala. Clique no Lastro na barra de novo para parar.",
+  "ext.listenStopped": "Parou de ouvir.",
+  "ext.unavailable": "servidor fora do ar",
+  "ext.stopped": "parado",
+};
+
+export type Key = keyof typeof en;
+const table = locale === "pt" ? pt : en;
+
+/** The string for `key` in the interface language, with {placeholders} filled in. */
+export function t(key: Key, vars: Record<string, string | number> = {}): string {
+  return table[key].replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));
+}
+
+const KNOWN_REFUSALS = ["video_not_found", "session_invalid", "rate_limited", "ip_sessions", "ip_videos", "neurons", "video_limit", "unavailable"] as const;
+/** Why the Worker refused, for the viewer (ErrorCode from src/types.ts). */
+export const refusal = (code: string): string =>
+  (KNOWN_REFUSALS as readonly string[]).includes(code) ? t(`refusal.${code as (typeof KNOWN_REFUSALS)[number]}`) : t("refusal.other");
+
+/** Plural helper: `t1` when n is 1, else `tn` with {n}. */
+export const plural = (n: number, one: Key, many: Key) => (n === 1 ? t(one) : t(many, { n }));
+
+/** Fill the static page: [data-i18n] text, [data-i18n-placeholder|title|aria-label] attributes. */
+export function translatePage(): void {
+  document.documentElement.lang = intlLocale;
+  for (const el of document.querySelectorAll<HTMLElement>("[data-i18n]")) el.textContent = t(el.dataset.i18n as Key);
+  for (const attr of ["placeholder", "title", "aria-label"] as const) {
+    for (const el of document.querySelectorAll<HTMLElement>(`[data-i18n-${attr}]`)) el.setAttribute(attr, t(el.getAttribute(`data-i18n-${attr}`) as Key));
+  }
+}

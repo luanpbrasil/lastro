@@ -34,17 +34,17 @@ git clone https://github.com/luanpbrasil/lastro.git
 ```
 
 ```bash
-cd lastro && npm install
+cd lastro && pnpm install
 ```
 
 ## 2. Log in to Cloudflare
 
 ```bash
-npx wrangler login
+pnpm wrangler login
 ```
 
 ```bash
-npx wrangler whoami
+pnpm wrangler whoami
 ```
 
 **Check:** `whoami` shows your own account.
@@ -52,7 +52,7 @@ npx wrangler whoami
 ## 3. Create the cache storage (KV namespace)
 
 ```bash
-npx wrangler kv namespace create CARDS --env production
+pnpm wrangler kv namespace create CARDS --env production
 ```
 
 It prints an `id` (32 hex characters). If wrangler offers to edit `wrangler.toml` for you, say no. Open `wrangler.toml` and replace `REPLACE_WITH_PRODUCTION_KV_ID` (in the `[[env.production.kv_namespaces]]` block, near the end) with that id. The id is not a secret.
@@ -62,13 +62,13 @@ It prints an `id` (32 hex characters). If wrangler offers to edit `wrangler.toml
 ## 4. Deploy and set the key
 
 ```bash
-npx wrangler deploy --env production
+pnpm wrangler deploy --env production
 ```
 
 The first time, Cloudflare may ask you to pick a `workers.dev` subdomain. At the end it prints the URL, like `https://lastro.<your-subdomain>.workers.dev`. Below, `$URL` means that address.
 
 ```bash
-npx wrangler secret put ANTHROPIC_API_KEY --env production
+pnpm wrangler secret put ANTHROPIC_API_KEY --env production
 ```
 
 Paste the demo key at the prompt and press Enter. The prompt doesn't show it or save it in your shell history.
@@ -88,7 +88,7 @@ curl -s $URL/spend
 **Check:** `"total":0` and `"maxSpendUsd":3`.
 
 ```bash
-npm run analyze -- eval/transcripts/TESTcook001.json --base $URL
+pnpm analyze eval/transcripts/TESTcook001.json --base $URL
 ```
 
 **Check:** it prints `422 {"error":"off topic",...}`. That's a cake recipe: the server must refuse it before calling Claude.
@@ -149,9 +149,9 @@ He'll commit the URL into the judge build and update the README.
 The demo has to stay up from submission (11-29) until the end of the public period (12-15).
 
 - **Spend:** `curl -s $URL/spend` anytime. The server stops new analyses at $3; the Console workspace limit is the hard stop.
-- **Pause new analyses, keep the cache:** `npx wrangler secret delete ANTHROPIC_API_KEY --env production`. Cached videos still work; new ones show an error.
-- **Change a cap:** edit `[env.production.vars]` in `wrangler.toml` and run `npx wrangler deploy --env production`. Agree it with Luan first.
-- **Logs:** `npx wrangler tail --env production` shows requests live.
+- **Pause new analyses, keep the cache:** `pnpm wrangler secret delete ANTHROPIC_API_KEY --env production`. Cached videos still work; new ones show an error.
+- **Change a cap:** edit `[env.production.vars]` in `wrangler.toml` and run `pnpm wrangler deploy --env production`. Agree it with Luan first.
+- **Logs:** `pnpm wrangler tail --env production` shows requests live.
 
 ## If something goes wrong
 

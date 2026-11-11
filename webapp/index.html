@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lastro</title>
+  <meta name="description" content="Paste an economics video from YouTube. As it plays, Lastro traces each idea to its source and checks the numbers against official data.">
+  <meta name="theme-color" content="#F3F1EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111210" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/src/web/style.css">
+</head>
+<body class="app">
+  <div class="toolbar wrap">
+    <a class="brand" href="/" aria-label="Lastro">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1E4D3B"/><rect x="9" y="7" width="4" height="18" fill="#F5F3EE"/><rect x="9" y="21" width="15" height="4" fill="#F5F3EE"/><rect x="17" y="14" width="7" height="5" fill="#C9A24A"/></svg>
+      <span class="brand-name">Lastro</span>
+    </a>
+    <form id="form" class="open" novalidate>
+      <label for="url" class="sr-only" data-i18n="form.label">YouTube link</label>
+      <div class="field">
+        <input id="url" type="text" inputmode="url" autocomplete="off" placeholder="Paste a YouTube link about the economy" data-i18n-placeholder="form.placeholder" required>
+        <button class="btn" type="submit" data-i18n="form.open">Open video</button>
+      </div>
+      <p id="form-error" class="error" role="alert" hidden data-i18n="form.error">That doesn’t look like a link to a YouTube video.</p>
+    </form>
+    <a class="toolbar-link" href="/about" data-i18n="nav.how">How it works</a>
+  </div>
+
+  <main class="wrap">
+    <section id="watch" class="watch" hidden aria-label="Video">
+      <div class="stage">
+        <div class="screen">
+          <div class="player"><div id="player"></div></div>
+          <div id="overlay"></div>
+        </div>
+        <div class="controls">
+          <button id="listen" class="btn" type="button"><span class="button-mark" aria-hidden="true"></span><span id="listen-label">Listen to this video</span></button>
+          <label class="lang"><span class="sr-only" data-i18n="lang.title">Language spoken in the video</span>
+            <select id="lang" title="Language spoken in the video" data-i18n-title="lang.title"></select>
+          </label>
+          <span id="status" role="status"></span>
+        </div>
+        <p id="interim" class="interim" aria-live="off"></p>
+        <p id="hint" class="hint" data-i18n="hint.privacy">Chrome transcribes the tab’s audio with its speech recognition service, and the transcript is analysed by Claude or Cloudflare Workers AI. To prevent abuse we keep the transcript for 30 days, with nothing about you.</p>
+      </div>
+    </section>
+
+    <section class="history" aria-labelledby="history-title">
+      <h2 id="history-title" data-i18n="history.title">Recently analysed</h2>
+      <p id="history-empty" class="empty" hidden data-i18n="history.empty">No video has been analysed yet. Paste a link above to be the first.</p>
+      <ul id="history" class="history-grid"></ul>
+    </section>
+  </main>
+  <script type="module" src="/src/web/main.ts"></script>
+</body>
+</html>

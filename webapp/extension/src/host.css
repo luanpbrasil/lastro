@@ -1,0 +1,42 @@
+/*
+ * The overlay's shadow root on YouTube: what the page's style.css gives the overlay on lastro (tokens, base rules,
+ * the overlay's place on the player), without any of YouTube's styles getting in. The overlay's own rules follow
+ * from src/web/overlay.css. Its colours are set by .ov itself (dark glass on the video).
+ */
+:host {
+  all: initial;
+  position: absolute;
+  inset: 0;
+  z-index: 60; /* over the video and its captions, under YouTube's settings menus */
+  display: block;
+  pointer-events: none;
+  --font: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease: cubic-bezier(.16, .84, .24, 1);
+  --radius: 10px;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+h3, h4 { margin: 0; font-weight: 620; font-variation-settings: "wght" 620; letter-spacing: -0.02em; line-height: 1.1; }
+p, ul, ol, figure, blockquote { margin: 0; }
+strong, b { font-weight: 620; font-variation-settings: "wght" 620; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+svg text { font-family: var(--font); }
+.muted { color: var(--muted); }
+
+/* The player is the container: the panel takes its height from the player's, as on lastro. */
+.screen { position: absolute; inset: 0; container-type: size; pointer-events: none; }
+.screen .ov { position: absolute; right: 14px; bottom: 64px; width: min(380px, calc(100% - 28px)); }
+.screen .ov-panel { height: min(580px, calc(100cqh - 128px)); }
+/* The miniplayer and other small players: no room for cards. */
+@container (max-width: 479px) {
+  .ov { display: none !important; }
+}

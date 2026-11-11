@@ -1,0 +1,52 @@
+name = "lastro-live"
+main = "src/worker/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Static assets (the page) are built and wired up by Vite: see vite.config.ts.
+
+# Workers AI. `vite dev` also calls the real service, so local runs use your account's neurons.
+[ai]
+binding = "AI"
+
+# Secret: ANTHROPIC_API_KEY comes from webapp/.dev.vars locally (never committed) and from
+# `pnpm wrangler secret put ANTHROPIC_API_KEY` when deployed. With it, Claude Haiku analyses each upload and
+# Workers AI is the fallback (no key, Claude down or refusing, or the dollar cap reached). Without it, Workers AI only.
+
+[vars]
+# Most the Anthropic API may cost per UTC day, in US dollars. One 3-minute upload costs about $0.001-0.003.
+# Reserved before each call, so simultaneous requests can't overrun it. 0 sends everything to Workers AI.
+DAILY_USD_CAP = "1"
+# Workers AI use per UTC day (the fallback). Workers AI gives 10000 neurons a day for free; this stays under
+# it with room for the measurement to be a little off. Lower it if anything else on the account uses Workers AI,
+# or set it to 0 to stop new analyses at once.
+DAILY_NEURON_CAP = "9000"
+# Different videos one connection can start per UTC day, so one person can't use up the day's neurons.
+IP_DAILY_VIDEO_CAP = "3"
+# Listening time analysed per video, so one long video can't use up the day's neurons.
+MAX_MINUTES_PER_VIDEO = "15"
+# Captions time analysed per video, for the Chrome extension, which sends a video's captions instead of listening.
+MAX_CAPTION_MINUTES_PER_VIDEO = "60"
+# Listening sessions one connection can hold in 2 hours.
+IP_SESSION_CAP = "6"
+# Days to keep the transcript log (every upload's text and outcome; nothing about the sender).
+LOG_RETENTION_DAYS = "30"
+# The Lastro Chrome extension's origin (comma-separate several). This id comes from the "key" in
+# extension/manifest.json; after publishing to the Chrome Web Store, add the store's id too.
+EXTENSION_ORIGINS = "chrome-extension://ohhohhbaolbbkfkfmjamaghddfchejkk"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lastro-live"
+# Local dev uses a simulated database. Replace with the id from `pnpm wrangler d1 create lastro-live` before deploying.
+database_id = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
+
+# Per connection, across all API routes. A page polls at most 15 times a minute.
+[[ratelimits]]
+name = "API_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 60
+  period = 60
