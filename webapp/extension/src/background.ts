@@ -3,7 +3,7 @@ import type { ApiRequest, ApiResult, FromContent, FromOffscreen, ListenReply, To
 /**
  * Lastro's background service worker.
  * - Talks to the Worker for the content scripts: from the extension's origin, which the Worker allows
- *   (EXTENSION_ORIGINS), and without CORS. Only the API's per-video paths are passed on.
+ *   (EXTENSION_ORIGINS), and without CORS. Only the declared video/post API paths are passed on.
  * - Listening, for videos without captions: Chrome gives an extension a tab's audio only after the viewer invokes it,
  *   so the toolbar icon (or its shortcut) starts and stops listening. The audio is held and recognised in the
  *   offscreen document; this worker passes each phrase to the tab.
@@ -11,13 +11,14 @@ import type { ApiRequest, ApiResult, FromContent, FromOffscreen, ListenReply, To
 
 const BASE = __WORKER_BASE__;
 const API_PATH = /^\/api\/videos\/[A-Za-z0-9_-]{11}\/(sessions|transcript|cards(\?after=\d{1,10})?|language|coverage)$/;
+const POST_API_PATH = /^\/api\/posts\/(analyze|results\/[0-9a-f-]{36})$/;
 const OFFSCREEN = "offscreen.html";
 const WATCH = /^https:\/\/www\.youtube\.com\/watch\?/;
 
 // ---- the Worker ------------------------------------------------------------------------
 
 async function api(msg: ApiRequest): Promise<ApiResult> {
-  if (!API_PATH.test(msg.path) || (msg.method !== "GET" && msg.method !== "POST")) return { status: 400, data: { error: "bad_request" } };
+  if ((!API_PATH.test(msg.path) && !POST_API_PATH.test(msg.path)) || (msg.method !== "GET" && msg.method !== "POST")) return { status: 400, data: { error: "bad_request" } };
   try {
     const r = await fetch(`${BASE}${msg.path}`, msg.method === "POST" ? { method: "POST", headers: { "content-type": "application/json" }, body: msg.body ?? "{}" } : {});
     return { status: r.status, data: await r.json().catch(() => null) };
@@ -31,7 +32,7 @@ chrome.runtime.onMessage.addListener((msg: FromContent | FromOffscreen | ToOffsc
     if (msg.target === "background") void fromOffscreen(msg);
     return false; // ToOffscreen messages are for the offscreen document
   }
-  // Everything else comes from the content scripts, in YouTube tabs.
+  // Everything else comes from the content scripts, in YouTube or X tabs.
   const tabId = sender.tab?.id;
   switch (msg.type) {
     case "api":
@@ -129,29 +130,27 @@ chrome.tabs.onRemoved.addListener((tabId) => void stopListening(tabId));
 // ---- install and update ------------------------------------------------------------------
 
 /**
- * On install or update, YouTube tabs that are already open don't get the content scripts until they're reloaded.
- * Inject them now, in the manifest's order: the page hook (MAIN world) first, then the content script. Both skip
- * themselves if a live copy already runs in the tab. Tabs that can't be scripted are skipped quietly.
+ * On install or update, open tabs don't get content scripts until they're reloaded.
+ * Preserve each manifest entry's host matches and order (YouTube's MAIN hook before its content script).
+ * Content scripts handle repeat injection themselves. Tabs that can't be scripted are skipped quietly.
  */
 chrome.runtime.onInstalled.addListener(() => void injectOpenTabs());
 
 async function injectOpenTabs(): Promise<void> {
-  const scripts = (chrome.runtime.getManifest().content_scripts ?? []) as { js?: string[]; world?: string }[];
-  const mainFiles = scripts.filter((c) => c.world === "MAIN").flatMap((c) => c.js ?? []);
-  const isolatedFiles = scripts.filter((c) => c.world !== "MAIN").flatMap((c) => c.js ?? []);
-  let tabs: chrome.tabs.Tab[] = [];
-  try {
-    tabs = await chrome.tabs.query({ url: "https://www.youtube.com/*" });
-  } catch {
-    return;
-  }
-  for (const tab of tabs) {
-    if (tab.id === undefined || tab.discarded) continue;
+  const scripts = (chrome.runtime.getManifest().content_scripts ?? []) as { js?: string[]; matches?: string[]; world?: string }[];
+  for (const script of scripts) {
+    if (!script.js?.length || !script.matches?.length) continue;
+    let tabs: chrome.tabs.Tab[];
     try {
-      if (mainFiles.length) await chrome.scripting.executeScript({ target: { tabId: tab.id }, world: "MAIN", files: mainFiles });
-      if (isolatedFiles.length) await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: isolatedFiles });
-    } catch {
-      /* discarded, crashed, or not scriptable: skip */
+      tabs = await chrome.tabs.query({ url: script.matches });
+    } catch { continue; }
+    for (const tab of tabs) {
+      if (tab.id === undefined || tab.discarded) continue;
+      try {
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: script.js, ...(script.world === "MAIN" ? { world: "MAIN" as const } : {}) });
+      } catch {
+        /* discarded, crashed, or not scriptable: skip */
+      }
     }
   }
 }

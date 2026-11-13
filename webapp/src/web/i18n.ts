@@ -9,6 +9,21 @@ export const locale: Locale = (navigator.languages?.[0] ?? navigator.language ??
 export const intlLocale = locale === "pt" ? "pt-BR" : "en-US";
 
 const en = {
+  "post.loading": "Analysing this post…",
+  "post.pending": "This post is already being analysed. Retry in a moment.",
+  "post.empty": "No relevant claims were found in this post.",
+  "post.failed": "This post could not be analysed.",
+  "post.retry": "Retry",
+  "post.expandPanel": "Expand",
+  "post.collapsePanel": "Collapse",
+  "post.expand": "Expand the full post on X before analysing it.",
+  "post.unknown": "Source information is unavailable; this post cannot be analysed.",
+  "post.by": "Post by {author} (@{handle})",
+  "post.unchecked": "Not checked: no official comparison is available for this claim.",
+  "post.currentSeries": "Series retrieved now; may include revisions. This comparison does not establish the data available at publication or judge the whole argument.",
+  "post.rollingQuarter": "Rolling quarter ending in {when}.",
+  "post.quarterChange": "Change from the immediately preceding quarter.",
+  "post.quoted": "quoted in the post: {v}",
   "page.title": "Lastro",
   "brand.label": "Lastro",
   "form.label": "YouTube link",
@@ -123,6 +138,21 @@ const en = {
 };
 
 const pt: typeof en = {
+  "post.loading": "Analisando este post…",
+  "post.pending": "Este post já está sendo analisado. Tente de novo em instantes.",
+  "post.empty": "Nenhuma afirmação relevante foi encontrada neste post.",
+  "post.failed": "Não foi possível analisar este post.",
+  "post.retry": "Tentar de novo",
+  "post.expandPanel": "Expandir",
+  "post.collapsePanel": "Recolher",
+  "post.expand": "Expanda o post completo no X antes de analisar.",
+  "post.unknown": "Informações da fonte indisponíveis; não é possível analisar este post.",
+  "post.by": "Post de {author} (@{handle})",
+  "post.unchecked": "Não conferido: não há comparação oficial disponível para esta afirmação.",
+  "post.currentSeries": "Série consultada agora; pode conter revisões. Esta comparação não comprova o dado disponível na publicação nem julga o argumento inteiro.",
+  "post.rollingQuarter": "Trimestre móvel encerrado em {when}.",
+  "post.quarterChange": "Variação em relação ao trimestre imediatamente anterior.",
+  "post.quoted": "citado no post: {v}",
   "page.title": "Lastro",
   "brand.label": "Lastro",
   "form.label": "Link do YouTube",

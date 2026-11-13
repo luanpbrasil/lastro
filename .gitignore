@@ -12,6 +12,8 @@ extension/dist/
 spend.csv
 .chrome-profile/
 .cache/
+# Personal context, workflows, and archived agent runs
+/.local/
 fixtures/transcripts/
 extension/dist-demo/
 

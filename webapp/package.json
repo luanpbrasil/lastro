@@ -12,12 +12,17 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p extension/tsconfig.json",
     "ext:build": "node extension/build.mjs",
     "ext:dev": "node extension/build.mjs --watch --worker http://127.0.0.1:8788",
-    "ext:zip": "node extension/build.mjs --store"
+    "ext:zip": "node extension/build.mjs --store",
+    "test:posts": "pnpm run test:posts:worker && pnpm run test:posts:extension",
+    "test:posts:worker": "node --test --test-timeout=20000 tests/posts-worker.test.mjs",
+    "test:posts:extension": "node --test --test-timeout=20000 tests/posts-extension.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.67.0",
+    "@playwright/test": "^1.65.0",
     "@types/chrome": "^0.3.7",
     "esbuild": "^0.28.2",
+    "miniflare": "5.20261104.0-beta",
     "vite": "8.3.5",
     "wrangler": "^4.158.0"
   },

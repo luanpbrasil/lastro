@@ -35,6 +35,7 @@ const options = {
   entryPoints: {
     background: join(here, "src/background.ts"),
     content: join(here, "src/content.ts"),
+    "x-content": join(here, "src/x-content.ts"),
     hook: join(here, "src/hook.ts"),
     offscreen: join(here, "src/offscreen.ts"),
   },

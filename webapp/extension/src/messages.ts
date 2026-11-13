@@ -11,7 +11,7 @@ import type { SpeechError } from "../../src/web/transcriber";
 export interface ApiRequest {
   type: "api";
   method: "GET" | "POST";
-  /** "/api/videos/…" */
+  /** "/api/videos/…" or the post-specific "/api/posts/…" routes. */
   path: string;
   body?: string;
 }

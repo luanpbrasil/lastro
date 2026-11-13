@@ -13,6 +13,8 @@ export interface OfficialValue {
   value: number;
   date: string;
   periodLabel: string;
+  /** Historical observation from the series fetched now, not a publication-time data vintage. */
+  vintage?: "current-series";
   /** A thinned slice of the official series around the value, for the card's chart. Cards saved before it have none. */
   series?: { date: string; value: number }[];
 }
@@ -26,6 +28,27 @@ export interface FactCheck {
 /** `headline`: a few words naming the claim, in the language of the video (cards saved before it have none). */
 export type CheckedCard = Omit<Card, "modelQuote"> & { headline?: string; check: FactCheck | null };
 export type StoredCard = CheckedCard & { id: number };
+
+/** Browser-observed public source; this is not platform attestation. */
+export interface PostSource {
+  postId: string;
+  url: string;
+  author: string;
+  handle: string;
+  publishedAt: string | null;
+  text: string;
+  lang: "pt";
+  visibility: "public";
+  complete: true;
+}
+export type PostCard = Omit<CheckedCard, "seg" | "startMs" | "matchScore">;
+export interface PostAnalysis {
+  id: string;
+  status: "complete" | "empty";
+  source: PostSource;
+  cards: PostCard[];
+  analysedAt: number;
+}
 
 export interface TranscriptRequest {
   session: string;
@@ -80,6 +103,7 @@ export type ErrorCode =
   | "ip_videos"
   | "neurons"
   | "video_limit"
+  | "in_progress"
   | "unavailable";
 
 export interface TranscriptResponse {

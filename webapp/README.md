@@ -74,7 +74,7 @@ On the eval transcripts (via Workers AI, since no Anthropic key was available lo
 
 ## Run locally
 
-Run these from this folder, after `pnpm install` in the repository root and `pnpm wrangler login`.
+Run these from this folder, after `pnpm install` in the repository root and `pnpm wrangler login`. Workers AI needs a Cloudflare account with a `workers.dev` subdomain configured through Workers & Pages, even for local development. This does not require deploying the app.
 
 1. Create the local database: `pnpm db:local`
 2. Start it: `pnpm dev`. Vite serves the page with hot reload and runs the Worker in workerd, Cloudflare's runtime, with a local D1.
@@ -168,11 +168,12 @@ Chrome only gives an extension a tab's audio after the viewer invokes it, so lis
 
 ```bash
 pnpm ext:build                      # → extension/dist, talking to https://lastro.lovu.club
+pnpm ext:build --worker http://127.0.0.1:8788  # one-off build for the local app
 node extension/build.mjs --worker https://<other-worker>   # another deployment
 pnpm ext:dev                        # rebuilds on change, talking to `pnpm dev` (http://127.0.0.1:8788)
 ```
 
-Then in Chrome: `chrome://extensions` → Developer mode → **Load unpacked** → `webapp/extension/dist`. After a rebuild, press the reload arrow on the extension's card; open YouTube tabs pick it up without a reload.
+Then in Chrome: `chrome://extensions` → Developer mode → **Load unpacked** → `webapp/extension/dist`. After a rebuild, press the reload arrow on the extension's card; open YouTube and X tabs pick up their respective scripts without a reload.
 
 **The Worker side.** The Worker accepts writes from the extension's origin as well as its own (`EXTENSION_ORIGINS` in `wrangler.toml`, `chrome-extension://<id>`). The `key` in `extension/manifest.json` (a public key; there's no private key to keep) fixes the unpacked extension's id to `ohhohhbaolbbkfkfmjamaghddfchejkk`. The Chrome Web Store gives an item its own id: after uploading, add `chrome-extension://<store id>` to `EXTENSION_ORIGINS` and redeploy. Like the same-site check, this keeps other websites from using the API through their visitors' browsers; it isn't authentication, so the caps below are what bound use. Captions sessions (`source: "captions"`, migration `0007`) may send ten times faster than speech, with their own cap per video (`MAX_CAPTION_MINUTES_PER_VIDEO`).
 
@@ -237,6 +238,21 @@ To remove a video's cards so it can be analysed again:
 ```bash
 pnpm wrangler d1 execute lastro-live --remote --command "DELETE FROM cards WHERE video_id='ID'; DELETE FROM coverage WHERE video_id='ID'; DELETE FROM chunks WHERE video_id='ID'; UPDATE videos SET card_count = 0, fact_count = 0, analysed_at = NULL WHERE id='ID';"
 ```
+
+## X post context
+
+The newer extension also contextualizes selected public Portuguese X posts on
+home, detail, search, and profile feeds. Use the Lastro action in the post header;
+the toolbar action remains YouTube listening. The standalone app has no X-post
+paste input. See the [X feature contract](../docs/features/x/README.md) for the
+experience, source boundaries, persistence, comparisons, and known limitations.
+
+For request/storage and browser fixture checks, use
+`pnpm --filter lastro-live run test:posts` from the repository root. The suite
+runs Worker checks before extension checks, following observed local workerd
+stalls in overlapping or Chrome-first runs. Install desktop Google Chrome for
+fixtures; controlled inputs do not establish live site or provider quality.
+See [contribution verification](../CONTRIBUTING.md#verification).
 
 ## Known limits
 
