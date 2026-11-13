@@ -12,6 +12,10 @@ const EMBEDDED = '[data-testid="quoteTweet"], [role="link"][tabindex="0"]';
 // X's public/protected observation is contingent on a complete author header. It is not platform attestation.
 const LOCK = '[data-testid="icon-lock"], [aria-label="Protected account"], [aria-label="Conta protegida"], [aria-label="Protected posts"], [aria-label="Posts protegidos"]';
 
+function isSourceArticle(article: HTMLElement): boolean {
+  return article.isConnected && article.matches(POST) && !article.closest(EMBEDDED) && !article.parentElement?.closest("article");
+}
+
 function own(article: HTMLElement, selector: string): HTMLElement[] {
   return [...article.querySelectorAll<HTMLElement>(selector)].filter(e => e.closest(POST) === article && !e.closest(EMBEDDED));
 }
@@ -51,9 +55,6 @@ function observe(article: HTMLElement): Observation {
   const permalink = time?.closest<HTMLAnchorElement>('a[href]');
   const match = permalink?.pathname.match(/^\/([A-Za-z0-9_]{1,15})\/status\/(\d{1,25})$/);
   if (!header || !author || !handle || !match || match[1].toLowerCase() !== handle.toLowerCase() || handleLink?.pathname.toLowerCase() !== `/${handle}`.toLowerCase()) return { state: "unknown" };
-  // Ticket 01 intentionally offers only the selected detail-page post, never the neighboring replies.
-  const selected = location.pathname.match(/^\/[^/]+\/status\/(\d+)\/?$/)?.[1];
-  if (selected !== match[2]) return { state: "skip" };
   if (own(article, '[data-testid="tweet-text-show-more-link"]').length) return { state: "expand" };
   if (text.length > 10_000) return { state: "unknown" };
   const timestamp = time.getAttribute("datetime");
@@ -83,10 +84,14 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
     const action = el("button", "", "Lastro");
     action.type = "button";
     const source = observation.source;
+    const currentSource = () => {
+      const current = observe(article);
+      if (!isSourceArticle(article) || article.nextElementSibling !== host || current.state !== "ready" || JSON.stringify(current.source) !== JSON.stringify(source)) { refresh(); return false; }
+      return true;
+    };
     const show = async () => {
       // Re-read at the explicit action: edited, collapsed, recycled or protected sources cannot use stale text.
-      const current = observe(article);
-      if (current.state !== "ready" || JSON.stringify(current.source) !== JSON.stringify(source)) { refresh(); return; }
+      if (!currentSource()) return;
       close();
       const requestGeneration = generation;
       panel = el("section", "panel");
@@ -104,7 +109,7 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
       let inProgress = false;
       try {
         const reply = await chrome.runtime.sendMessage({ type: "api", method: "POST", path: "/api/posts/analyze", body: JSON.stringify(source) }) as ApiResult;
-        if (!active || requestGeneration !== generation || !host.isConnected) return;
+        if (!active || requestGeneration !== generation || !host.isConnected || !currentSource()) return;
         inProgress = reply.status === 409 && (reply.data as { error?: string } | null)?.error === "in_progress";
         if (reply.status !== 200) throw new Error("post unavailable");
         const result = reply.data as PostAnalysis;
@@ -114,7 +119,7 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
         else if (result.status === "complete" && result.cards.length > 0) for (const card of result.cards) body.append(fullCard(card));
         else throw new Error("invalid post outcome");
       } catch {
-        if (!active || requestGeneration !== generation || !host.isConnected) return;
+        if (!active || requestGeneration !== generation || !host.isConnected || !currentSource()) return;
         const retry = el("button", "", t("post.retry"));
         retry.type = "button";
         retry.onclick = () => void show();
@@ -129,10 +134,13 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
   return { host, signature, dispose: () => { active = false; generation++; host.remove(); } };
 }
 
+let stopped = false;
 function refresh(): void {
-  for (const [article, item] of mounted) if (!article.isConnected || !item.host.isConnected) { item.dispose(); mounted.delete(article); }
+  if (stopped) return;
+  // Keep only live top-level sources, and never leave a panel in a recycled cell.
+  for (const [article, item] of mounted) if (!isSourceArticle(article) || !item.host.isConnected || article.nextElementSibling !== item.host) { item.dispose(); mounted.delete(article); }
   for (const article of document.querySelectorAll<HTMLElement>(POST)) {
-    if (article.closest(EMBEDDED)) continue;
+    if (!isSourceArticle(article)) continue;
     const observation = observe(article);
     const signature = JSON.stringify(observation);
     const previous = mounted.get(article);
@@ -148,6 +156,18 @@ const observer = new MutationObserver(() => {
   scheduled = true;
   requestAnimationFrame(() => { scheduled = false; refresh(); });
 });
-observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["href", "datetime", "lang", "aria-label", "data-testid"] });
+// An install/update injection takes over any older copy, including its pending requests.
+const TAKEOVER = "lastro-x:takeover";
+function shutdown(): void {
+  stopped = true;
+  observer.disconnect();
+  window.removeEventListener("popstate", refresh);
+  document.removeEventListener(TAKEOVER, shutdown);
+  for (const item of mounted.values()) item.dispose();
+  mounted.clear();
+}
+document.dispatchEvent(new CustomEvent(TAKEOVER));
+document.addEventListener(TAKEOVER, shutdown);
+observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["href", "datetime", "lang", "alt", "aria-label", "data-testid", "role", "tabindex"] });
 window.addEventListener("popstate", refresh);
 refresh();

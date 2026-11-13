@@ -13,9 +13,9 @@
     "ext:build": "node extension/build.mjs",
     "ext:dev": "node extension/build.mjs --watch --worker http://127.0.0.1:8788",
     "ext:zip": "node extension/build.mjs --store",
-    "test:posts": "node --test tests/posts-worker.test.mjs tests/posts-extension.test.mjs",
-    "test:posts:worker": "node --test tests/posts-worker.test.mjs",
-    "test:posts:extension": "node --test tests/posts-extension.test.mjs"
+    "test:posts": "pnpm run test:posts:worker && pnpm run test:posts:extension",
+    "test:posts:worker": "node --test --test-timeout=20000 tests/posts-worker.test.mjs",
+    "test:posts:extension": "node --test --test-timeout=20000 tests/posts-extension.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.67.0",
