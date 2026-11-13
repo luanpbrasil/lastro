@@ -6,6 +6,7 @@ import { detectLanguage } from "./language";
 import { cleanSpeech, cleanTitle } from "./sanitize";
 import { parsePost, postWithClaude, postWithWorkersAI } from "./posts";
 import type { PostAnalysis, PostCard } from "../types";
+import { claimPost, releasePost, savePost } from "./post-cache";
 
 interface Env {
   AI: Ai;
@@ -450,31 +451,41 @@ const describe = (err: unknown) => (err instanceof Error ? `${err.name}: ${err.m
 async function analysePost(req: Request, env: Env): Promise<Response> {
   const source = parsePost(await readBody(req));
   if (!source) return refuse("bad_request", 400);
-  const day = today();
-  let cards: PostCard[] | undefined;
-  // Share exactly the existing atomic daily provider budgets. No video/session/history rows.
-  // Unknown failed-call usage keeps its reservation, so retries cannot release paid capacity.
-  if (env.ANTHROPIC_API_KEY && await reserveUsd(env, day)) {
-    try {
-      const result = await postWithClaude(env.ANTHROPIC_API_KEY, source);
-      await settle(env, day, "claude", result.usd).run();
-      cards = result.cards;
-    } catch { console.error("post Claude analysis failed; trying Workers AI"); }
-  }
-  if (!cards) {
-    if (!await reserveNeurons(env, day)) return refuse("neurons", 429);
-    try {
-      const result = await postWithWorkersAI(env.AI, source);
-      await settle(env, day, "workers-ai", result.neurons).run();
-      cards = result.cards;
-    } catch {
-      return refuse("unavailable", 503);
+  const outcome = await claimPost(env.DB, source);
+  if (outcome.status === "cached") return getPostResult(env, outcome.id);
+  if (outcome.status === "pending") return postInProgress();
+  try {
+    const day = today();
+    let cards: PostCard[] | undefined;
+    // Share exactly the existing atomic daily provider budgets. No video/session/history rows.
+    // Unknown failed-call usage keeps its reservation, so retries cannot release paid capacity.
+    if (env.ANTHROPIC_API_KEY && await reserveUsd(env, day)) {
+      try {
+        const result = await postWithClaude(env.ANTHROPIC_API_KEY, source);
+        await settle(env, day, "claude", result.usd).run();
+        cards = result.cards;
+      } catch { console.error("post Claude analysis failed; trying Workers AI"); }
     }
+    if (!cards) {
+      if (!await reserveNeurons(env, day)) return refuse("neurons", 429);
+      try {
+        const result = await postWithWorkersAI(env.AI, source);
+        await settle(env, day, "workers-ai", result.neurons).run();
+        cards = result.cards;
+      } catch {
+        return refuse("unavailable", 503);
+      }
+    }
+    const result: PostAnalysis = { id: crypto.randomUUID(), status: cards.length ? "complete" : "empty", source, cards, analysedAt: Date.now() };
+    if (!await savePost(env.DB, outcome.claim, result)) return postInProgress();
+    return json(result);
+  } finally {
+    await releasePost(env.DB, outcome.claim);
   }
-  const result: PostAnalysis = { id: crypto.randomUUID(), status: cards.length ? "complete" : "empty", source, cards, analysedAt: Date.now() };
-  await env.DB.prepare("INSERT INTO post_results (id, post_id, source, status, cards, analysed_at) VALUES (?, ?, ?, ?, ?, ?)")
-    .bind(result.id, source.postId, JSON.stringify(source), result.status, JSON.stringify(cards), result.analysedAt).run();
-  return json(result);
+}
+
+function postInProgress(): Response {
+  return new Response(JSON.stringify({ error: "in_progress" }), { status: 409, headers: { ...API_HEADERS, "retry-after": "2" } });
 }
 
 async function getPostResult(env: Env, id: string): Promise<Response> {

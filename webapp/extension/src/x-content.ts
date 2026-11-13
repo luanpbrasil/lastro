@@ -97,9 +97,11 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
       body.append(el("p", "", t("post.loading")));
       panel.append(bar, body);
       root.append(panel);
+      let inProgress = false;
       try {
         const reply = await chrome.runtime.sendMessage({ type: "api", method: "POST", path: "/api/posts/analyze", body: JSON.stringify(source) }) as ApiResult;
         if (!active || requestGeneration !== generation || !host.isConnected) return;
+        inProgress = reply.status === 409 && (reply.data as { error?: string } | null)?.error === "in_progress";
         if (reply.status !== 200) throw new Error("post unavailable");
         const result = reply.data as PostAnalysis;
         if (!result || !["complete", "empty"].includes(result.status) || !Array.isArray(result.cards) || result.source?.text !== source.text || result.source?.postId !== source.postId) throw new Error("invalid post response");
@@ -112,7 +114,7 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
         const retry = el("button", "", t("post.retry"));
         retry.type = "button";
         retry.onclick = () => void show();
-        body.replaceChildren(el("p", "", t("post.failed")), retry);
+        body.replaceChildren(el("p", "", t(inProgress ? "post.pending" : "post.failed")), retry);
       }
     };
     action.onclick = () => { if (!panel) void show(); };

@@ -101,6 +101,7 @@ export type ErrorCode =
   | "ip_videos"
   | "neurons"
   | "video_limit"
+  | "in_progress"
   | "unavailable";
 
 export interface TranscriptResponse {

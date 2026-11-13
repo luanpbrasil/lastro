@@ -10,6 +10,7 @@ export const intlLocale = locale === "pt" ? "pt-BR" : "en-US";
 
 const en = {
   "post.loading": "Analysing this post…",
+  "post.pending": "This post is already being analysed. Retry in a moment.",
   "post.empty": "No relevant claims were found in this post.",
   "post.failed": "This post could not be analysed.",
   "post.retry": "Retry",
@@ -132,6 +133,7 @@ const en = {
 
 const pt: typeof en = {
   "post.loading": "Analisando este post…",
+  "post.pending": "Este post já está sendo analisado. Tente de novo em instantes.",
   "post.empty": "Nenhuma afirmação relevante foi encontrada neste post.",
   "post.failed": "Não foi possível analisar este post.",
   "post.retry": "Tentar de novo",

@@ -93,6 +93,23 @@ test("failure offers Retry; a successful empty result is explicit and closable",
   } finally { await browser.close(); }
 });
 
+test("an analysis in progress offers Retry and reopening requests the server again", async () => {
+  const { browser, page } = await pageFor();
+  try {
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    await page.evaluate(() => window.reply({ status: 409, data: { error: "in_progress" } }));
+    await page.getByText("Este post já está sendo analisado. Tente de novo em instantes.", { exact: true }).waitFor({ timeout: 2000 });
+    await page.getByRole("button", { name: "Tentar de novo", exact: true }).click();
+    assert.equal(await page.evaluate(() => window.requests.length), 2);
+    await page.evaluate(() => window.reply({ status: 200, data: { id: "shared-empty", status: "empty", cards: [], source: JSON.parse(window.requests[1].body), analysedAt: 1 } }));
+    await page.getByText("Nenhuma afirmação relevante foi encontrada neste post.", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Fechar", exact: true }).click();
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    assert.equal(await page.evaluate(() => window.requests.length), 3);
+    assert.equal(await page.evaluate(() => window.requests[2].body === window.requests[0].body), true);
+  } finally { await browser.close(); }
+});
+
 test("small labeled Portuguese relevance sample through the extension action", async () => {
   const samples = JSON.parse(await readFile("tests/fixtures/portuguese-posts.json", "utf8"));
   const { browser, page } = await pageFor();
