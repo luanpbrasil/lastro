@@ -74,7 +74,7 @@ On the eval transcripts (via Workers AI, since no Anthropic key was available lo
 
 ## Run locally
 
-Run these from this folder, after `pnpm install` in the repository root and `pnpm wrangler login`.
+Run these from this folder, after `pnpm install` in the repository root and `pnpm wrangler login`. Workers AI needs a Cloudflare account with a `workers.dev` subdomain configured through Workers & Pages, even for local development. This does not require deploying the app.
 
 1. Create the local database: `pnpm db:local`
 2. Start it: `pnpm dev`. Vite serves the page with hot reload and runs the Worker in workerd, Cloudflare's runtime, with a local D1.
@@ -168,6 +168,7 @@ Chrome only gives an extension a tab's audio after the viewer invokes it, so lis
 
 ```bash
 pnpm ext:build                      # → extension/dist, talking to https://lastro.lovu.club
+pnpm ext:build --worker http://127.0.0.1:8788  # one-off build for the local app
 node extension/build.mjs --worker https://<other-worker>   # another deployment
 pnpm ext:dev                        # rebuilds on change, talking to `pnpm dev` (http://127.0.0.1:8788)
 ```
@@ -238,21 +239,22 @@ To remove a video's cards so it can be analysed again:
 pnpm wrangler d1 execute lastro-live --remote --command "DELETE FROM cards WHERE video_id='ID'; DELETE FROM coverage WHERE video_id='ID'; DELETE FROM chunks WHERE video_id='ID'; UPDATE videos SET card_count = 0, fact_count = 0, analysed_at = NULL WHERE id='ID';"
 ```
 
+## X post context
+
+The newer extension also contextualizes selected public Portuguese X posts on
+home, detail, search, and profile feeds. Use the Lastro action in the post header;
+the toolbar action remains YouTube listening. The standalone app has no X-post
+paste input. See the [X feature contract](../docs/features/x/README.md) for the
+experience, source boundaries, persistence, comparisons, and known limitations.
+
+For request/storage and browser fixture checks, use
+`pnpm --filter lastro-live run test:posts` from the repository root. The suite
+runs Worker checks before extension checks, following observed local workerd
+stalls in overlapping or Chrome-first runs. Install desktop Google Chrome for
+fixtures; controlled inputs do not establish live site or provider quality.
+See [contribution verification](../CONTRIBUTING.md#verification).
+
 ## Known limits
-
-### X post context (Portuguese POC)
-
-The newer extension offers **Lastro** on relevant Portuguese posts in X's home timeline, individual post pages, search results and profile feeds. The local gate runs without network requests; only a click submits the selected post's own complete written text. Quoted posts, neighboring post text and media are excluded. Expand truncated posts on X first. Results appear in a closable panel below that post, with attributed quotes, graph context, opposing views and readings. Empty results and errors with Retry are distinct. Compatible unchanged posts reuse server results across viewers through the same request on every surface.
-
-Newly loaded posts receive their own action. Edits, replacements, removed or moved feed items clear their old panels, and late replies cannot populate a different source. Reopening makes another server request; the extension keeps no durable post-result archive. Install/update injection follows the declared host matches, and repeated X injection replaces the old UI. Interface labels use the existing English/Portuguese browser-language selection; post-content support remains Portuguese.
-
-Supported numerical comparisons use explicit grounded periods before publication-relative wording. Daily relative claims use the publication date; missing or ambiguous dates, unsuitable observations and unsupported figures stay unchecked. Monthly/quarterly relative claims and historical Focus expectations remain unchecked because the endpoints do not establish their availability at publication. Successful comparisons show the observation period, value, official source and available series, with a notice that data fetched now may contain revisions. They do not judge theories, forecasts or the entire argument. See the [comparison policy](../docs/codebase-guide.md#trace-the-x-post-interaction) for supported date forms and limits.
-
-The extractor requires a recognized author header, matching handle/permalink and timestamp element, and skips observed protected-account markers. Missing source information produces an unavailable-source notice. These are **browser observations, not platform attestations**. The selectors and protected-state assumptions have deterministic fixture coverage but still need live X validation. The conservative gate can miss relevant posts: the small 14-item Portuguese sample offers 4 of 6 relevant posts and none of its 8 unrelated/uncertain examples. That sample is a sanity check, not a quality benchmark.
-
-`POST /api/posts/analyze` accepts the `PostSource` contract in `src/types.ts` and returns a `PostAnalysis` with `complete` or `empty` status. Failed requests return an error and are never saved as empty. `GET /api/posts/results/:id` retrieves a saved result by its opaque id. Migration `0008_posts.sql` stores these results independently of videos, coverage and public recent history. Authored text is preserved rather than speech-cleaned; returned quotes must be exact substrings. The post route shares the existing daily Claude/Workers AI spending limits and provider order. Unknown failed-call charges keep their reservations. No paid calls are used by the tests.
-
-Run `pnpm --filter lastro-live run test:posts` from the repository root (or use `test:posts:worker` / `test:posts:extension` separately). The command runs the Worker suite before the extension suite, with a 20-second per-test timeout, following observed local workerd test stalls when the suites overlapped or Chrome ran first. This ordering is a tested mitigation, not proof the runtime cannot stall. The Worker checks use Miniflare with all migrations on fresh local D1 and controlled model/official-data inputs. Extension checks use isolated headless Google Chrome and UTF-8 page fixtures, with controlled backend responses, plus a controlled install/update event check. They cover all four surfaces, changed/removed sources, late replies, repeat injection, Portuguese/English labels and newer YouTube saved-card display/seeking. Install desktop Chrome for the fixture checks. The normal `ext:build` includes the X content script; `db:local` applies the new migration locally. Do not treat these fixtures as evidence of live X DOM compatibility, protected-state detection on real pages, live YouTube capture, or real model extraction quality.
 
 - **Desktop Chrome only for listening.** Other browsers can still read cards that are already saved.
 - **The video has to play in real time** for its transcript to be built, and only the parts that actually played get cards.
