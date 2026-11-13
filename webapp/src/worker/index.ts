@@ -4,6 +4,8 @@ import { MAX_CHUNK_CHARS, MAX_SEGMENTS, type CardsResponse, type CheckedCard, ty
 import { CLAUDE_MODEL, factCheckChunk, factCheckWithClaude, MAX_NEURONS_PER_CALL, MAX_USD_PER_CALL, WORKERS_AI_MODEL } from "./factcheck";
 import { detectLanguage } from "./language";
 import { cleanSpeech, cleanTitle } from "./sanitize";
+import { parsePost, postWithClaude, postWithWorkersAI } from "./posts";
+import type { PostAnalysis, PostCard } from "../types";
 
 interface Env {
   AI: Ai;
@@ -96,6 +98,13 @@ async function route(req: Request, env: Env, ctx: ExecutionContext): Promise<Res
   } else if (req.method !== "GET") return refuse("bad_request", 405);
 
   if (url.pathname === "/api/videos" && req.method === "GET") return getVideos(env);
+  if (url.pathname === "/api/posts/analyze" && req.method === "POST") {
+    const work = analysePost(req, env);
+    ctx.waitUntil(work);
+    return work;
+  }
+  const postResult = url.pathname.match(/^\/api\/posts\/results\/([0-9a-f-]{36})$/);
+  if (postResult && req.method === "GET") return getPostResult(env, postResult[1]);
   const m = url.pathname.match(/^\/api\/videos\/([A-Za-z0-9_-]{11})\/(sessions|transcript|cards|language|coverage)$/);
   if (m && m[2] === "language" && req.method === "GET") return getLanguage(env, m[1]);
   if (m && m[2] === "coverage" && req.method === "GET") return getCoverage(env, m[1]);
@@ -437,6 +446,43 @@ async function runChunk(
 }
 
 const describe = (err: unknown) => (err instanceof Error ? `${err.name}: ${err.message}` : String(err));
+
+async function analysePost(req: Request, env: Env): Promise<Response> {
+  const source = parsePost(await readBody(req));
+  if (!source) return refuse("bad_request", 400);
+  const day = today();
+  let cards: PostCard[] | undefined;
+  // Share exactly the existing atomic daily provider budgets. No video/session/history rows.
+  // Unknown failed-call usage keeps its reservation, so retries cannot release paid capacity.
+  if (env.ANTHROPIC_API_KEY && await reserveUsd(env, day)) {
+    try {
+      const result = await postWithClaude(env.ANTHROPIC_API_KEY, source);
+      await settle(env, day, "claude", result.usd).run();
+      cards = result.cards;
+    } catch { console.error("post Claude analysis failed; trying Workers AI"); }
+  }
+  if (!cards) {
+    if (!await reserveNeurons(env, day)) return refuse("neurons", 429);
+    try {
+      const result = await postWithWorkersAI(env.AI, source);
+      await settle(env, day, "workers-ai", result.neurons).run();
+      cards = result.cards;
+    } catch {
+      return refuse("unavailable", 503);
+    }
+  }
+  const result: PostAnalysis = { id: crypto.randomUUID(), status: cards.length ? "complete" : "empty", source, cards, analysedAt: Date.now() };
+  await env.DB.prepare("INSERT INTO post_results (id, post_id, source, status, cards, analysed_at) VALUES (?, ?, ?, ?, ?, ?)")
+    .bind(result.id, source.postId, JSON.stringify(source), result.status, JSON.stringify(cards), result.analysedAt).run();
+  return json(result);
+}
+
+async function getPostResult(env: Env, id: string): Promise<Response> {
+  const row = await env.DB.prepare("SELECT source, status, cards, analysed_at FROM post_results WHERE id = ?").bind(id)
+    .first<{ source: string; status: PostAnalysis["status"]; cards: string; analysed_at: number }>();
+  if (!row) return refuse("bad_request", 404);
+  return json({ id, status: row.status, source: JSON.parse(row.source), cards: JSON.parse(row.cards), analysedAt: row.analysed_at } satisfies PostAnalysis);
+}
 
 const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,4})?$/;
 

@@ -1,22 +1,24 @@
 # Lastro codebase guide
 
-Inspected on 2026-11-12 at commit `b5c2ac2`. This is a source-backed onboarding snapshot. Recheck the linked code when changing behavior; build success and recorded evaluations establish only the checks described below.
+Initially inspected on 2026-11-12 at commit `b5c2ac2`; updated the same day for X ticket 01 in the working tree based on `a9fe44d`. This is a source-backed snapshot. Recheck the linked code when changing behavior; build success and recorded evaluations establish only the checks described below.
 
 ## What the product does
 
 Lastro helps a viewer understand economic and political claims in a YouTube video. It places context cards on the playback timeline: the speaker's claim, its intellectual background, opposing views, relevant Brazilian episodes, readings, and comparisons with official figures. A theory or forecast has no truth verdict. Numerical comparisons use official data and say whether values match or differ.
+
+The newer extension also has the first X POC slice: an explicit click on a relevant Portuguese post's individual page opens attributed context beneath that post. This slice preserves authored text, has no playback controls and leaves numerical claims unchecked. Shared post reuse, historical numerical comparisons and feed surfaces belong to later tickets. Live X DOM compatibility is not yet verified.
 
 Read the [domain glossary](../GLOSSARY.md) for the product language. There are two executable implementations in this repository. They share domain code but have different ingestion, persistence, and delivery contracts.
 
 | Area | Original implementation | Newer live implementation |
 | --- | --- | --- |
 | User surfaces | Root Chrome extension and judge/demo site | Web app, landing/privacy pages, and another Chrome extension |
-| Entry points | [`extension/src/content.ts`](../extension/src/content.ts), [`site/src/demo.ts`](../site/src/demo.ts) | [`webapp/src/web/main.ts`](../webapp/src/web/main.ts), [`webapp/extension/src/content.ts`](../webapp/extension/src/content.ts) |
+| Entry points | [`extension/src/content.ts`](../extension/src/content.ts), [`site/src/demo.ts`](../site/src/demo.ts) | [`webapp/src/web/main.ts`](../webapp/src/web/main.ts), YouTube [`content.ts`](../webapp/extension/src/content.ts), X [`x-content.ts`](../webapp/extension/src/x-content.ts) |
 | Backend | [`worker/src/index.ts`](../worker/src/index.ts) | [`webapp/src/worker/index.ts`](../webapp/src/worker/index.ts) |
-| Input | A video's captions | Live recognized speech, or captions from the newer extension |
-| Analysis | One streamed Claude call for the supplied transcript | Calls per chunk; Claude first, Workers AI fallback |
-| Persistence | Cloudflare KV, keyed by video + transcript hash + prompt version | Cloudflare D1, shared by video and covered time buckets |
-| Delivery | NDJSON stream and cached results | Incremental card polling; transcript request waits for its chunk's processing |
+| Input | A video's captions | Live recognized speech, captions, or selected complete authored X post text |
+| Analysis | One streamed Claude call for the supplied transcript | Calls per video chunk or selected post; Claude first, Workers AI fallback |
+| Persistence | Cloudflare KV, keyed by video + transcript hash + prompt version | Cloudflare D1: video coverage/cards and separate post results |
+| Delivery | NDJSON stream and cached results | Video card polling; post request returns its completed result |
 | Default local port | 8787 | 8788 |
 
 The [newer app README](../webapp/README.md#chrome-extension) describes its extension as replacing the first extension for that app. Recent commits concentrate on this implementation. **Inference:** `webapp/` is the likely starting point for new product work. Whether both implementations must remain supported is still a maintainer decision.
@@ -67,8 +69,10 @@ The contract types are in [`webapp/src/types.ts`](../webapp/src/types.ts); routi
 | `GET /api/videos/:id/cards?after=<cursor>` | Up to 100 new stored cards per poll, cursor, recent chunk status, coverage estimate |
 | `GET /api/videos/:id/coverage` | Merged bucket ranges, used to avoid resending captions |
 | `GET /api/videos/:id/language` | Detects and caches spoken language |
+| `POST /api/posts/analyze` | Validates a complete Portuguese public-post observation, analyzes its own text and saves a `complete` or `empty` result |
+| `GET /api/posts/results/:id` | Retrieves one saved post result by its opaque result id; no public post-history listing |
 
-Seven ordered [SQL migrations](../webapp/migrations/) define:
+Eight ordered [SQL migrations](../webapp/migrations/) define:
 
 | Table | Responsibility |
 | --- | --- |
@@ -80,19 +84,31 @@ Seven ordered [SQL migrations](../webapp/migrations/) define:
 | `daily_videos` | Tracks first analysis of each video on each UTC day and connection attribution |
 | `usage_daily` | Daily reserved/settled dollars and neurons |
 | `transcript_log` | Cleaned uploads and their outcomes for investigation |
+| `post_results` | Migration [`0008_posts.sql`](../webapp/migrations/0008_posts.sql): authored source metadata/text, successful cards or explicit empty outcome, opaque result id and analysis time |
 
-This is a shared-video system. There is no implemented user account or personal library. Sessions authorize ingestion for a video; they do not establish transcript provenance. The first accepted transcript for a covered bucket becomes the shared input even if another viewer would supply different text.
+Video ingestion is a shared-video system. There is no implemented user account or personal library. Sessions authorize ingestion for a video; they do not establish transcript provenance. The first accepted transcript for a covered bucket becomes the shared input even if another viewer would supply different text. Post requests create no video, session, coverage, transcript-log or public recent-history rows. Ticket 01 saves each successful post request separately; it does not yet look up compatible prior analyses.
 
 Cleanup for expired sessions, previous daily-video records, and old transcript-log rows runs when creating a session. `LOG_RETENTION_DAYS` applies to `transcript_log`; `chunks.segments` also retains accepted text, with no corresponding age-based deletion in this Worker. A retention change must account for both stores.
+
+### Trace the X detail-post slice
+
+1. [`x-content.ts`](../webapp/extension/src/x-content.ts) observes rendered articles, selects the permalink matching the individual page and extracts only its own text. Embedded quote cards, adjacent posts, media and surrounding controls are excluded. Written inline emoji and line breaks are retained. A truncated post waits for viewer expansion.
+2. The local Portuguese relevance gate combines the committed [`TopicScorer`](../shared/topics.ts) with conservative subject/assertion guards. It sends no requests. A recognized author header, matching author handle/permalink and a timestamp element are required, and observed protected markers suppress the action. Missing source information produces a notice rather than implying public status. These selectors are browser observations, not platform attestation; live validation remains required.
+3. A Lastro click re-reads the selected source and sends `PostSource` through the existing extension [`background.ts`](../webapp/extension/src/background.ts) API transport. The Worker validates identity, completeness/public-state declarations, text bounds and canonical publication timestamp without speech cleaning. Publication time can be null in the request contract.
+4. [`posts.ts`](../webapp/src/worker/posts.ts) supplies an authored-post extraction prompt and validates model units, including exact substring quote grounding and known graph nodes/roles. Claude is attempted first when configured and its shared daily dollar reservation succeeds; Workers AI uses the existing shared neuron cap. Unknown failed-call usage keeps its reservation. A malformed/truncated response or nonempty response with no grounded cards fails rather than becoming a saved empty result.
+5. [`index.ts`](../webapp/src/worker/index.ts) persists only successful results in `post_results` and returns `PostAnalysis`. The panel distinguishes loading, cards, explicit empty, and failure with Retry. Shared [`cardview.ts`](../webapp/src/web/cardview.ts) supplies intellectual context, opposing views, episodes and readings; post cards have no timeline fields or seek control. Interface labels follow the existing English/Portuguese selection. Closing removes the panel; there is no durable browser result archive.
+
+Post text and metadata remain untrusted client input. Exact grounding establishes that a displayed quote occurs in the supplied text, not that X attests the source or that the claim is true. `post_results` has no automatic expiry in this slice.
 
 ### Integration boundaries
 
 | Dependency | Where it connects | What to verify before changing it |
 | --- | --- | --- |
 | YouTube | IFrame player, page hooks/panel readers, Worker oEmbed/watch-page fetches | Playback clock, navigation/ad handling, missing captions, language metadata failures |
+| X rendered pages | [`x-content.ts`](../webapp/extension/src/x-content.ts), extension manifest/background transport | Selected-post identity, author/public/protected observations, own text/quote exclusion, truncation, DOM changes and inline placement |
 | Chrome speech/capture | Web transcriber, extension background/offscreen document | User gesture and permissions, language, interruption/restart, time alignment |
-| Anthropic | Both Workers; newer extraction in `factcheck.ts` | Structured output, streaming partial results, quote validation, provider failure, usage settlement |
-| Workers AI | Newer `factcheck.ts` | Alternative response shapes, truncation, neuron reservation, fallback exhaustion |
+| Anthropic | Both Workers; newer video extraction in `factcheck.ts`, authored-post extraction in `posts.ts` | Structured output, streaming partial video results, quote validation, provider failure, usage settlement |
+| Workers AI | Newer `factcheck.ts` and `posts.ts` | Alternative response shapes, truncation, neuron reservation, fallback exhaustion |
 | BCB and IBGE | [`shared/indicators.ts`](../shared/indicators.ts) | Indicator meaning/unit, period selection, comparison tolerance, missing/slow data |
 | Cloudflare D1 | Live Worker and migrations | Uniqueness, concurrency, failure recovery, ordering/cursors, data migration |
 | Cloudflare KV | Original Worker | Cache compatibility, prompt version, counters and pending keys |
@@ -116,6 +132,8 @@ Important difference: original KV spending/daily/pending counters use read-then-
 | Add intellectual context or an opposing view | [`shared/kg.json`](../shared/kg.json), [`kg.ts`](../shared/kg.ts), [`stance.ts`](../shared/stance.ts) | Both implementations; model prompt context and rendered reading/opposition sections |
 | Change card kinds or supported indicators | [`shared/schema.ts`](../shared/schema.ts), [`indicators.ts`](../shared/indicators.ts), both model validators | Both implementations, stored cards, output schemas, fixtures |
 | Improve live extraction or add another model | [`webapp/src/worker/factcheck.ts`](../webapp/src/worker/factcheck.ts), live Worker budget/runner functions | Web app and newer extension |
+| Change authored-post extraction or outcomes | [`webapp/src/worker/posts.ts`](../webapp/src/worker/posts.ts), post routes in [`index.ts`](../webapp/src/worker/index.ts), [`types.ts`](../webapp/src/types.ts) | Post prompt/validation, storage contract and Worker request/response tests |
+| Change selected X post interaction | [`x-content.ts`](../webapp/extension/src/x-content.ts), shared [`cardview.ts`](../webapp/src/web/cardview.ts) | Local relevance/source observation, extraction, panel lifecycle and Chrome fixture checks |
 | Change original extraction/enrichment | [`shared/prompt.ts`](../shared/prompt.ts), root Worker, `PROMPT_VERSION` | Original stream/cache and demo; shared schema changes can also affect live output |
 | Change live card UI or popup timing | [`webapp/src/web/overlay.ts`](../webapp/src/web/overlay.ts), [`cardview.ts`](../webapp/src/web/cardview.ts), [`timeline.ts`](../webapp/src/web/timeline.ts) | Page and newer extension; original UI is a separate implementation |
 | Change transcript ingestion/retries | [`uploader.ts`](../webapp/src/web/uploader.ts), extension [`captions.ts`](../webapp/extension/src/captions.ts), live Worker | Different pacing and coverage expectations for speech/captions |
@@ -126,7 +144,7 @@ Existing useful test seams include `stanceView`, transcript parsing/quote locati
 
 ## Verified implementation state
 
-The working tree was clean before onboarding. Latest inspected change: merge of the newer extension/live-overlay work on 2026-11-10. The implementation is a substantial prototype with buildable surfaces and shared-domain regression checks. Production readiness and hosted service health remain unestablished by this assessment.
+The working tree was clean before the original onboarding inspection, which followed the newer extension/live-overlay merge on 2026-11-10. Ticket 01 subsequently added the authored-post path and deterministic tests described here. The implementation is a substantial prototype with buildable surfaces and shared-domain regression checks. Production readiness and hosted service health remain unestablished by this assessment.
 
 Run from the root unless the command names a workspace:
 
@@ -140,9 +158,14 @@ Run from the root unless the command names a workspace:
 | `pnpm run build:site` | Passed | Original demo site bundles |
 | `pnpm --filter lastro-live run build` | Passed | Live Worker and three web pages bundle |
 | `pnpm --filter lastro-live run ext:build` | Passed | Newer extension bundles |
-| `pnpm --filter lastro-live run db:local` | Seven migrations applied | Schema applies to a fresh local D1 database |
+| `pnpm --filter lastro-live run db:local` | First seven migrations applied during onboarding; ticket 01 migration 0008 subsequently applied | Local D1 schema migration; no remote database touched |
+| `pnpm --filter lastro-live run test:posts` | 11 passed, 0 failed | Five Worker/local-D1 tests and six isolated Chrome fixture/sample tests; controlled external inputs, no paid calls |
 
-Not exercised: browser playback/capture/extension installation, live inference/fallback, public data API availability, deployed D1/KV, production usage limits under load, and classifier retraining/parity. The existing evaluation does not re-run a model or test the live ingestion lifecycle. There is no checked-in CI workflow or dedicated live integration/browser test suite in this snapshot.
+Root/live typechecks, shared evaluation, newer app build and newer extension build were rerun successfully after ticket 01. The original extension/site build rows record onboarding checks. The post suite can be split into `test:posts:worker` and `test:posts:extension`. [`posts-worker.test.mjs`](../webapp/tests/posts-worker.test.mjs) exercises the live Worker with all migrations on fresh Miniflare D1 and a controlled external model transport; [`posts-extension.test.mjs`](../webapp/tests/posts-extension.test.mjs) uses installed Google Chrome in isolated headless fixture pages and controlled backend replies. It covers selected-source extraction, eligibility, loading/cards/empty/error/Retry, attribution and closable presentation.
+
+The [14-item Portuguese sample](../webapp/tests/fixtures/portuguese-posts.json) offered 4 of 6 relevant examples and none of 4 unrelated or 4 uncertain examples. The public-debt spending and judicial-independence examples were false negatives. This small hand-labeled sample informed conservative guards; it is not an independent quality benchmark.
+
+Not exercised: live X pages/public-state assumptions, browser playback/capture/extension installation, real provider inference/fallback, public data API availability, deployed D1/KV, production usage limits under load, and classifier retraining/parity. The shared evaluation does not re-run a model or test live ingestion. The post fixture suite is not evidence of ongoing X DOM compatibility or live extraction quality. There is no checked-in CI workflow in this snapshot.
 
 ## Gaps and decisions to keep visible
 
@@ -158,6 +181,8 @@ Not exercised: browser playback/capture/extension installation, live inference/f
 | Trust and retention need explicit product policy | Video-bound public uploads, first-claim coverage, shared history, retained chunk text, and partial-result behavior affect integrations and moderation. Existing docs acknowledge invented-transcript risk. |
 | Budget bookkeeping has limits | Live code acknowledges that a failed Claude call with no saved cards can cost money while its reservation is refunded. KV counters have separate concurrency limitations. A configured cap alone is not evidence of an absolute billing ceiling. |
 | Training is not reproducible from tracked files alone | Classifier raw text is intentionally ignored; parity reads `data/classifier/raw/*`. `topics:train` also assumes a Unix-style virtualenv Python path. Runtime scoring uses the committed model. |
+| X public-state assumptions need live evidence | Ticket 01 requires complete recognized source metadata and skips known protected markers, but this browser observation is not platform attestation. Deterministic fixtures do not verify real X markup or public status. |
+| Post integration is the first slice only | Each successful post request is stored separately; reuse/version matching, historical official comparisons and feed surfaces remain subsequent approved tickets. Do not infer those behaviors from the detail-post checks. |
 
 No roadmap or new architecture decision is implied by this list. It separates known implementation facts from choices that require a maintainer.
 

@@ -240,6 +240,16 @@ pnpm wrangler d1 execute lastro-live --remote --command "DELETE FROM cards WHERE
 
 ## Known limits
 
+### X post context (first POC slice)
+
+The newer extension also offers **Lastro** on a relevant Portuguese post's individual `x.com/<handle>/status/<id>` page. The local gate runs without network requests; only a click submits the selected post's own complete written text. Quoted posts, surrounding replies and media are excluded. Expand truncated posts on X first. Results appear in a closable panel below the post, with attributed quotes, graph context, opposing views and readings. Empty results and errors with Retry are distinct. Numerical claims remain unchecked in this slice; shared-result lookup and the other X surfaces are subsequent tickets.
+
+The extractor requires a recognized author header, matching handle/permalink and timestamp element, and skips observed protected-account markers. Missing source information produces an unavailable-source notice. These are **browser observations, not platform attestations**. The selectors and protected-state assumptions have deterministic fixture coverage but still need live X validation. The conservative gate can miss relevant posts: the small 14-item Portuguese sample offers 4 of 6 relevant posts and none of its 8 unrelated/uncertain examples. That sample is a sanity check, not a quality benchmark.
+
+`POST /api/posts/analyze` accepts the `PostSource` contract in `src/types.ts` and returns a `PostAnalysis` with `complete` or `empty` status. Failed requests return an error and are never saved as empty. `GET /api/posts/results/:id` retrieves a saved result by its opaque id. Migration `0008_posts.sql` stores these results independently of videos, coverage and public recent history. Authored text is preserved rather than speech-cleaned; returned quotes must be exact substrings. The post route shares the existing daily Claude/Workers AI spending limits and provider order. Unknown failed-call charges keep their reservations. No paid calls are used by the tests.
+
+Run `pnpm --filter lastro-live run test:posts` from the repository root (or use `test:posts:worker` / `test:posts:extension` separately). The Worker checks use Miniflare with all migrations on fresh local D1 and a controlled external model transport; the extension checks use isolated headless Google Chrome and UTF-8 page fixtures, with controlled backend responses. Install desktop Chrome for the fixture checks. The normal `ext:build` includes the X content script; `db:local` applies the new migration locally. Do not treat these fixtures as evidence of live X DOM compatibility or real model extraction quality.
+
 - **Desktop Chrome only for listening.** Other browsers can still read cards that are already saved.
 - **The video has to play in real time** for its transcript to be built, and only the parts that actually played get cards.
 - **Accuracy depends on Chrome's speech recognition.** It is weaker than captions on names and numbers. Chrome sends the audio to its recognition service.

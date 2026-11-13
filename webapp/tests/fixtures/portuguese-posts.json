@@ -1,0 +1,16 @@
+[
+  { "label": "relevant", "text": "Juros altos reduzem o investimento no Brasil." },
+  { "label": "relevant", "text": "O Banco Central mantém a Selic em 15% para controlar a inflação no Brasil." },
+  { "label": "relevant", "text": "A reforma tributária reduz a desigualdade e melhora a distribuição de renda." },
+  { "label": "relevant", "text": "O aumento da dívida pública eleva os gastos do governo com juros." },
+  { "label": "relevant", "text": "O investimento público em infraestrutura gera empregos e estimula a economia." },
+  { "label": "relevant", "text": "A independência do Judiciário é essencial para limitar o poder do Executivo." },
+  { "label": "unrelated", "text": "Hoje o meu time venceu o campeonato de futebol." },
+  { "label": "unrelated", "text": "Inflação de gols no jogo de hoje, que partida incrível!" },
+  { "label": "unrelated", "text": "Fiz um bolo de chocolate delicioso para o aniversário da minha irmã." },
+  { "label": "unrelated", "text": "A economia de bateria do meu celular está excelente nesta viagem." },
+  { "label": "uncertain", "text": "Juros altos reduzem o investimento no Brasil?" },
+  { "label": "uncertain", "text": "Banco Central, inflação, juros, PIB e dívida pública." },
+  { "label": "uncertain", "text": "A política econômica do governo." },
+  { "label": "uncertain", "text": "Bom dia! Vamos conversar sobre economia e política?" }
+]

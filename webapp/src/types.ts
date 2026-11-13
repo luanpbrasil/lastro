@@ -27,6 +27,27 @@ export interface FactCheck {
 export type CheckedCard = Omit<Card, "modelQuote"> & { headline?: string; check: FactCheck | null };
 export type StoredCard = CheckedCard & { id: number };
 
+/** Browser-observed public source; this is not platform attestation. */
+export interface PostSource {
+  postId: string;
+  url: string;
+  author: string;
+  handle: string;
+  publishedAt: string | null;
+  text: string;
+  lang: "pt";
+  visibility: "public";
+  complete: true;
+}
+export type PostCard = Omit<CheckedCard, "seg" | "startMs" | "matchScore">;
+export interface PostAnalysis {
+  id: string;
+  status: "complete" | "empty";
+  source: PostSource;
+  cards: PostCard[];
+  analysedAt: number;
+}
+
 export interface TranscriptRequest {
   session: string;
   /** BCP 47 tag of the captions, or the one speech recognition is set to */

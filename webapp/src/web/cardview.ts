@@ -2,7 +2,7 @@ import { INDICATOR_DEFS } from "../../../shared/indicators";
 import type { Indicator } from "../../../shared/schema";
 import { stanceView } from "../../../shared/stance";
 import { fmtTime } from "../../../shared/transcript";
-import type { StoredCard } from "../types";
+import type { PostCard, StoredCard } from "../types";
 import { intlLocale, locale, t } from "./i18n";
 
 /**
@@ -113,9 +113,10 @@ function section(label: string, ...body: (string | Node)[]): HTMLElement {
   return r;
 }
 
-function factBlock(card: StoredCard): HTMLElement | null {
+function factBlock(card: StoredCard | PostCard): HTMLElement | null {
   if (card.kind !== "fact") return null;
   const official = card.check?.official;
+  if (!("startMs" in card) && !official) return section(t("card.official"), el("p", "muted", t("post.unchecked")));
   if (!card.indicator) return card.claimed_value !== null ? section(t("card.official"), el("p", "muted", t("card.notChecked"))) : null;
   if (!official) return section(t("card.official"), el("p", "muted", t("card.officialMissing")));
   const indicator = card.indicator;
@@ -151,16 +152,18 @@ function factBlock(card: StoredCard): HTMLElement | null {
  * The full card, in reading order: what was said (paraphrase and exact quote), the idea behind it, the official
  * figure, who disagrees, whether it was tested, what to read. Navigation around it is the overlay's.
  */
-export function fullCard(card: StoredCard, onSeek: (ms: number) => void, mentions = 1): HTMLElement {
+export function fullCard(card: StoredCard | PostCard, onSeek?: (ms: number) => void, mentions = 1): HTMLElement {
   const box = el("article", "ov-card");
   const meta = el("div", "ov-meta");
   meta.append(el("span", `kind ${card.kind}`, kindLabel(card.kind)));
   if (mentions > 1) meta.append(el("span", "ov-mentions", t("card.mentions", { n: mentions })));
-  const time = el("button", "ov-time", `▶ ${fmtTime(card.startMs)}`);
-  time.type = "button";
-  time.title = t("card.seek");
-  time.onclick = () => onSeek(card.startMs);
-  meta.append(time);
+  if ("startMs" in card && onSeek) {
+    const time = el("button", "ov-time", `▶ ${fmtTime(card.startMs)}`);
+    time.type = "button";
+    time.title = t("card.seek");
+    time.onclick = () => onSeek(card.startMs);
+    meta.append(time);
+  }
   box.append(meta);
   // The headline leads; the paraphrase says it in full. Older cards have only the paraphrase.
   if (card.headline) box.append(el("h4", "ov-title", card.headline), el("p", "ov-lead", card.paraphrase));

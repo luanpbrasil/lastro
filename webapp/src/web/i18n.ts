@@ -9,6 +9,14 @@ export const locale: Locale = (navigator.languages?.[0] ?? navigator.language ??
 export const intlLocale = locale === "pt" ? "pt-BR" : "en-US";
 
 const en = {
+  "post.loading": "Analysing this post…",
+  "post.empty": "No relevant claims were found in this post.",
+  "post.failed": "This post could not be analysed.",
+  "post.retry": "Retry",
+  "post.expand": "Expand the full post on X before analysing it.",
+  "post.unknown": "Source information is unavailable; this post cannot be analysed.",
+  "post.by": "Post by {author} (@{handle})",
+  "post.unchecked": "Not checked: no official comparison is available for this claim.",
   "page.title": "Lastro",
   "brand.label": "Lastro",
   "form.label": "YouTube link",
@@ -123,6 +131,14 @@ const en = {
 };
 
 const pt: typeof en = {
+  "post.loading": "Analisando este post…",
+  "post.empty": "Nenhuma afirmação relevante foi encontrada neste post.",
+  "post.failed": "Não foi possível analisar este post.",
+  "post.retry": "Tentar de novo",
+  "post.expand": "Expanda o post completo no X antes de analisar.",
+  "post.unknown": "Informações da fonte indisponíveis; não é possível analisar este post.",
+  "post.by": "Post de {author} (@{handle})",
+  "post.unchecked": "Não conferido: não há comparação oficial disponível para esta afirmação.",
   "page.title": "Lastro",
   "brand.label": "Lastro",
   "form.label": "Link do YouTube",

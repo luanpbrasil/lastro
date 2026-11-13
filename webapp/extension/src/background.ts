@@ -11,13 +11,14 @@ import type { ApiRequest, ApiResult, FromContent, FromOffscreen, ListenReply, To
 
 const BASE = __WORKER_BASE__;
 const API_PATH = /^\/api\/videos\/[A-Za-z0-9_-]{11}\/(sessions|transcript|cards(\?after=\d{1,10})?|language|coverage)$/;
+const POST_API_PATH = /^\/api\/posts\/(analyze|results\/[0-9a-f-]{36})$/;
 const OFFSCREEN = "offscreen.html";
 const WATCH = /^https:\/\/www\.youtube\.com\/watch\?/;
 
 // ---- the Worker ------------------------------------------------------------------------
 
 async function api(msg: ApiRequest): Promise<ApiResult> {
-  if (!API_PATH.test(msg.path) || (msg.method !== "GET" && msg.method !== "POST")) return { status: 400, data: { error: "bad_request" } };
+  if ((!API_PATH.test(msg.path) && !POST_API_PATH.test(msg.path)) || (msg.method !== "GET" && msg.method !== "POST")) return { status: 400, data: { error: "bad_request" } };
   try {
     const r = await fetch(`${BASE}${msg.path}`, msg.method === "POST" ? { method: "POST", headers: { "content-type": "application/json" }, body: msg.body ?? "{}" } : {});
     return { status: r.status, data: await r.json().catch(() => null) };

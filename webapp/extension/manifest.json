@@ -6,11 +6,12 @@
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp1vXPXRcuVFLqRXYhOHJtcQGY4HLvo0OVWm+fEbvMl/2h8GoSb35v3lLtI2hoOWCfA82EkETznabLjL+FieyAjkHiKMACWjrxhFcQYkZbILOPlJV2dwhjw5YKEmqCwDjd310j48t6KB5+YhH4J4Mo0lQepIj2DOfBqRTN0CZ/18URwqY2TrboeetRvMt/KAdWp7zWKiIIVgxYrpf3k4ettpbLKqTB4SAaKV9Ck001ljtDqwkG3MEqucrlVy9BRLB04lm7Gb1VqPjoDs072hD09deAubXR+lKPkvVFTWdLWk5uB7XreE+r6kl/AWsc4OTKmuhpwodJsY8Tc4caDMA1wIDAQAB",
   "minimum_chrome_version": "116",
   "permissions": ["storage", "scripting", "tabCapture", "offscreen"],
-  "host_permissions": ["https://www.youtube.com/*"],
+  "host_permissions": ["https://www.youtube.com/*", "https://x.com/*"],
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [
     { "matches": ["https://www.youtube.com/*"], "js": ["hook.js"], "run_at": "document_start", "world": "MAIN" },
-    { "matches": ["https://www.youtube.com/*"], "js": ["content.js"], "run_at": "document_start" }
+    { "matches": ["https://www.youtube.com/*"], "js": ["content.js"], "run_at": "document_start" },
+    { "matches": ["https://x.com/*"], "js": ["x-content.js"], "run_at": "document_idle" }
   ],
   "action": {
     "default_title": "Lastro: listen to this video (for videos without captions)",
