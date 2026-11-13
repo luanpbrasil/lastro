@@ -1,5 +1,7 @@
 # Lastro
 
+**Working on the codebase?** Start with the [codebase guide](docs/codebase-guide.md) for the two implementations, verified status, and source map, then the [development workflow](docs/development-workflow.md). The instructions below describe the original extension and KV-backed Worker; the newer live app and its extension live in [`webapp/`](webapp/README.md).
+
 Context cards for economics videos on YouTube. While you watch, Lastro shows where each idea comes from (school of thought, thinkers, Brazilian episodes), who argues the opposite, what the official data says, and what to read next. It never says who is right.
 
 Hack Brasil 2026 · track: Acesso à educação.
