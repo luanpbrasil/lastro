@@ -13,8 +13,8 @@ const source = {
 const unit = { quote: "Juros altos reduzem o investimento no Brasil.", headline: "Juros e investimento", paraphrase: "A autora afirma que juros altos reduzem o investimento no Brasil.", kind: "theory", nodes: [{ id: "s_keynes", role: "echoes" }], indicator: null, claimed_value: null, period: null };
 const bundle = await build({ entryPoints: ["tests/post-worker-entry.ts"], bundle: true, write: false, format: "esm", platform: "browser" });
 
-async function harness(model, bindings = {}) {
-  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: bundle.outputFiles[0].text, compatibilityDate: "2026-11-01", compatibilityFlags: ["nodejs_compat"], bindings, d1Databases: ["DB"], serviceBindings: { MODEL: model } }));
+async function harness(model, bindings = {}, official = () => new Response("No fixture", { status: 503 })) {
+  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: bundle.outputFiles[0].text, compatibilityDate: "2026-11-01", compatibilityFlags: ["nodejs_compat"], bindings, d1Databases: ["DB"], serviceBindings: { MODEL: model }, outboundService: official }));
   const db = await mf.getD1Database("DB");
   for (const name of (await readdir("migrations")).filter(n => n.endsWith(".sql")).sort()) {
     const sql = await readFile(`migrations/${name}`, "utf8");
@@ -22,6 +22,220 @@ async function harness(model, bindings = {}) {
   }
   return { mf, db, post: (body = source, headers = {}) => mf.dispatchFetch("http://localhost/api/posts/analyze", { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) }) };
 }
+
+test("an explicit historical month takes precedence over publication and analysis dates", async () => {
+  const text = "No fim de janeiro de 2020, a meta da Selic no Brasil era 4,5%.";
+  // A mistaken model period must not override the authored date.
+  const fact = { ...unit, kind: "fact", quote: text, indicator: "selic_meta", claimed_value: 4.5, period: "2026-11" };
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] } }), {}, () => Response.json([
+    { data: "31/12/2019", valor: "4.5" }, { data: "31/01/2020", valor: "4.5" }, { data: "01/11/2026", valor: "15" },
+  ]));
+  try {
+    const result = await (await post({ ...source, text })).json();
+    assert.equal(result.cards[0].check?.verdict, "confere");
+    assert.equal(result.cards[0].check.official.value, 4.5);
+    assert.equal(result.cards[0].check.official.date, "2020-01-31");
+    assert.equal(result.cards[0].check.official.source, "Banco Central (SGS 432)");
+    assert.equal(result.cards[0].check.official.vintage, "current-series");
+  } finally { await mf.dispose(); }
+});
+
+test("today uses publication day before chart thinning, never a later day in the same month", async () => {
+  const text = "Hoje a meta da Selic no Brasil é 2%.";
+  const fact = { ...unit, kind: "fact", quote: text, indicator: "selic_meta", claimed_value: 2, period: null };
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] } }), {}, () => Response.json([
+    { data: "31/12/2020", valor: "2" }, { data: "15/01/2021", valor: "2" },
+    { data: "29/01/2021", valor: "9" }, { data: "31/12/2021", valor: "12" },
+  ]));
+  try {
+    const result = await (await post({ ...source, text, publishedAt: "2021-01-15T12:00:00.000Z" })).json();
+    assert.equal(result.cards[0].check?.verdict, "confere");
+    assert.equal(result.cards[0].check.official.date, "2021-01-15");
+    assert.deepEqual(result.cards[0].check.official.series, [
+      { date: "2020-12-31", value: 2 }, { date: "2021-01-15", value: 2 },
+    ]);
+  } finally { await mf.dispose(); }
+});
+
+test("uncertain dates and unsupported comparisons retain context without a numerical verdict", async () => {
+  let fact;
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] } }), {}, () => Response.json([
+    { data: "01/01/2020", valor: "4.5" }, { data: "31/01/2020", valor: "4.5" }, { data: "28/02/2020", valor: "4.5" },
+  ]));
+  try {
+    const examples = [
+      { text: "No fim de janeiro de 2020 ou fevereiro de 2020, a Selic era 4,5%." },
+      { text: "Em janeiro de 2020 a Selic era 4,5%." },
+      { text: "Hoje a Selic é 4,5%.", publishedAt: null },
+      { text: "Em janeiro de 2020 a Selic era 4,5%.", publishedAt: null },
+      { text: "A Selic era 4,5%.", period: "2020-01" },
+      { text: "Em janeiro a Selic era 4,5%. Hoje os juros importam." },
+      { text: "Em janeiro de 2020 o imposto era 4,5%.", indicator: null },
+      { text: "Em janeiro de 2020 a Selic deveria ser 4,5%.", kind: "theory" },
+      { text: "Em janeiro de 2020 a Selic chegará a 4,5%.", kind: "forecast" },
+      { text: "Hoje o Focus prevê Selic de 4,5%.", indicator: "focus_selic" },
+      { text: "Em fevereiro de 2021 a Selic era 4,5%." },
+      { text: "Em janeiro de 2020 a Selic era 4,5%.", publishedAt: "2020-01-15T12:00:00.000Z" },
+      { text: "Em 2020 o IPCA mensal foi 4,5%.", indicator: "ipca_mensal" },
+      { text: "Hoje o IPCA mensal é 4,5%.", indicator: "ipca_mensal" },
+      { text: "Hoje o PIB no trimestre cresceu 4,5%.", indicator: "pib_tri" },
+      { text: "Hoje a Selic era 4,5%.", publishedAt: "2020-02-30T12:00:00.000Z", badRequest: true },
+      { text: "Em 30/02/2020 a Selic era 4,5%." },
+      { text: "Em 2020-13 a inflação foi 4,5%.", indicator: "ipca_mensal" },
+      { text: "Hoje a Selic é 4,5%.", publishedAt: "2099-01-01T12:00:00.000Z" },
+    ];
+    for (const example of examples) {
+      fact = { ...unit, kind: "fact", indicator: "selic_meta", claimed_value: 4.5, period: null, ...example, quote: example.text };
+      const reply = await post({ ...source, text: example.text, ...(Object.hasOwn(example, "publishedAt") ? { publishedAt: example.publishedAt } : {}) });
+      if (example.badRequest) { assert.equal(reply.status, 400); continue; }
+      const result = await reply.json();
+      assert.equal(result.status, "complete", example.text);
+      assert.equal(result.cards[0].check, null, example.text);
+      assert.deepEqual(result.cards[0].nodes, unit.nodes);
+    }
+  } finally { await mf.dispose(); }
+});
+
+test("qualified dates and unresolved relative intervals remain unchecked", async () => {
+  let fact;
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] }, usage: { neurons: 1 } }), {}, req => Response.json(
+    req.url.includes("sgs.433/") ? [{ data: "01/01/2020", valor: "0.21" }] : [
+      { data: "15/01/2020", valor: "4.5" }, { data: "31/01/2020", valor: "4.5" }, { data: "15/01/2021", valor: "4.5" },
+    ]));
+  try {
+    const examples = [
+      "Antes de 15/01/2020 a Selic era 4,5%.",
+      "Antes de janeiro de 2020 o IPCA mensal foi 0,21%.",
+      "Hoje faz um ano que a Selic estava em 4,5%.",
+      "Depois de 15/01/2020 a Selic era 4,5%.",
+      "Desde 15/01/2020 a Selic está em 4,5%.",
+      "Até 15/01/2020 a Selic era 4,5%.",
+      "Após 15/01/2020 a Selic era 4,5%.",
+      "A partir de 15/01/2020 a Selic era 4,5%.",
+      "Hoje lembro que há um ano a Selic era 4,5%.",
+      "Hoje lembro que um ano atrás a Selic era 4,5%.",
+      "Hoje completa um ano que a Selic estava em 4,5%.",
+      "Hoje lembramos que na semana passada a Selic era 4,5%.",
+      "Hoje lembramos que na semana anterior a Selic era 4,5%.",
+      "Hoje lembramos que anteontem a Selic era 4,5%.",
+      "Hoje lembramos que nas semanas passadas a Selic era 4,5%.",
+      "Hoje lembramos que nas semanas anteriores a Selic era 4,5%.",
+      "Hoje lembramos que na semana seguinte a Selic era 4,5%.",
+      "Hoje a Selic está prevista em 4,5% na próxima semana.",
+      "Hoje a Selic está prevista em 4,5% nos próximos dias.",
+      "Hoje a Selic está prevista em 4,5% amanhã.",
+      "Hoje lembramos que no mês retrasado a Selic era 4,5%.",
+      "No início de janeiro de 2020 a Selic era 4,5%, no fim de um ciclo.",
+      "No fim de um mandato, em janeiro de 2020 a Selic era 4,5%.",
+      "No meio de janeiro de 2020 o IPCA mensal foi 0,21%.",
+    ];
+    const outcomes = [];
+    for (const text of examples) {
+      fact = { ...unit, kind: "fact", quote: text, indicator: text.includes("IPCA") ? "ipca_mensal" : "selic_meta", claimed_value: text.includes("IPCA") ? 0.21 : 4.5 };
+      const result = await (await post({ ...source, text, publishedAt: "2021-01-15T12:00:00.000Z" })).json();
+      assert.equal(result.status, "complete", text);
+      assert.deepEqual(result.cards[0].nodes, unit.nodes);
+      outcomes.push({ text, check: result.cards[0].check });
+    }
+    assert.deepEqual(outcomes, examples.map(text => ({ text, check: null })));
+  } finally { await mf.dispose(); }
+});
+
+test("a grounded quote cannot discard a date qualifier from the source", async () => {
+  const fact = { ...unit, kind: "fact", quote: "15/01/2020 a Selic era 4,5%.", indicator: "selic_meta", claimed_value: 4.5 };
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] }, usage: { neurons: 1 } }), {}, () => Response.json([
+    { data: "15/01/2020", valor: "4.5" },
+  ]));
+  try {
+    for (const text of [
+      "Antes de 15/01/2020 a Selic era 4,5%.",
+      "Na semana anterior a 15/01/2020 a Selic era 4,5%.",
+      "Na semana passada, antes do dia 15/01/2020 a Selic era 4,5%.",
+      "Anteontem eu lembrava: em 15/01/2020 a Selic era 4,5%.",
+    ]) {
+      const result = await (await post({ ...source, text })).json();
+      assert.equal(result.status, "complete");
+      assert.equal(result.cards[0].check, null, text);
+    }
+  } finally { await mf.dispose(); }
+});
+
+test("missing, stale, future and failed official observations never become numerical verdicts", async () => {
+  let rows = [];
+  let unavailable = false;
+  let fact;
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] }, usage: { neurons: 1 } }), {}, () => unavailable ? new Response("offline", { status: 503 }) : Response.json(rows));
+  try {
+    for (const [index, example] of [
+      { text: "No fim de janeiro de 2020 a Selic era 4,5%.", rows: [{ data: "01/01/2020", valor: "4.5" }] },
+      { text: "Hoje a Selic é 4,5%.", rows: [{ data: "29/01/2021", valor: "4.5" }] },
+      { text: "Hoje a Selic é 4,5%.", rows: [{ data: "01/01/2021", valor: "4.5" }] },
+      { text: "Em 15/01/2020 a Selic era 4,5%.", rows: [], unavailable: true },
+      { text: "Em janeiro de 2020 o IPCA mensal foi 4,5%.", indicator: "ipca_mensal", rows: [{ data: "01/02/2020", valor: "4.5" }] },
+    ].entries()) {
+      rows = example.rows;
+      unavailable = example.unavailable ?? false;
+      fact = { ...unit, kind: "fact", quote: example.text, indicator: example.indicator ?? "selic_meta", claimed_value: 4.5 };
+      const result = await (await post({ ...source, text: `${example.text}\nExemplo ${index}.`, publishedAt: "2021-01-15T12:00:00.000Z" })).json();
+      assert.equal(result.status, "complete");
+      assert.equal(result.cards[0].check, null, example.text);
+    }
+  } finally { await mf.dispose(); }
+});
+
+test("numeric match and difference use the existing tolerance and persist with the official series", async () => {
+  let text;
+  let claimed;
+  const { mf, post } = await harness(() => Response.json({ response: { units: [{ ...unit, kind: "fact", quote: text, indicator: "selic_meta", claimed_value: claimed }] }, usage: { neurons: 1 } }), {}, () => Response.json([
+    { data: "31/12/2019", valor: "4.5" }, { data: "15/01/2020", valor: "4.5" },
+  ]));
+  try {
+    for (const [value, verdict] of [[4.4, "confere"], [3, "diferente"]]) {
+      claimed = value;
+      text = `Em 15/01/2020 a meta da Selic no Brasil era ${value}%.`;
+      const result = await (await post({ ...source, text })).json();
+      assert.equal(result.cards[0].check?.verdict, verdict);
+      assert.equal(result.cards[0].check.official.value, 4.5);
+      assert.deepEqual(await (await mf.dispatchFetch(`http://localhost/api/posts/results/${result.id}`)).json(), result);
+      assert.deepEqual(await (await post({ ...source, text })).json(), result);
+    }
+  } finally { await mf.dispose(); }
+});
+
+test("explicit day, month, quarter and year-end use the requested historical observations", async () => {
+  let fact;
+  const { mf, post } = await harness(() => Response.json({ response: { units: [fact] } }), {}, req => {
+    const url = new URL(req.url);
+    if (url.pathname.includes("/agregados/6381/")) {
+      // Only the requested historical period has this fixture; latest-N is not historical evidence.
+      return url.pathname.includes("/periodos/201901-202001/") ? Response.json([{ resultados: [{ series: [{ serie: { "202001": "11.2" } }] }] }]) : new Response("missing period", { status: 404 });
+    }
+    if (url.hostname === "servicodados.ibge.gov.br") {
+      return url.pathname.includes("/periodos/201901-202001/") ? Response.json([{ resultados: [{ series: [{ serie: { "202001": "-1.5" } }] }] }]) : new Response("missing period", { status: 404 });
+    }
+    return Response.json([
+      { data: "31/12/2019", valor: "4.5" }, { data: "01/01/2020", valor: "0.21" },
+      { data: "15/01/2020", valor: "4.5" }, { data: "31/01/2020", valor: "4.5" },
+      { data: "31/12/2020", valor: "2" },
+    ]);
+  });
+  try {
+    for (const example of [
+      { text: "Em 15/01/2020 a Selic era 4,5%.", indicator: "selic_meta", value: 4.5, date: "2020-01-15" },
+      { text: "Em 2020-01-15 a Selic era 4,5%.", indicator: "selic_meta", value: 4.5, date: "2020-01-15" },
+      { text: "No fim de 2020 a Selic era 2%.", indicator: "selic_meta", value: 2, date: "2020-12-31" },
+      { text: "Em janeiro de 2020 o IPCA mensal foi 0,21%.", indicator: "ipca_mensal", value: 0.21, date: "2020-01-01" },
+      { text: "Em 2020-01 a taxa de desemprego foi 11,2%.", indicator: "desemprego", value: 11.2, date: "2020-01-01" },
+      { text: "No 1º trimestre de 2020 o PIB caiu 1,5%.", indicator: "pib_tri", value: -1.5, date: "2020-01-01" },
+    ]) {
+      fact = { ...unit, kind: "fact", quote: example.text, indicator: example.indicator, claimed_value: example.value, period: null };
+      const result = await (await post({ ...source, text: example.text })).json();
+      assert.equal(result.cards[0].check?.verdict, "confere", example.text);
+      assert.equal(result.cards[0].check.official.date, example.date);
+      assert.equal(result.cards[0].check.official.value, example.value);
+    }
+  } finally { await mf.dispose(); }
+});
 
 test("another viewer reuses a successful public-post result when providers are unavailable", async () => {
   let available = true;

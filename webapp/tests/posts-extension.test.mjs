@@ -7,9 +7,9 @@ import { readFile } from "node:fs/promises";
 const ownText = "Juros altos reduzem o investimento no Brasil.";
 const card = { quote: ownText, paraphrase: "A autora afirma que juros altos reduzem o investimento no Brasil.", kind: "theory", nodes: [{ id: "s_keynes", role: "echoes" }], indicator: null, claimed_value: null, period: null, check: null };
 const bundle = await build({ entryPoints: ["extension/src/x-content.ts"], bundle: true, write: false, format: "iife", loader: { ".css": "text" } });
-function fixture({ text = ownText, lock = false, incomplete = false, metadata = true, quote = true, lang = "pt" } = {}) {
+function fixture({ text = ownText, lock = false, incomplete = false, metadata = true, quote = true, lang = "pt", timestamp = "2026-11-01T12:00:00.000Z" } = {}) {
   return `<html lang="pt"><head><meta charset="utf-8"></head><body><main><article data-testid="tweet">
-    ${metadata ? `<div data-testid="User-Name"><a href="/ana">Ana</a><a href="/ana">@ana</a>${lock ? '<svg aria-label="Conta protegida" data-testid="icon-lock"></svg>' : ''}</div><a href="/ana/status/1234567890123456789"><time datetime="2026-11-01T12:00:00.000Z">1 nov</time></a>` : ''}
+    ${metadata ? `<div data-testid="User-Name"><a href="/ana">Ana</a><a href="/ana">@ana</a>${lock ? '<svg aria-label="Conta protegida" data-testid="icon-lock"></svg>' : ''}</div><a href="/ana/status/1234567890123456789"><time datetime="${timestamp}">1 nov</time></a>` : ''}
     <div data-testid="tweetText" lang="${lang}">${text}</div>
     ${incomplete ? '<button data-testid="tweet-text-show-more-link">Mostrar mais</button>' : ''}
     ${quote ? '<div role="link" tabindex="0"><div data-testid="User-Name">Bruno</div><div data-testid="tweetText" lang="pt">O governo deveria cortar todos os impostos.</div></div>' : ''}
@@ -47,6 +47,36 @@ test("the selected public post opens attributed inline context only after a clic
     assert.equal(await page.locator(".ov-time").count(), 0);
     await page.getByRole("button", { name: "Fechar", exact: true }).click();
     assert.equal(await page.getByText("A ideia por trás", { exact: true }).count(), 0);
+  } finally { await browser.close(); }
+});
+
+test("a post comparison displays the official period, source, series and historical revision limitation without playback", async () => {
+  const { browser, page } = await pageFor();
+  try {
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    const comparison = { ...card, kind: "fact", indicator: "selic_meta", claimed_value: 4.5, check: { verdict: "confere", official: {
+      label: "Meta da Selic", unit: "% a.a.", source: "Banco Central (SGS 432)", sourceUrl: "https://www3.bcb.gov.br/sgspub/",
+      value: 4.5, date: "2020-01-31", periodLabel: "31/01/2020", vintage: "current-series",
+      series: [{ date: "2019-12-31", value: 5 }, { date: "2020-01-31", value: 4.5 }],
+    } } };
+    await page.evaluate(card => window.reply({ status: 200, data: { id: "checked", status: "complete", source: JSON.parse(window.requests[0].body), cards: [card], analysedAt: 1 } }), comparison);
+    await page.locator(".verdict.confere").waitFor();
+    assert.match(await page.locator(".fact-block").innerText(), /4,5% ao ano/);
+    assert.match(await page.locator(".fact-block").innerText(), /31 jan 2020/);
+    assert.match(await page.locator(".fact-block").innerText(), /citado no post: 4,5% ao ano/);
+    assert.equal(await page.getByRole("link", { name: "Fonte: Banco Central (SGS 432)" }).getAttribute("href"), "https://www3.bcb.gov.br/sgspub/");
+    assert.equal(await page.locator("svg.spark path.spark-line").count(), 1);
+    assert.match(await page.locator(".fact-block").innerText(), /Série consultada agora; pode conter revisões/);
+    assert.match(await page.locator(".fact-block").innerText(), /não comprova o dado disponível na publicação/);
+    assert.equal(await page.locator(".ov-time").count(), 0);
+  } finally { await browser.close(); }
+});
+
+test("impossible observed publication dates stay missing instead of normalizing to another day", async () => {
+  const { browser, page } = await pageFor({ timestamp: "2026-02-30T12:00:00.000Z" });
+  try {
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    assert.equal(await page.evaluate(() => JSON.parse(window.requests[0].body).publishedAt), null);
   } finally { await browser.close(); }
 });
 

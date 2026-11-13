@@ -57,7 +57,11 @@ function observe(article: HTMLElement): Observation {
   if (own(article, '[data-testid="tweet-text-show-more-link"]').length) return { state: "expand" };
   if (text.length > 10_000) return { state: "unknown" };
   const timestamp = time.getAttribute("datetime");
-  const publishedAt = timestamp && Number.isFinite(Date.parse(timestamp)) ? new Date(timestamp).toISOString() : null;
+  // X emits UTC ISO datetimes. Round-trip the date instead of letting Date.parse
+  // normalize impossible days (e.g. 30 February) into historical evidence.
+  const canonical = timestamp && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(timestamp)
+    ? timestamp.includes(".") ? timestamp : timestamp.replace(/Z$/, ".000Z") : null;
+  const publishedAt = canonical && Number.isFinite(Date.parse(canonical)) && new Date(canonical).toISOString() === canonical ? canonical : null;
   return { state: "ready", source: { postId: match[2], url: `https://x.com/${handle}/status/${match[2]}`, author, handle, publishedAt, text, lang: "pt", visibility: "public", complete: true } };
 }
 

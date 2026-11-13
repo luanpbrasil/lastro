@@ -5,6 +5,7 @@ import { CLAUDE_MODEL, factCheckChunk, factCheckWithClaude, MAX_NEURONS_PER_CALL
 import { detectLanguage } from "./language";
 import { cleanSpeech, cleanTitle } from "./sanitize";
 import { parsePost, postWithClaude, postWithWorkersAI } from "./posts";
+import { comparePostCard } from "./post-comparisons";
 import type { PostAnalysis, PostCard } from "../types";
 import { claimPost, releasePost, savePost } from "./post-cache";
 
@@ -476,6 +477,7 @@ async function analysePost(req: Request, env: Env): Promise<Response> {
         return refuse("unavailable", 503);
       }
     }
+    cards = await Promise.all(cards.map(card => comparePostCard(card, source)));
     const result: PostAnalysis = { id: crypto.randomUUID(), status: cards.length ? "complete" : "empty", source, cards, analysedAt: Date.now() };
     if (!await savePost(env.DB, outcome.claim, result)) return postInProgress();
     return json(result);

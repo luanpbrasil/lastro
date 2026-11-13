@@ -131,11 +131,16 @@ function factBlock(card: StoredCard | PostCard): HTMLElement | null {
     const v = el("div", "factline");
     const badge = el("span", `verdict ${verdict}`);
     badge.append(el("span", "v-icon", verdict === "confere" ? "✓" : "≠"), document.createTextNode(t(`verdict.${verdict}`)));
-    v.append(badge, el("span", "muted", t("card.quoted", { v: fmtValue(card.claimed_value, official.unit) })));
+    v.append(badge, el("span", "muted", t("startMs" in card ? "card.quoted" : "post.quoted", { v: fmtValue(card.claimed_value, official.unit) })));
     body.append(v);
   }
   if (official.series && official.series.length > 1) {
     body.append(sparkline(official.series, official.date, (v) => fmtValue(v, official.unit), (d) => fmtDate(d, freq, true)));
+  }
+  if (!("startMs" in card) && official.vintage === "current-series") {
+    if (indicator === "desemprego") body.append(el("p", "muted", t("post.rollingQuarter", { when })));
+    if (indicator === "pib_tri") body.append(el("p", "muted", t("post.quarterChange")));
+    body.append(el("p", "muted", t("post.currentSeries")));
   }
   // Only official https links: never let stored data turn into a javascript: or other link.
   if (/^https:\/\/[^\s]+$/.test(official.sourceUrl)) {
