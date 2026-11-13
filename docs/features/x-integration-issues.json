@@ -1,0 +1,72 @@
+{
+  "repo": "luanpbrasil/lastro",
+  "branch": "feat/add-twitter-integration",
+  "model": "gpt-6-astra",
+  "base": "main",
+  "spec": {
+    "key": "spec",
+    "number": 2,
+    "url": "https://github.com/luanpbrasil/lastro/issues/2",
+    "title": "[Spec] X post context: Portuguese POC",
+    "path": "docs/features/x-integration-spec.md",
+    "blockedBy": []
+  },
+  "tickets": [
+    {
+      "key": "01",
+      "number": 3,
+      "url": "https://github.com/luanpbrasil/lastro/issues/3",
+      "title": "[X POC 01] Contextualize one Portuguese public post",
+      "path": "docs/features/x-integration-tickets/01-contextualize-one-post.md",
+      "blockedBy": []
+    },
+    {
+      "key": "02",
+      "number": 4,
+      "url": "https://github.com/luanpbrasil/lastro/issues/4",
+      "title": "[X POC 02] Reuse unchanged public-post results across viewers",
+      "path": "docs/features/x-integration-tickets/02-reuse-unchanged-results.md",
+      "blockedBy": [
+        3
+      ]
+    },
+    {
+      "key": "03",
+      "number": 5,
+      "url": "https://github.com/luanpbrasil/lastro/issues/5",
+      "title": "[X POC 03] Compare numerical claims for the post's relevant date",
+      "path": "docs/features/x-integration-tickets/03-date-aware-comparisons.md",
+      "blockedBy": [
+        3
+      ]
+    },
+    {
+      "key": "04",
+      "number": 6,
+      "url": "https://github.com/luanpbrasil/lastro/issues/6",
+      "title": "[X POC 04] Bring post context to home, search, and profile feeds",
+      "path": "docs/features/x-integration-tickets/04-all-x-surfaces.md",
+      "blockedBy": [
+        3
+      ]
+    }
+  ],
+  "nativeRelationships": [
+    {
+      "ticket": "01",
+      "configured": true
+    },
+    {
+      "ticket": "02",
+      "configured": true
+    },
+    {
+      "ticket": "03",
+      "configured": true
+    },
+    {
+      "ticket": "04",
+      "configured": true
+    }
+  ]
+}

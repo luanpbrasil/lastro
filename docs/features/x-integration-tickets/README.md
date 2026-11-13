@@ -4,6 +4,8 @@ Status: approved by the maintainer's overnight implementation request. GitHub pu
 
 Parent: [X post context: Portuguese POC](../x-integration-spec.md).
 
+Published parent spec: [#2](https://github.com/luanpbrasil/lastro/issues/2). Tickets: [01 / #3](https://github.com/luanpbrasil/lastro/issues/3), [02 / #4](https://github.com/luanpbrasil/lastro/issues/4), [03 / #5](https://github.com/luanpbrasil/lastro/issues/5), [04 / #6](https://github.com/luanpbrasil/lastro/issues/6). Each is labeled `ready-for-agent`; native sub-issue/blocking relationships and explicit body links were configured during publication.
+
 Implementation-agent preference: GPT-6 Astra (`gpt-6-astra`). The user authorized sequential execution in order **01, 02, 03, 04** on the existing feature branch, followed by push and one PR. Use fresh implementation context per ticket with pointers to the parent spec, selected ticket, and codebase guide. See [the overnight instructions](../../agents/x-overnight-run.md). Images/video remain feasibility research, outside this accepted text-post POC.
 
 | Ticket | Blocked by | Demoable behavior |

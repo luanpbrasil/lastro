@@ -75,6 +75,8 @@ The `.cmd` launcher avoids the PowerShell script-policy issue previously observe
 
 The launcher publishes/verifies the spec and four tickets first, so a missing manifest cannot silently skip GitHub setup. For a client-only preflight without publication or implementation, use `scripts\start-x-overnight.cmd --check`.
 
+The `--background` launcher mode runs a fresh non-interactive Astra coordinator, writing `.cache/x-overnight/coordinator.jsonl`, `.cache/x-overnight/coordinator-errors.log`, and `.cache/x-overnight/coordinator-final.md`. Launch only one coordinator for this shared working tree. If a run is already active, monitor its logs rather than starting the launcher again. The non-interactive session still persists a session id; no conversation is resumed or forked by default.
+
 If GitHub authorization is still needed, start it in the same VS Code terminal and complete the browser approval before running the launcher:
 
 ```powershell
