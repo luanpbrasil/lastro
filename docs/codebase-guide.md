@@ -106,8 +106,9 @@ Cleanup for expired sessions, previous daily-video records, and old transcript-l
    extracts and grounds authored claims; [`post-comparisons.ts`](../webapp/src/worker/post-comparisons.ts)
    applies supported historical official-data policy. Successful cards and empty
    results are reusable; failures remain retryable.
-4. The [extension UI](../webapp/extension/src/), reached from the X content entry,
-   provides the nonmodal reading panel. Shared [`cardview.ts`](../webapp/src/web/cardview.ts) renders
+4. [`x-panel.ts`](../webapp/extension/src/x-panel.ts), reached from the X content entry,
+   positions a nonmodal popover beside the post or as a compact expandable bottom
+   sheet on narrow windows. Shared [`cardview.ts`](../webapp/src/web/cardview.ts) renders
    attributed context without adding video seeking to post cards.
 
 The [X feature contract](features/x/README.md) is the single source for accepted

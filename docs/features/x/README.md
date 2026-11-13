@@ -21,9 +21,14 @@ change-specific validation evidence belong in GitHub.
   than float in the header's empty space.
 - Open one nonmodal glass reading panel to the post's right when space permits.
   Blur only the panel background; leave the source readable and X interactive
-  and scrollable. Long results scroll inside the panel. The current narrow-screen
-  fallback places it below the post in document flow, which can require scrolling
-  to see it.
+  and scrollable. Long results scroll inside the panel. When the panel cannot fit
+  beside the post, open a bottom sheet immediately in the viewport without
+  changing the page's scroll position. It starts at about 40% of viewport height;
+  an Expand/Collapse control toggles it to 75% for reading. Keep Close visible and
+  the page above interactive and undimmed. The sheet covers the lower part of the
+  page; viewers can scroll X above it while scrolling cards independently inside
+  it. It stays docked while the page scrolls and returns to the side layout when
+  enough horizontal space is available.
 - Show loading, attributed cards, an explicit **no relevant claims** result, or
   an error with **Retry**. A competing request also offers Retry. Post cards have
   no video timestamps or seek controls. Interface labels use the existing English
@@ -99,7 +104,7 @@ order and spending reservations; cached reads do not reserve new inference.
 | Responsibility | Source |
 | --- | --- |
 | Source observation, local gate, click and source lifecycle | [`x-content.ts`](../../../webapp/extension/src/x-content.ts) |
-| Post panel positioning, interaction and cleanup | [Extension UI sources](../../../webapp/extension/src/) reached from the X content entry |
+| Post panel positioning, interaction and cleanup | [`x-panel.ts`](../../../webapp/extension/src/x-panel.ts), [`x-content.css`](../../../webapp/extension/src/x-content.css) |
 | Extension API transport and host-aware injection | [`background.ts`](../../../webapp/extension/src/background.ts), [`manifest.json`](../../../webapp/extension/manifest.json) |
 | Request/response contracts and routing | [`types.ts`](../../../webapp/src/types.ts), [`index.ts`](../../../webapp/src/worker/index.ts) |
 | Authored-post extraction and exact quote validation | [`posts.ts`](../../../webapp/src/worker/posts.ts) |

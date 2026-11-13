@@ -8,9 +8,9 @@ import { runInNewContext } from "node:vm";
 const ownText = "Juros altos reduzem o investimento no Brasil.";
 const card = { quote: ownText, paraphrase: "A autora afirma que juros altos reduzem o investimento no Brasil.", kind: "theory", nodes: [{ id: "s_keynes", role: "echoes" }], indicator: null, claimed_value: null, period: null, check: null };
 const bundle = await build({ entryPoints: ["extension/src/x-content.ts"], bundle: true, write: false, format: "iife", loader: { ".css": "text" } });
-function postMarkup({ text = ownText, lock = false, incomplete = false, metadata = true, quote = true, lang = "pt", timestamp = "2026-11-01T12:00:00.000Z", handle = "ana", author = "Ana", postId = "1234567890123456789" } = {}) {
+function postMarkup({ text = ownText, lock = false, incomplete = false, metadata = true, quote = true, grok = true, more = true, lang = "pt", timestamp = "2026-11-01T12:00:00.000Z", handle = "ana", author = "Ana", postId = "1234567890123456789" } = {}) {
   return `<article data-testid="tweet">
-    ${metadata ? `<div data-testid="User-Name"><a href="/${handle}">${author}</a><a href="/${handle}">@${handle}</a>${lock ? '<svg aria-label="Conta protegida" data-testid="icon-lock"></svg>' : ''}</div><a href="/${handle}/status/${postId}"><time datetime="${timestamp}">${timestamp.slice(0, 10)}</time></a>` : ''}
+    ${metadata ? `<div class="post-header" style="display:flex;align-items:center;justify-content:space-between"><div data-testid="User-Name" style="min-width:0"><a href="/${handle}">${author}</a> <a href="/${handle}">@${handle}</a>${lock ? '<svg aria-label="Conta protegida" data-testid="icon-lock"></svg>' : ''}</div>${grok ? '<div class="grok-slot"><button aria-label="Grok actions">Grok</button></div>' : ''}${more ? '<div class="more-slot"><button data-testid="caret" aria-label="More">…</button></div>' : ''}</div><a href="/${handle}/status/${postId}"><time datetime="${timestamp}">${timestamp.slice(0, 10)}</time></a>` : ''}
     <div data-testid="tweetText" lang="${lang}">${text}</div>
     ${incomplete ? '<button data-testid="tweet-text-show-more-link">Mostrar mais</button>' : ''}
     ${quote ? '<div role="link" tabindex="0"><div data-testid="User-Name">Bruno</div><div data-testid="tweetText" lang="pt">O governo deveria cortar todos os impostos.</div></div>' : ''}
@@ -37,6 +37,179 @@ async function pageFor(options = {}) {
 const surfaces = { home: "/home", detail: "/ana/status/1234567890123456789", search: "/search?q=juros&f=live", profile: "/ana" };
 const otherPost = { handle: "bia", author: "Bia", postId: "1234567890123456790", text: "Juros altos reduzem o investimento e o emprego no Brasil." };
 const settled = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+
+test("Lastro sits beside Grok, falls back to More/the author header, and follows a replaced header", async () => {
+  for (const options of [{}, { grok: false }, { grok: false, more: false }]) {
+    const { browser, page } = await pageFor({ posts: [options] });
+    try {
+      const header = page.locator(".post-header");
+      assert.equal(await header.getByRole("button", { name: "Lastro", exact: true }).count(), 1);
+      const actionBox = await header.getByRole("button", { name: "Lastro", exact: true }).boundingBox();
+      if (options.grok !== false || options.more !== false) {
+        const neighbor = await header.locator(options.grok !== false ? ".grok-slot" : ".more-slot").boundingBox();
+        assert.ok(neighbor.x - actionBox.x - actionBox.width <= 8, "Lastro must hug the header controls, not float in their flex gap");
+      } else {
+        const author = await header.getByRole("link", { name: "Ana", exact: true }).boundingBox();
+        assert.ok(actionBox.x - author.x - author.width <= 8, "fallback must hug the author name");
+      }
+      await page.evaluate(() => { window.postClicks = 0; document.querySelector("article").addEventListener("click", () => window.postClicks++); });
+      await header.getByRole("button", { name: "Lastro", exact: true }).click();
+      assert.equal(await page.evaluate(() => window.postClicks), 0);
+      await page.evaluate(() => {
+        const header = document.querySelector(".post-header");
+        const replacement = header.cloneNode(true);
+        replacement.querySelector("[data-lastro-post]").remove();
+        header.replaceWith(replacement);
+      });
+      await settled(page);
+      assert.equal(await page.getByRole("region").count(), 0);
+      assert.equal(await page.locator(".post-header").getByRole("button", { name: "Lastro", exact: true }).count(), 1);
+      assert.equal(await page.evaluate(() => document.documentElement.style.overflow), "");
+    } finally { await browser.close(); }
+  }
+});
+
+test("the glass side panel leaves the post interactive and scrollable, and closes with Escape or its trigger", async () => {
+  const { browser, page } = await pageFor({ posts: [{}] });
+  try {
+    const action = page.getByRole("button", { name: "Lastro", exact: true });
+    await page.evaluate(() => document.documentElement.style.setProperty("overflow", "auto", "important"));
+    await action.click();
+    const panel = page.getByRole("region", { name: "Lastro", exact: true });
+    assert.equal(await panel.evaluate(d => d.matches(":modal")), false);
+    assert.equal(await page.getByRole("button", { name: "Fechar", exact: true }).evaluate(button => button.matches(":focus")), true);
+    assert.match(await panel.evaluate(d => getComputedStyle(d).backdropFilter), /blur\(22px\)/);
+    assert.equal(await panel.evaluate(d => getComputedStyle(d, "::backdrop").display), "none");
+    assert.deepEqual(await page.evaluate(() => [document.documentElement.style.overflow, document.documentElement.style.getPropertyPriority("overflow")]), ["auto", "important"]);
+    await page.evaluate(() => { window.grokClicks = 0; document.querySelector('[aria-label="Grok actions"]').onclick = () => window.grokClicks++; });
+    await page.getByRole("button", { name: "Grok actions", exact: true }).click();
+    assert.equal(await page.evaluate(() => window.grokClicks), 1);
+    assert.equal(await panel.count(), 1, "clicking the post does not dismiss the reading panel");
+    await page.getByRole("button", { name: "Fechar", exact: true }).focus();
+    await page.keyboard.press("Escape");
+    assert.equal(await panel.count(), 0);
+    assert.equal(await action.evaluate(button => button.matches(":focus")), true);
+    assert.deepEqual(await page.evaluate(() => [document.documentElement.style.overflow, document.documentElement.style.getPropertyPriority("overflow")]), ["auto", "important"]);
+    await action.click();
+    await action.click();
+    assert.equal(await panel.count(), 0);
+    assert.equal(await action.evaluate(button => button.matches(":focus")), true);
+    await page.evaluate(card => window.replies[1]({ status: 200, data: { id: "closed", status: "complete", source: JSON.parse(window.requests[1].body), cards: [card] } }), card);
+    assert.equal(await page.locator(".ov-card").count(), 0);
+  } finally { await browser.close(); }
+});
+
+test("cards sit to the right without covering the post, track scrolling, and dock at the viewport bottom on narrow windows", async () => {
+  const { browser, page } = await pageFor({ posts: [{}] });
+  try {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.addStyleTag({ content: 'body{background:#edf1f4;font:15px/1.5 system-ui;min-height:2000px}main{max-width:560px;margin:180px 0 24px 100px}article[data-testid="tweet"]{padding:16px;background:white}[data-testid="cellInnerDiv"]{transform:translateY(1px)}@media(min-width:800px){[data-testid="cellInnerDiv"]{overflow:hidden;height:280px}}@media(max-width:799px){main{margin:24px 0}}' });
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    await page.evaluate(card => window.reply({ status: 200, data: { id: "long", status: "complete", source: JSON.parse(window.requests[0].body), cards: Array.from({ length: 6 }, () => card) } }), card);
+    await page.locator(".ov-card").first().waitFor();
+    await settled(page);
+    const panel = page.getByRole("region", { name: "Lastro", exact: true });
+    let box = await panel.boundingBox();
+    const post = await page.locator('article[data-testid="tweet"]').boundingBox();
+    assert.ok(box.x >= post.x + post.width + 10, "the whole post remains beside the panel");
+    assert.ok(box.x + box.width <= 1280 && box.y + box.height <= 800);
+    assert.equal(await panel.evaluate(p => p.matches(":popover-open")), true);
+    if (process.env.LASTRO_SCREENSHOT) await page.screenshot({ path: process.env.LASTRO_SCREENSHOT.replace(/\.png$/, "-side.png"), animations: "disabled" });
+    const initialTop = box.y;
+    await page.mouse.move(80, 400);
+    await page.mouse.wheel(0, 120);
+    await page.waitForFunction(() => window.scrollY > 0);
+    await settled(page);
+    box = await panel.boundingBox();
+    assert.ok(box.y < initialTop, "the panel follows its post as the page scrolls");
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settled(page);
+    box = await panel.boundingBox();
+    assert.ok(Math.abs(box.height - 667 * .4) <= 2, "the compact sheet occupies 40% of the viewport");
+    assert.ok(Math.abs(box.y + box.height - 659) <= 2, "the sheet docks eight pixels above the viewport bottom");
+    assert.ok(box.x >= 0 && box.x + box.width <= 375);
+    assert.equal(await panel.evaluate(p => p.matches(":popover-open")), true);
+    assert.equal(await page.locator(".post-body").evaluate(body => body.scrollHeight > body.clientHeight), true);
+    await page.locator(".post-body").evaluate(body => body.scrollTop = body.scrollHeight);
+    assert.ok(await page.locator(".post-body").evaluate(body => body.scrollTop) > 0);
+    await page.locator(".post-body").evaluate(body => body.scrollTop = 0);
+    if (process.env.LASTRO_SCREENSHOT) await page.screenshot({ path: process.env.LASTRO_SCREENSHOT.replace(/\.png$/, "-mobile.png"), animations: "disabled" });
+  } finally { await browser.close(); }
+});
+
+for (const locale of ["pt-BR", "en-US"]) test(`${locale}: a bottom sheet opens immediately without jumping the page, expands, and keeps the page usable`, async () => {
+  const { browser, page } = await pageFor({ posts: [{}], locale });
+  const labels = locale === "pt-BR" ? { expand: "Expandir", collapse: "Recolher", close: "Fechar" } : { expand: "Expand", collapse: "Collapse", close: "Close" };
+  try {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.addStyleTag({ content: 'body{margin:8px;background:#edf1f4;font:15px/1.5 system-ui;min-height:2500px}main{max-width:560px;margin-top:200px}article[data-testid="tweet"]{background:white;min-height:1200px;padding:12px}' });
+    await page.evaluate(() => window.scrollTo(0, 140));
+    const initialScroll = await page.evaluate(() => window.scrollY);
+    const action = page.getByRole("button", { name: "Lastro", exact: true });
+    await action.click();
+    const panel = page.getByRole("region", { name: "Lastro", exact: true });
+    await settled(page);
+    assert.equal(await page.evaluate(() => window.scrollY), initialScroll);
+    assert.equal(await panel.evaluate(p => p.matches(":modal")), false);
+    assert.equal(await panel.evaluate(p => getComputedStyle(p, "::backdrop").display), "none");
+    const compact = await panel.boundingBox();
+    assert.ok(Math.abs(compact.height - 667 * .4) <= 2);
+    assert.ok(compact.y > 0 && compact.y + compact.height <= 667);
+    await page.evaluate(card => window.reply({ status: 200, data: { id: "sheet", status: "complete", source: JSON.parse(window.requests[0].body), cards: [card, card, card] } }), card);
+    await page.locator(".ov-card").first().waitFor();
+    assert.equal(await page.evaluate(() => window.scrollY), initialScroll);
+    assert.ok(await page.locator(".ov-title").first().isVisible());
+    await page.getByRole("button", { name: labels.expand, exact: true }).click();
+    await settled(page);
+    const expanded = await panel.boundingBox();
+    assert.ok(Math.abs(expanded.height - 667 * .75) <= 2);
+    assert.equal(await page.getByRole("button", { name: labels.collapse, exact: true }).getAttribute("aria-expanded"), "true");
+    const closeBox = await page.getByRole("button", { name: labels.close, exact: true }).boundingBox();
+    assert.ok(closeBox.y >= 0 && closeBox.y + closeBox.height <= 667);
+    await page.locator(".post-body").evaluate(body => body.scrollTop = 200);
+    assert.ok(await page.locator(".post-body").evaluate(body => body.scrollTop) > 0);
+    assert.equal(await page.evaluate(() => window.scrollY), initialScroll, "card scrolling is independent of page scrolling");
+    await page.getByRole("button", { name: labels.collapse, exact: true }).click();
+    await settled(page);
+    assert.ok(Math.abs((await panel.boundingBox()).height - compact.height) <= 2);
+    await page.getByRole("button", { name: "Grok actions", exact: true }).click();
+    assert.equal(await panel.count(), 1);
+    await page.mouse.move(12, 300);
+    await page.mouse.wheel(0, 120);
+    await page.waitForFunction(scroll => window.scrollY > scroll, initialScroll);
+    await settled(page);
+    assert.ok(Math.abs((await panel.boundingBox()).y - compact.y) <= 2, "the sheet stays docked as X scrolls");
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await settled(page);
+    const postBox = await page.locator('article[data-testid="tweet"]').boundingBox();
+    const sideBox = await panel.boundingBox();
+    assert.ok(sideBox.x >= postBox.x + postBox.width + 10);
+    assert.equal(await page.getByRole("button", { name: labels.expand, exact: true }).count(), 0);
+    await page.setViewportSize({ width: 375, height: 667 });
+    await settled(page);
+    assert.ok(Math.abs((await panel.boundingBox()).height - compact.height) <= 2);
+    await page.getByRole("button", { name: labels.close, exact: true }).click();
+    assert.equal(await panel.count(), 0);
+    assert.equal(await page.evaluate(() => document.documentElement.style.overflow), "");
+  } finally { await browser.close(); }
+});
+
+test("a removed reading panel is cleaned up and can reopen without accepting its stale result", async () => {
+  const { browser, page } = await pageFor({ posts: [{}] });
+  try {
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    await page.evaluate(() => document.querySelector("[data-lastro-panel]").remove());
+    await settled(page);
+    await page.getByRole("button", { name: "Lastro", exact: true }).click();
+    await page.evaluate(card => window.replies[0]({ status: 200, data: { id: "stale", status: "complete", source: JSON.parse(window.requests[0].body), cards: [card] } }), card);
+    assert.equal(await page.locator(".ov-card").count(), 0);
+    assert.equal(await page.getByRole("region", { name: "Lastro", exact: true }).count(), 1);
+    assert.equal(await page.evaluate(() => window.requests.length), 2);
+  } finally { await browser.close(); }
+});
 
 test("install/update injects only each host's declared scripts, preserving YouTube's page-world hook", async () => {
   const background = await build({ entryPoints: ["extension/src/background.ts"], bundle: true, write: false, format: "iife", define: { __WORKER_BASE__: '"https://fixture.invalid"' } });
@@ -149,7 +322,7 @@ test("recycled sources cannot render a late reply even before the next animation
       document.querySelector('article [data-testid="tweetText"]').textContent = "Hoje o meu time venceu o campeonato de futebol.";
       window.replies[0]({ status: 200, data: { id: "old", status: "complete", source: JSON.parse(window.requests[0].body), cards: [card] } });
       await Promise.resolve();
-      return [...document.querySelectorAll("[data-lastro-post]")].flatMap(host => [...host.shadowRoot.querySelectorAll(".ov-card")]).length;
+      return [...document.querySelectorAll("[data-lastro-panel]")].flatMap(host => [...host.shadowRoot.querySelectorAll(".ov-card")]).length;
     }, card);
     assert.equal(staleCards, 0);
     await settled(page);
@@ -178,7 +351,7 @@ test("moving an article to another feed cell removes its old panel and attaches 
   } finally { await browser.close(); }
 });
 
-for (const [surface, path] of Object.entries(surfaces)) test(`${surface}: each action submits only its own post and keeps independent inline panels`, async () => {
+for (const [surface, path] of Object.entries(surfaces)) test(`${surface}: each header action opens only its own post in a side panel and ignores a closed request`, async () => {
   const { browser, page } = await pageFor({ path, posts: [{}, otherPost] });
   try {
     const cells = page.locator('[data-testid="cellInnerDiv"]');
@@ -196,10 +369,11 @@ for (const [surface, path] of Object.entries(surfaces)) test(`${surface}: each a
       window.replies[0]({ status: 200, data: { id: "bia", status: "empty", source: sources[0], cards: [], analysedAt: 1 } });
     }, { sources, card });
     await cells.nth(0).getByText("A ideia por trás", { exact: true }).waitFor();
-    await cells.nth(1).getByText("Nenhuma afirmação relevante foi encontrada neste post.", { exact: true }).waitFor();
+    assert.equal(await page.getByText("Nenhuma afirmação relevante foi encontrada neste post.", { exact: true }).count(), 0);
+    assert.equal(await page.getByRole("region", { name: "Lastro", exact: true }).count(), 1);
     await cells.nth(0).getByRole("button", { name: "Fechar", exact: true }).click();
     assert.equal(await cells.nth(0).locator("section.panel").count(), 0);
-    assert.equal(await cells.nth(1).locator("section.panel").count(), 1);
+    assert.equal(await cells.nth(1).locator("section.panel").count(), 0);
   } finally { await browser.close(); }
 });
 
@@ -259,7 +433,7 @@ for (const [surface, path] of Object.entries(surfaces)) test(`${surface}: Englis
   } finally { await browser.close(); }
 });
 
-test("the selected public post opens attributed inline context only after a click and can be closed", async () => {
+test("the selected public post opens attributed side-panel context only after a click and can be closed", async () => {
   const { browser, page } = await pageFor();
   try {
     assert.equal(await page.getByRole("button", { name: "Lastro", exact: true }).count(), 1);

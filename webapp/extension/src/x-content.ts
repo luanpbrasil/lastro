@@ -3,7 +3,8 @@ import topicModel from "../../../shared/topics-model.json";
 import type { PostAnalysis, PostSource } from "../../src/types";
 import { el, fullCard } from "../../src/web/cardview";
 import { t } from "../../src/web/i18n";
-import cardStyles from "../../src/web/overlay.css";
+import postStyles from "./x-content.css";
+import { openPostPanel } from "./x-panel";
 import type { ApiResult } from "./messages";
 
 const scorer = new TopicScorer(topicModel as TopicModel);
@@ -66,46 +67,80 @@ function observe(article: HTMLElement): Observation {
   return { state: "ready", source: { postId: match[2], url: `https://x.com/${handle}/status/${match[2]}`, author, handle, publishedAt, text, lang: "pt", visibility: "public", complete: true } };
 }
 
-const styles = `:host{display:block;color:#24312b;font:14px/1.5 system-ui;--muted:#52645a;--faint:#64766b;--line:#d7e0da;--brand-gold:#9c742b;--accent:#246747;--surface:#f6f9f6}*{box-sizing:border-box}button{font:inherit;cursor:pointer;border:1px solid #b3c8ba;border-radius:8px;background:#f6f9f6;color:#245239;padding:6px 12px}button:focus-visible{outline:2px solid #246747;outline-offset:2px}.panel{background:#f6f9f6;border:1px solid #b3c8ba;border-radius:12px;padding:14px;margin:10px 0;overflow-wrap:anywhere}.bar{display:flex;justify-content:space-between;align-items:center;gap:12px}.ov-card{display:grid;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.ov-card p,.ov-card h4{margin:0}.ov-card blockquote{white-space:pre-wrap;margin:0}.muted{color:var(--muted)}.notice{font-size:12px;color:var(--muted)}.ov-meta{display:flex;gap:12px}`;
+type Placement = { anchor: HTMLElement; side: "before" | "after"; align: "actions" | "author" | "notice" };
+function placementFor(article: HTMLElement, ready: boolean): Placement {
+  const header = own(article, '[data-testid="User-Name"]')[0];
+  if (ready && header) {
+    // Prefer Grok's header slot, then More. Never target an embedded post's controls.
+    const control = own(article, 'button[aria-label*="grok" i], [role="button"][aria-label*="grok" i], [data-testid="grok-actions"]')[0]
+      ?? own(article, '[data-testid="caret"]')[0];
+    if (control) {
+      let slot = control;
+      while (slot.parentElement && slot.parentElement !== article && !slot.parentElement.contains(header)) slot = slot.parentElement;
+      if (slot.parentElement !== article && slot.parentElement?.contains(header)) return { anchor: slot, side: "before", align: "actions" };
+    }
+    // Headers without those actions still expose Lastro above the post text.
+    const author = header.querySelector<HTMLElement>('a[href]');
+    return { anchor: author ?? header, side: "after", align: "author" };
+  }
+  return { anchor: article, side: "after", align: "notice" };
+}
 
-type Mounted = { host: HTMLElement; signature: string; dispose: () => void };
+type Mounted = { host: HTMLElement; signature: string; isPlaced: () => boolean; reposition: () => void; dispose: () => void };
 const mounted = new Map<HTMLElement, Mounted>();
+let closeActivePanel: (() => void) | undefined;
 function mount(article: HTMLElement, observation: Exclude<Observation, { state: "skip" }>, signature: string): Mounted {
   const host = el("div");
   host.dataset.lastroPost = "";
+  host.dataset.placement = observation.state === "ready" ? "header" : "notice";
+  const articleParent = article.parentElement;
+  const placement = placementFor(article, observation.state === "ready");
+  host.dataset.align = placement.align;
+  const isPlaced = () => {
+    const current = placementFor(article, observation.state === "ready");
+    return host.isConnected && (!panel || panel.isConnected()) && article.parentElement === articleParent && current.anchor === placement.anchor && current.side === placement.side
+      && (placement.side === "before" ? host.nextElementSibling === placement.anchor : host.previousElementSibling === placement.anchor);
+  };
   const root = host.attachShadow({ mode: "open" });
-  root.append(el("style", "", cardStyles + styles));
+  root.append(el("style", "", postStyles));
+  // X's article click and keyboard handlers must not handle Lastro interactions.
+  for (const event of ["click", "keydown", "pointerdown"]) root.addEventListener(event, e => e.stopPropagation());
   let active = true;
   let generation = 0;
-  let panel: HTMLElement | undefined;
-  const close = () => { generation++; panel?.remove(); panel = undefined; };
+  let panel: ReturnType<typeof openPostPanel> | undefined;
+  let action: HTMLButtonElement | undefined;
+  const close = () => {
+    generation++;
+    if (!panel) return;
+    const restoreFocus = panel.containsFocus();
+    panel.dispose();
+    panel = undefined;
+    if (closeActivePanel === close) closeActivePanel = undefined;
+    action?.setAttribute("aria-expanded", "false");
+    if (active && restoreFocus && action?.isConnected) action.focus({ preventScroll: true });
+  };
   if (observation.state !== "ready") root.append(el("p", "notice", t(`post.${observation.state}`)));
   else {
-    const action = el("button", "", "Lastro");
+    action = el("button", "post-action", "Lastro");
     action.type = "button";
+    action.setAttribute("aria-expanded", "false");
     const source = observation.source;
     const currentSource = () => {
       const current = observe(article);
-      if (!isSourceArticle(article) || article.nextElementSibling !== host || current.state !== "ready" || JSON.stringify(current.source) !== JSON.stringify(source)) { refresh(); return false; }
+      if (!isSourceArticle(article) || !isPlaced() || current.state !== "ready" || JSON.stringify(current.source) !== JSON.stringify(source)) { refresh(); return false; }
       return true;
     };
     const show = async () => {
       // Re-read at the explicit action: edited, collapsed, recycled or protected sources cannot use stale text.
       if (!currentSource()) return;
+      closeActivePanel?.();
       close();
       const requestGeneration = generation;
-      panel = el("section", "panel");
-      panel.setAttribute("aria-label", "Lastro");
-      const bar = el("div", "bar");
-      const dismiss = el("button", "", t("close"));
-      dismiss.type = "button";
-      dismiss.onclick = close;
-      bar.append(el("strong", "", t("post.by", { author: source.author, handle: source.handle })), dismiss);
-      const body = el("div");
-      body.setAttribute("aria-live", "polite");
+      panel = openPostPanel(article, t("post.by", { author: source.author, handle: source.handle }), close);
+      const body = panel.body;
       body.append(el("p", "", t("post.loading")));
-      panel.append(bar, body);
-      root.append(panel);
+      closeActivePanel = close;
+      action!.setAttribute("aria-expanded", "true");
       let inProgress = false;
       try {
         const reply = await chrome.runtime.sendMessage({ type: "api", method: "POST", path: "/api/posts/analyze", body: JSON.stringify(source) }) as ApiResult;
@@ -120,31 +155,31 @@ function mount(article: HTMLElement, observation: Exclude<Observation, { state: 
         else throw new Error("invalid post outcome");
       } catch {
         if (!active || requestGeneration !== generation || !host.isConnected || !currentSource()) return;
-        const retry = el("button", "", t("post.retry"));
+        const retry = el("button", "post-retry", t("post.retry"));
         retry.type = "button";
         retry.onclick = () => void show();
         body.replaceChildren(el("p", "", t(inProgress ? "post.pending" : "post.failed")), retry);
       }
     };
-    action.onclick = () => { if (!panel) void show(); };
+    action.onclick = () => { if (panel) close(); else void show(); };
+    action.onkeydown = e => { if (e.key === "Escape" && panel) { e.preventDefault(); close(); } };
     root.append(action);
   }
-  // A sibling directly under the selected article, inside X's cell, keeps the result out of extracted text.
-  article.after(host);
-  return { host, signature, dispose: () => { active = false; generation++; host.remove(); } };
+  placement.anchor[placement.side](host);
+  return { host, signature, isPlaced, reposition: () => panel?.reposition(), dispose: () => { active = false; close(); host.remove(); } };
 }
 
 let stopped = false;
 function refresh(): void {
   if (stopped) return;
   // Keep only live top-level sources, and never leave a panel in a recycled cell.
-  for (const [article, item] of mounted) if (!isSourceArticle(article) || !item.host.isConnected || article.nextElementSibling !== item.host) { item.dispose(); mounted.delete(article); }
+  for (const [article, item] of mounted) if (!isSourceArticle(article) || !item.isPlaced()) { item.dispose(); mounted.delete(article); }
   for (const article of document.querySelectorAll<HTMLElement>(POST)) {
     if (!isSourceArticle(article)) continue;
     const observation = observe(article);
     const signature = JSON.stringify(observation);
     const previous = mounted.get(article);
-    if (previous?.signature === signature) continue;
+    if (previous?.signature === signature) { previous.reposition(); continue; }
     previous?.dispose();
     mounted.delete(article);
     if (observation.state !== "skip") mounted.set(article, mount(article, observation, signature));
