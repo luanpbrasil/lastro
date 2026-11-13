@@ -1,6 +1,6 @@
 # Working on Lastro
 
-Start with the [codebase guide](codebase-guide.md) and [glossary](../GLOSSARY.md). This workflow adapts the locally installed Matt Pocock skills to the repository's current shape. Skill names below refer to those installed skills, not repository scripts. Repo-specific tracker setup is still pending; see the [setup proposal](agents/setup-proposal.md).
+Start with the [codebase guide](codebase-guide.md) and [glossary](../GLOSSARY.md). This workflow adapts the locally installed Matt Pocock skills to the repository's current shape. Skill names below refer to those installed skills, not repository scripts. GitHub Issues is configured in [the tracker instructions](agents/issue-tracker.md); the [setup proposal](agents/setup-proposal.md) retains historical and optional follow-up choices.
 
 ## Understand before designing
 

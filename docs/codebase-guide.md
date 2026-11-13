@@ -186,11 +186,11 @@ Not exercised: live X pages/public-state assumptions, live YouTube playback/audi
 
 | Finding | Evidence and implication |
 | --- | --- |
-| Main product target is implicit | Two Workers, two extensions, separate protocols/storage. Confirm whether new work targets `webapp/` alone or both before estimating a feature. |
+| Two implementations remain | The X POC explicitly targets `webapp/`. For future work, confirm whether it targets the newer implementation alone or both; their protocols and storage differ. |
 | Root overview is historical | Root README status reports 22 nodes; checked-in graph/evaluation has 36 nodes and 50 edges. The new guide is linked from the root to expose both implementations. |
 | Deployment configuration is incomplete in this checkout | Root production KV id and live D1 id are placeholders. The live README says its D1 id is already present. This cannot establish whether a separately configured deployment exists. |
 | Newer extension defaults to a hosted backend | [`webapp/extension/build.mjs`](../webapp/extension/build.mjs) defaults to `https://lastro.lovu.club`. A local backend requires an explicit build override. That URL was not probed. |
-| Persisted cards lack analysis-version identity in live D1 | Original cache includes transcript hash and prompt version; live coverage/cards do not have an equivalent prompt-version key. Decide reprocessing, invalidation, and provenance semantics when changing prompts or sources. |
+| Persisted video cards lack analysis-version identity in live D1 | Original cache includes transcript hash and prompt version; live video coverage/cards do not have an equivalent key. Post reuse separately includes text, metadata and analysis version. |
 | Live schema differs from original p9 | Live adds an optional stored headline and removes `notes` from requested model output. Shared schema changes need checks of both contracts. |
 | Some runtime details contradict prose | Live timeline constant is a 20-second popup gap although its comment/README mention 40; code polls at 3 seconds while an older costs paragraph says 5. Read current constants for behavior. |
 | Trust and retention need explicit product policy | Video-bound public uploads, first-claim coverage, shared history, retained chunk text, and partial-result behavior affect integrations and moderation. Existing docs acknowledge invented-transcript risk. |

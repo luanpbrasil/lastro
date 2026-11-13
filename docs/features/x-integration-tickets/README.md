@@ -1,6 +1,6 @@
 # X integration: approved ticket breakdown
 
-Status: approved by the maintainer's overnight implementation request. GitHub publication is performed by `node scripts/publish-x-issues.mjs`; actual issue URLs are recorded in `docs/features/x-integration-issues.json` after verification.
+Status: all four approved tickets are implemented and committed on the feature branch with deterministic checks. Live acceptance evidence remains outstanding; see the [codebase guide](../../codebase-guide.md#verified-implementation-state). Actual GitHub issue URLs are recorded in `docs/features/x-integration-issues.json`.
 
 Parent: [X post context: Portuguese POC](../x-integration-spec.md).
 
@@ -26,4 +26,4 @@ Ticket 01 supplies the first end-to-end path. Until ticket 03, numerical facts c
 
 Each ticket carries its own behavioral checks at the agreed interfaces. Once all four are complete, verify the full POC on all four live surfaces and check the newer YouTube behavior before considering the parent spec delivered. That completion condition does not add an artificial blocking edge between otherwise independent tickets.
 
-The breakdown is approved. Publish issues in blocker-first order with real parent/blocker identifiers; the publication helper preserves explicit body links and configures native relationships when available. A shared feature PR closes the parent and four ticket issues on merge.
+Publication is complete. The shared feature PR carries closing references to the parent and four ticket issues; they remain open until merge.

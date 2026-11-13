@@ -1,6 +1,6 @@
 # X integration: design notes
 
-Status: product scope, verification interfaces, ticket breakdown, sequential implementation, branch push, and one PR are authorized. GitHub publication and the fresh Astra run are being prepared; see the overnight instructions for actual launch and verification steps.
+Status: the approved four-ticket implementation is committed and has deterministic regression coverage. Live X acceptance remains unverified; the feature PR must remain draft until the required live evidence is collected. See the [codebase guide](../codebase-guide.md#verified-implementation-state) for observed checks and limitations.
 Branch: `feat/add-twitter-integration`.
 Implementation-agent preference: GPT-6 Astra (`gpt-6-astra`), requested by the maintainer. Use fresh implementation context per approved ticket; this preference does not change the app's analysis providers or authorize starting an unapproved ticket.
 
@@ -27,22 +27,20 @@ Implementation-agent preference: GPT-6 Astra (`gpt-6-astra`), requested by the m
 
 ## Current implementation facts
 
-- The newer extension's manifest injects scripts only on YouTube.
-- Its background request allowlist accepts only the existing per-video routes.
-- Worker contracts and D1 persistence are video-oriented; cards carry playback positions and ingestion uses timed transcript segments.
-- Card extraction, graph context, stance, and official-data comparisons are potential reuse points. Their suitability for posts still needs to be established.
+- The newer extension has separate YouTube and X content entries, with host-aware install/update injection.
+- The background proxy supports the post analysis/result routes alongside the video routes. Only an explicit eligible-post click submits source text.
+- Post contracts and D1 results are separate from timed transcripts, video coverage and public video history. Server-computed text/metadata fingerprints and a versioned claim key control reuse and concurrent retries.
+- Post cards reuse graph context and presentation without playback controls. A post-specific resolver selects supported historical observations and leaves uncertain comparisons unchecked.
 
 Sources: [extension manifest](../../webapp/extension/manifest.json), [background proxy](../../webapp/extension/src/background.ts), [contracts](../../webapp/src/types.ts), [Worker](../../webapp/src/worker/index.ts), [migrations](../../webapp/migrations/), [extraction](../../webapp/src/worker/factcheck.ts).
 
-### Reuse investigation
+### Implemented boundaries
 
-- [Stance derivation](../../shared/stance.ts) uses node links rather than video metadata. Card content sections are reusable, but [the renderer](../../webapp/src/web/cardview.ts) always adds a seek/timestamp button and [the timeline](../../webapp/src/web/timeline.ts) requires a player. Posts need presentation without playback assumptions.
-- [Speech sanitization](../../webapp/src/worker/sanitize.ts) strips characters such as emoji, handles' `@`, and hashtags' `#`, normalizes whitespace, and caps individual segments at 600 characters. Post text cannot be assumed to survive unchanged through that path.
-- [Quote location](../../shared/locate.ts) accepts approximate token matches and produces segment/time positions. Highlighting a passage inside a written post would need a separate text-position contract if desired.
-- [Official value selection](../../shared/indicators.ts) currently treats an absent period as latest data; the extraction input has no post publication timestamp. The agreed historical-date policy requires adapting this behavior for posts.
-- Existing live card/history reads have no per-viewer visibility controls, and accepted chunk text is retained. Keeping analyses out of the public history alone would not establish private storage or private result access.
-- YouTube cards are persisted in server-side D1 and fetched by the page/extension. The browser keeps loaded cards in runtime memory; the newer implementation has no durable browser result cache. Its browser storage holds language preference and listening-tab state, not card history.
-- The existing model can produce zero cards. Its prompt and empty-state text refer to videos/speech; post attribution and empty-state wording need adaptation.
+- [Stance derivation](../../shared/stance.ts) and [card sections](../../webapp/src/web/cardview.ts) are shared. Seek controls remain specific to video cards.
+- [Post extraction](../../webapp/src/worker/posts.ts) preserves authored text and validates exact source-substring quotes; it does not use speech cleaning or approximate transcript quote location.
+- [Post comparisons](../../webapp/src/worker/post-comparisons.ts) use explicit supported periods or publication-relative daily observations. Qualified/ambiguous dates, unsupported vintages and unavailable observations remain unchecked. The UI identifies current historical series and their revision limitations. The existing YouTube resolver is unchanged.
+- [Post reuse](../../webapp/src/worker/post-cache.ts) includes publication metadata and analysis compatibility. Successful empty results are reusable; failed/in-progress attempts remain retryable. Successful entries have no automatic expiry.
+- [Mounted X UI](../../webapp/extension/src/x-content.ts) belongs to live source articles and is discarded on replacement/removal. It keeps no durable browser result archive. Shared public-post storage is not a private-result or per-viewer history system.
 
 ## Decision log
 
@@ -65,24 +63,24 @@ Sources: [extension manifest](../../webapp/extension/manifest.json), [background
 
 These criteria summarize accepted behavior; they do not assert current implementation or live-site feasibility.
 
-## Next steps
+## Implementation references
 
-- [Spec draft](x-integration-spec.md): accepted POC scope, contracts, and verification decisions.
+- [Approved spec](x-integration-spec.md): accepted POC scope, contracts, and verification decisions; published as [#2](https://github.com/luanpbrasil/lastro/issues/2).
 - [Ticket breakdown](x-integration-tickets/README.md): approved independent, end-to-end implementation slices.
 - [Overnight run](../agents/x-overnight-run.md): client preflight, idempotent GitHub publication, fresh Astra coordinator, sequential tickets, verification, push, and PR instructions. Actual published issues are recorded in the generated issue manifest.
 
-Technical investigation during the build must establish reliable post boundaries, complete text and publication-date extraction, protected-state handling, and local classification behavior across the four surfaces. Missing required source information must produce an honest unsupported/incomplete state rather than fabricated context. Source identity, content hash, and analysis-version compatibility need to be specified in the technical plan.
+The deterministic suites cover source isolation, publication metadata, conservative gating, shared compatibility and feed lifecycle. Actual X markup, complete-text/public-state assumptions and real model quality still need live acceptance evidence. Missing required source information produces an unavailable-source state; incomplete text requires viewer expansion.
 
 ## Agreed verification interfaces
 
-Confirmed by the maintainer in Q17; no tests have been written:
+Confirmed by the maintainer in Q17 and implemented in the [Worker](../../webapp/tests/posts-worker.test.mjs) and [extension](../../webapp/tests/posts-extension.test.mjs) suites:
 
 | Interface | Behavior to exercise | Limit |
 | --- | --- | --- |
 | Post-analysis request/response through the live Worker, with controlled model and official-data inputs and local D1 | Quote grounding, date policy, results versus empty/error outcomes, shared cache reuse and changed-text invalidation | Does not establish live model quality or X page extraction |
 | Extension interaction with representative post pages and a controlled backend reply | Local action visibility, selected-post extraction, quote/media exclusion, truncation, protected state, inline panel and Retry on all four surfaces | Captured fixtures can drift from X's live page |
 
-Add a live Chrome smoke check of the four surfaces and a small labeled post sample for classifier sanity. These observations complement deterministic behavior checks; they do not promise general model accuracy. Use the existing typechecks/builds and shared evaluation for affected consumers.
+The 14-item Portuguese sample offered 4/6 relevant posts and 0/8 unrelated or uncertain posts. It informed the gate and is not an independent accuracy benchmark. Live Chrome smoke checks on the four X surfaces remain outstanding, as do installed-extension/real-provider acceptance checks. Controlled YouTube saved-card display and seeking pass; they do not establish live playback/capture behavior.
 
 ## Deferred from the POC
 
@@ -92,4 +90,4 @@ Current X access options are documented in [the access research](x-access-resear
 
 ## Workflow
 
-Product discovery is complete. Continue with `/to-spec` and `/to-tickets`, then implement approved tickets with the agreed verification interfaces. GitHub is selected; access and remaining repo setup choices are recorded in [the setup proposal](../agents/setup-proposal.md).
+The four tickets were implemented sequentially in fresh Astra contexts on the existing feature branch, with per-ticket checks and standards/spec review. GitHub issues remain open until the shared feature PR merges. The remaining acceptance work is live validation, not another discovery or publication pass; tracker configuration is in [issue-tracker.md](../agents/issue-tracker.md).

@@ -1,6 +1,6 @@
 # X post context: Portuguese POC
 
-Status: approved for GitHub publication and sequential overnight implementation. Product scope, the two testing interfaces, ticket breakdown, existing feature branch, push, and one final PR are authorized. GitHub CLI authentication/publication is checked by the overnight launcher. No feature implementation is included in this document.
+Status: approved and published as [#2](https://github.com/luanpbrasil/lastro/issues/2). The four implementation tickets are committed with deterministic coverage; required live acceptance evidence remains outstanding. This document records the accepted requirements; see the [codebase guide](../codebase-guide.md#verified-implementation-state) for verified behavior and limitations.
 
 Target: `luanpbrasil/lastro`, branch `feat/add-twitter-integration`.
 
