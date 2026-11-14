@@ -52,3 +52,38 @@ What the numbers say:
 - **Workers AI.** It is not asked for notes. The fallback was checked offline: its parsing and card saving are covered in `webapp/tests/notes.test.mjs`. No live Workers AI run was made: that needs the Cloudflare account.
 
 Live spend for this note: $0.093 (a-main $0.032, b-p9notes $0.046, A/B $0.015).
+
+## Second change: no parties or politicians in Lastro's text
+
+Luan approved this follow-up on 2026-11-14 ("Yes, same PR").
+
+**The fix has two layers.**
+- **Prompt.** The webapp prompt (and the X posts prompt) says the headline and paraphrase never name a party, government or politician. They attribute the claim to the speaker; offices are fine.
+- **Worker filter** (`webapp/src/worker/names.ts`, list in `shared/politics.ts`, shared with the evals). It checks every Lastro-written field:
+  - a paraphrase with a name drops the card;
+  - a headline, context or counterpoint with a name is cleared. The card keeps its paraphrase title, or the map's text.
+
+  Names match capitalised in the Worker, so "moro" and "lira turca" are not hits. The evals match any capitalisation.
+
+**One trade-off showed up.** Told not to name parties, the model rewrote a partisan attack anonymously: "os governos recentes são todos iguais" got a card in 2/3 `d-nonames` runs. The final prompt (`e-nonames2`, `f-nonames2-polit01`) adds that such judgements are attacks, not ideas, even without names.
+
+Names (fields across all 5 videos, 3 runs):
+
+| | main (`a-main`) | p9 notes (`b-p9notes`) | first rule (`d-nonames`) | final (`e-nonames2`) |
+|---|---|---|---|---|
+| Fields where the model wrote a name | 13 | 13 | 6 | 3 |
+| Cards shown naming one, with the filter | 0 | 0 | 0 | 0 |
+
+Without the filter, 6 cards in 15 runs named one on both `a-main` and `b-p9notes`.
+
+Gold (3 runs per video):
+
+| | main | p9 notes | final |
+|---|---|---|---|
+| All 5 videos: all gold cases pass | 11/15 | 11/15 | 13/15 |
+| Gaúcha: all gold cases pass | 1/3 | 2/3 | 2/3 |
+| Gaúcha: André Lara Resende linked | 2/3 | 3/3 | 2/3 (5/6 across `d` and `e`) |
+| TESTpolit01: partisan line gets no card | 7/9 | 7/9 | 5/6 |
+| Cost per Gaúcha video | $0.0055 | $0.0081 | $0.0080 |
+
+Live spend for this change: $0.094 (`d` $0.045, `e` $0.045, `f` $0.004). lastro-19 total: $0.187.

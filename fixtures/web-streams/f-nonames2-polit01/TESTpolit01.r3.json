@@ -1,0 +1,169 @@
+{
+ "tag": "f-nonames2-polit01",
+ "videoId": "TESTpolit01",
+ "run": 3,
+ "chunker": "uploader",
+ "at": "2026-11-14T19:02:51.208Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Olá, bem-vindos ao canal, hoje o assunto é o orçamento do governo e a briga em Brasília."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[],\"notes\":[]}",
+   "usage": {
+    "input_tokens": 237,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 14,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00016794,
+   "ms": 1226,
+   "firstCardMs": null
+  },
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Olá, bem-vindos ao canal, hoje o assunto é o orçamento do governo e a briga em Brasília."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Esse governo do Lula é uma vergonha e o Haddad não sabe o que está fazendo no ministério."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Mas a questão de fundo é outra: sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"Regra que limite o gasto público\",\"quote\":\"sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem\",\"paraphrase\":\"O falante afirma que, sem uma regra que limite o gasto público, a dívida cresce sem controle e os juros sobem.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_regras_fiscais\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que regras fiscais fixas dão credibilidade às contas públicas e impedem a dívida de crescer sem controle é o núcleo do argumento a favor de limites legais ao gasto, como o teto de gastos e o arcabouço fiscal.\",\"against\":\"s_mmt\",\"counterpoint\":\"Para a MMT, quem emite a própria moeda não depende de regras contábeis; o limite real do gasto é a inflação, e regras fixas seriam desnecessárias ou prejudiciais.\"}]}",
+   "usage": {
+    "input_tokens": 338,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 379,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00036054,
+   "ms": 2045,
+   "firstCardMs": 1998
+  },
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Esse governo do Lula é uma vergonha e o Haddad não sabe o que está fazendo no ministério."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Mas a questão de fundo é outra: sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem."
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Quem quer acabar com o teto diz que o Estado que emite a própria moeda não precisa de limite contábil para gastar."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "E tem quem diga que cobrar imposto para redistribuir renda é tirar de quem produziu, e que o Estado deveria ser mínimo."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Do outro lado há quem defenda que a desigualdade só é aceitável se ela melhorar a vida de quem está pior."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "Deixe seu like, se inscreva no canal e ative o sininho para não perder o próximo vídeo."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que, sem uma regra que limite o gasto público, a dívida cresce sem controle e os juros sobem."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Estado emissor não precisa de limite contábil\",\"quote\":\"Quem quer acabar com o teto diz que o Estado que emite a própria moeda não precisa de limite contábil para gastar\",\"paraphrase\":\"O falante afirma que quem quer acabar com o teto defende que um Estado que emite a própria moeda não precisa de limite contábil para gastar.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_mmt\",\"role\":\"relies_on\"},{\"id\":\"p_soberania_monetaria\",\"role\":\"relies_on\"},{\"id\":\"i_regras_fiscais\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Imposto para redistribuir seria roubo\",\"quote\":\"cobrar imposto para redistribuir renda é tirar de quem produziu, e que o Estado deveria ser mínimo\",\"paraphrase\":\"O falante afirma que há quem diga que cobrar imposto para redistribuir renda é tirar de quem produziu e que o Estado deveria ser mínimo.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"f_libertarianismo\",\"role\":\"relies_on\"},{\"id\":\"f_liberalismo_classico\",\"role\":\"echoes\"},{\"id\":\"p_socialdemocracia\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Desigualdade só aceitável se beneficiar os pobres\",\"quote\":\"a desigualdade só é aceitável se ela melhorar a vida de quem está pior\",\"paraphrase\":\"O falante afirma que há quem defenda que a desigualdade só é aceitável se melhorar a vida de quem está pior.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"f_justica_rawls\",\"role\":\"relies_on\"},{\"id\":\"p_socialdemocracia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que quem emite a própria moeda não fica sem ela é a base da MMT: o limite ao gasto seria a inflação, não uma regra contábil. Por isso a fala contraria a lógica de regras fiscais.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem defende regras fiscais responde que gasto sem limite pode acabar em inflação e juros mais altos, e que a credibilidade das contas exige um teto.\"},{\"i\":1,\"context\":\"Ver a tributação para redistribuir como retirada de quem produziu é a crítica libertária: direitos individuais limitam o que o Estado pode fazer.\",\"against\":\"p_socialdemocracia\",\"counterpoint\":\"A social-democracia responde que impostos progressivos financiam serviços e proteção social que sustentam a demanda e a igualdade de oportunidades.\"},{\"i\":2,\"context\":\"A ideia de que a desigualdade só se justifica se beneficia os mais desfavorecidos vem de Rawls, o princípio da diferença de sua teoria da justiça.\",\"against\":\"f_libertarianismo\",\"counterpoint\":\"Libertários respondem que redistribuir para os mais pobres viola o direito de cada um sobre o que produz, e que a justiça não depende de um padrão de resultado.\"}]}",
+   "usage": {
+    "input_tokens": 491,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1112,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00074234,
+   "ms": 4669,
+   "firstCardMs": 3397
+  }
+ ]
+}

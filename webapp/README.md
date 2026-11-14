@@ -72,6 +72,12 @@ It asks for recall on substance: a card for every claim a viewer could want cont
 
 Each card has a `headline` (3–9 words, used as its title in the list) and a paraphrase that attributes the claim to the speaker, both in the language of the video. `headline` is an addition to the shared schema for this page only. Indicators are used only for figures about Brazil. Any other fact with a number shows as "not checked".
 
+**No parties or politicians in Lastro's text.** The headline, paraphrase, context and counterpoint never name a party, a government or a politician, even when the speaker does; offices ("the president") are fine, and the quote stays verbatim. The prompt says so, and the Worker checks it against the list in `shared/politics.ts`, also used by the evals (`src/worker/names.ts`, for video chunks and X posts):
+- a paraphrase that names one drops the card;
+- a headline, context or counterpoint that names one is cleared: the list titles the card from the paraphrase, and the card shows the map's text.
+
+Each case is logged as `politics_filtered` in `wrangler tail`.
+
 **Context and counterpoint (p9, Claude only).** After all units, Claude writes a `notes` array, one note per unit, as the extension's Worker does (`shared/prompt.ts`; the rules are in `src/worker/notes.ts`):
 - `context`: why the claim belongs to its first node, in the speaker's own terms. The card shows it under "The idea behind it", before the node's summary.
 - `counterpoint`: how the opposing view would answer. It is kept only when the model names (`against`) a view the card already lists under "Who disagrees" (`shared/stance.ts`); otherwise that list keeps the map's note on the link.

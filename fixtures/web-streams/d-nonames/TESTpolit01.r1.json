@@ -1,0 +1,172 @@
+{
+ "tag": "d-nonames",
+ "videoId": "TESTpolit01",
+ "run": 1,
+ "chunker": "uploader",
+ "at": "2026-11-14T18:53:04.441Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Olá, bem-vindos ao canal, hoje o assunto é o orçamento do governo e a briga em Brasília."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"Partidos quebraram o país, sem diferença\",\"quote\":\"O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco.\",\"paraphrase\":\"O falante afirma que os governos recentes levaram o país à quebra e que não há diferença relevante entre eles.\",\"kind\":\"theory\",\"nodes\":[],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 237,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 188,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00025444000000000004,
+   "ms": 1649,
+   "firstCardMs": 1643
+  },
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Olá, bem-vindos ao canal, hoje o assunto é o orçamento do governo e a briga em Brasília."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Esse governo do Lula é uma vergonha e o Haddad não sabe o que está fazendo no ministério."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Mas a questão de fundo é outra: sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que os governos recentes levaram o país à quebra e que não há diferença relevante entre eles."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Regra fiscal limita gasto e evita dívida descontrolada\",\"quote\":\"sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem\",\"paraphrase\":\"O falante afirma que, sem uma regra que limite o gasto público, a dívida cresce sem controle e os juros sobem.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_regras_fiscais\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"Ele defende que regras fixas de gasto dão credibilidade às contas públicas, sustentando a ideia de que limitar o gasto impede a dívida de crescer sem controle. Isso ecoa a visão de que a dívida alta pressiona os juros.\",\"against\":\"s_mmt\",\"counterpoint\":\"Para a MMT, quem emite a própria moeda não precisa de regra contábil: o limite real ao gasto é a inflação, não uma meta de dívida fixada em lei.\"}]}",
+   "usage": {
+    "input_tokens": 387,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 383,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00036694000000000006,
+   "ms": 2786,
+   "firstCardMs": 2759
+  },
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Esse governo do Lula é uma vergonha e o Haddad não sabe o que está fazendo no ministério."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Mas a questão de fundo é outra: sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem."
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Quem quer acabar com o teto diz que o Estado que emite a própria moeda não precisa de limite contábil para gastar."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "E tem quem diga que cobrar imposto para redistribuir renda é tirar de quem produziu, e que o Estado deveria ser mínimo."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Do outro lado há quem defenda que a desigualdade só é aceitável se ela melhorar a vida de quem está pior."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "Deixe seu like, se inscreva no canal e ative o sininho para não perder o próximo vídeo."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que, sem uma regra que limite o gasto público, a dívida cresce sem controle e os juros sobem.",
+     "O falante afirma que os governos recentes levaram o país à quebra e que não há diferença relevante entre eles."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Teto de gastos e moeda própria\",\"quote\":\"Quem quer acabar com o teto diz que o Estado que emite a própria moeda não precisa de limite contábil para gastar\",\"paraphrase\":\"O falante afirma que quem quer acabar com o teto argumenta que um Estado que emite a própria moeda não precisa de limite contábil para gastar.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_mmt\",\"role\":\"relies_on\"},{\"id\":\"i_regras_fiscais\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Cobrar imposto para redistribuir é roubo\",\"quote\":\"cobrar imposto para redistribuir renda é tirar de quem produziu, e que o Estado deveria ser mínimo\",\"paraphrase\":\"O falante afirma que há quem veja a cobrança de impostos para redistribuir renda como tirar de quem produziu, defendendo um Estado mínimo.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"f_libertarianismo\",\"role\":\"relies_on\"},{\"id\":\"f_liberalismo_classico\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Desigualdade aceitável se beneficiar os pobres\",\"quote\":\"a desigualdade só é aceitável se ela melhorar a vida de quem está pior\",\"paraphrase\":\"O falante afirma que outros defendem que a desigualdade só é aceitável se melhorar a vida de quem está em pior situação.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"f_justica_rawls\",\"role\":\"relies_on\"},{\"id\":\"p_socialdemocracia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que um Estado com moeda própria não está preso a limites de caixa segue o raciocínio central dessa escola, que vê a inflação, e não a dívida, como o limite real do gasto.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem defende regras fiscais responderia que, sem um limite explícito, o gasto tende a pressionar a inflação e os juros, e que a credibilidade exige um teto.\"},{\"i\":1,\"context\":\"Ao tratar o imposto como tirar de quem produziu, o argumento parte da defesa de direitos individuais e de propriedade, traço típico do libertarianismo.\",\"against\":\"p_socialdemocracia\",\"counterpoint\":\"Defensores do Estado de bem-estar responderiam que impostos progressivos financiam serviços e reduzem a desigualdade, sendo legítimos como forma de garantir direitos sociais.\"},{\"i\":2,\"context\":\"A ideia de aceitar desigualdade só quando ela beneficia os menos favorecidos é o princípio da diferença de Rawls, aplicado para julgar as instituições pelo resultado para os piores.\",\"against\":\"f_libertarianismo\",\"counterpoint\":\"Libertários responderiam que a justiça depende de como a riqueza foi obtida e não de um padrão de resultado, por isso redistribuir para beneficiar os piores viola direitos.\"}]}",
+   "usage": {
+    "input_tokens": 530,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1095,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00073724,
+   "ms": 5128,
+   "firstCardMs": 3537
+  }
+ ]
+}

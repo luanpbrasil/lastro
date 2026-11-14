@@ -170,6 +170,27 @@ const median = (xs: number[]) => {
   return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
 };
 
+/** The Worker logs each field it clears or card it drops for naming a party or politician (webapp/src/worker/names.ts). */
+const filtered = { dropped: 0, cleared: 0 };
+const log = console.log;
+console.log = (...a: unknown[]) => {
+  const m = typeof a[0] === "string" && a[0].startsWith('{"event":"politics_filtered"') ? (JSON.parse(a[0]) as { action: "dropped" | "cleared" }) : null;
+  if (m) filtered[m.action]++;
+  else log(...a);
+};
+
+/** Fields the model wrote that name a party or politician, before the Worker's filter (the prompt's effect). */
+function namedByModel(text: string): number {
+  let j: { units?: Record<string, unknown>[]; notes?: Record<string, unknown>[] };
+  try {
+    j = JSON.parse(text);
+  } catch {
+    return 0;
+  }
+  const fields = [...(j.units ?? []).flatMap((u) => [u.headline, u.paraphrase]), ...(j.notes ?? []).flatMap((n) => [n.context, n.counterpoint])];
+  return fields.filter((f) => typeof f === "string" && namesPolitics(f).length).length;
+}
+
 async function main() {
   const videos = golds();
   if (flag("plan")) {
@@ -222,12 +243,15 @@ async function main() {
       const usdPer: number[] = [];
       const firstMs: number[] = [];
       const doneMs: number[] = [];
+      let modelNamed = 0;
+      const f0 = { ...filtered };
       let withContext = 0;
       let nodeCards = 0;
       let counterpoints = 0;
       for (const run of runs) {
         const cards = await replay(run);
         const notes = run.chunks.some((c) => /"notes"\s*:/.test(c.text));
+        modelNamed += run.chunks.reduce((n, c) => n + namedByModel(c.text), 0);
         let runFail = 0;
         const lines = goldChecks(v.gold, cards as Card[], notes ? 9 : 8, (ok, what) => {
           if (ok) pass++;
@@ -242,6 +266,17 @@ async function main() {
           const name = l.replace(/^ {2}[✓✗] [^:]+: /, "");
           if (name.startsWith("context on")) enrichOk += ok ? 1 : 0;
           else caseOk.set(name, (caseOk.get(name) ?? 0) + (ok ? 1 : 0));
+        }
+        // Graph rule on every Lastro-written field of every card shown (the quote is verbatim and may name anyone).
+        for (const c of cards) {
+          const named = namesPolitics([c.headline ?? "", c.paraphrase, c.context ?? "", c.counterpoint ?? ""].join(" "));
+          const ok = named.length === 0;
+          if (ok) pass++;
+          else {
+            fail++;
+            runFail++;
+            if (flag("verbose")) log(`    ✗ r${run.run} card names ${named.join(", ")}: ${c.headline ?? ""} | ${c.paraphrase}`);
+          }
         }
         if (!runFail) allPass++;
         // Any party or politician in any free text the card shows.
@@ -262,7 +297,8 @@ async function main() {
       console.log(
         `  ${v.gold.videoId}: all-pass ${allPass}/${n} · cards/run ${median(cardsPer)} · $/video ${median(usdPer).toFixed(4)} · ` +
           `per chunk first card ${(median(firstMs) / 1000).toFixed(1)} s, done ${(median(doneMs) / 1000).toFixed(1)} s · ` +
-          `context ${withContext}/${nodeCards} theory/forecast node cards · counterpoints ${counterpoints} · political names ${forbidden}`,
+          `context ${withContext}/${nodeCards} theory/forecast node cards · counterpoints ${counterpoints} · ` +
+          `names: model wrote ${modelNamed} fields, Worker dropped ${filtered.dropped - f0.dropped} cards and cleared ${filtered.cleared - f0.cleared} fields, cards shown naming ${forbidden}`,
       );
       for (const [name, ok] of caseOk) console.log(`    ${ok}/${n} ${name}`);
     }
