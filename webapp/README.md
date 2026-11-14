@@ -260,11 +260,13 @@ pnpm wrangler d1 execute lastro-live --remote --command "DELETE FROM cards WHERE
 
 ## X post context
 
-The newer extension also contextualizes selected public Portuguese X posts on
+The newer extension also contextualizes selected public Portuguese, English and Spanish X posts on
 home, detail, search, and profile feeds. Use the Lastro action in the post header;
 the toolbar action remains YouTube listening. The standalone app has no X-post
 paste input. See the [X feature contract](../docs/features/x/README.md) for the
 experience, source boundaries, persistence, comparisons, and known limitations.
+Cards are written in the post's language, taken from X's `lang` tag on the post
+text; posts in other languages get no Lastro action.
 
 For request/storage and browser fixture checks, use
 `pnpm --filter lastro-live run test:posts` from the repository root. The suite

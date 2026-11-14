@@ -15,6 +15,7 @@
     "ext:zip": "node extension/build.mjs --store",
     "test:notes": "node --test tests/notes.test.mjs",
     "test:language": "node --test tests/language.test.mjs",
+    "test:post-lang": "node --test tests/post-lang.test.mjs",
     "test:posts": "pnpm run test:posts:worker && pnpm run test:posts:extension",
     "test:posts:worker": "node --test --test-timeout=20000 tests/posts-worker.test.mjs",
     "test:posts:extension": "node --test --test-timeout=20000 tests/posts-extension.test.mjs"

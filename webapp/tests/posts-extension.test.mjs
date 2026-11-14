@@ -494,12 +494,24 @@ test("impossible observed publication dates stay missing instead of normalizing 
 });
 
 for (const [surface, path] of Object.entries(surfaces)) test(`${surface}: protected, missing-source, unrelated and uncertain posts make no model requests`, async () => {
-  for (const options of [{ lock: true }, { metadata: false }, { lang: "" }, { lang: "en" }, { text: "Hoje o meu time venceu o campeonato de futebol." }, { text: "Juros altos reduzem o investimento no Brasil?" }, { text: "Banco Central, inflação, juros, PIB e dívida pública." }]) {
+  for (const options of [{ lock: true }, { metadata: false }, { lang: "" }, { lang: "fr" }, { lang: "und" }, { lang: "en", text: "Just finished a great book about cooking, highly recommend it to everyone." }, { text: "Hoje o meu time venceu o campeonato de futebol." }, { text: "Juros altos reduzem o investimento no Brasil?" }, { text: "Banco Central, inflação, juros, PIB e dívida pública." }]) {
     const { browser, page } = await pageFor({ ...options, path });
     try {
       assert.equal(await page.getByRole("button", { name: "Lastro", exact: true }).count(), 0, JSON.stringify(options));
       assert.equal(await page.evaluate(() => window.requests.length), 0);
       if (options.metadata === false) assert.equal(await page.getByText("Informações da fonte indisponíveis; não é possível analisar este post.", { exact: true }).count(), 1);
+    } finally { await browser.close(); }
+  }
+});
+
+test("English and Spanish claims offer Lastro and send X's language tag with the post", async () => {
+  for (const [lang, text] of [["en", "High interest rates reduce investment. The central bank should weigh unemployment, not only inflation."], ["es", "Las tasas de interés altas reducen la inversión. El banco central debe considerar el desempleo."]]) {
+    const { browser, page } = await pageFor({ posts: [{ lang, text, quote: false }] });
+    try {
+      await page.getByRole("button", { name: "Lastro", exact: true }).click();
+      const sent = await page.evaluate(() => JSON.parse(window.requests[0].body));
+      assert.equal(sent.lang, lang);
+      assert.equal(sent.text, text);
     } finally { await browser.close(); }
   }
 });

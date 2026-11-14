@@ -1,5 +1,4 @@
-import { shouldAnalyze, TopicScorer, type TopicModel } from "../../../shared/topics";
-import topicModel from "../../../shared/topics-model.json";
+import { relevantPost } from "../../src/post-relevance";
 import type { PostAnalysis, PostSource } from "../../src/types";
 import { el, fullCard } from "../../src/web/cardview";
 import { t } from "../../src/web/i18n";
@@ -7,7 +6,6 @@ import postStyles from "./x-content.css";
 import { openPostPanel } from "./x-panel";
 import type { ApiResult } from "./messages";
 
-const scorer = new TopicScorer(topicModel as TopicModel);
 const POST = 'article[data-testid="tweet"]';
 const EMBEDDED = '[data-testid="quoteTweet"], [role="link"][tabindex="0"]';
 // X's public/protected observation is contingent on a complete author header. It is not platform attestation.
@@ -19,18 +17,6 @@ function isSourceArticle(article: HTMLElement): boolean {
 
 function own(article: HTMLElement, selector: string): HTMLElement[] {
   return [...article.querySelectorAll<HTMLElement>(selector)].filter(e => e.closest(POST) === article && !e.closest(EMBEDDED));
-}
-
-function relevant(text: string, lang: string): boolean {
-  if (!/^pt(?:-|$)/i.test(lang) || text.trim().split(/\s+/).length < 6 || /\?\s*$/.test(text)) return false;
-  // The video-trained model also scores uses such as "economia de bateria" highly.
-  // Require a concrete policy/economic subject as well as a confident model score.
-  const normalized = text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-  if (!/\b(?:selic|inflacao|juros|impostos?|tributaria|tributario|divida publica|banco central|pib|desemprego|politica monetaria|politica fiscal|investimento publico|gastos publicos|governo|congresso|judiciario|executivo|democracia|eleicoes|constituicao|distribuicao de renda)\b/.test(normalized)) return false;
-  // Topic lists and headlines without an assertion are uncertain, even when they score highly.
-  if (!/(?:^|\s)é(?:\s|$)/i.test(text) && !/\b(?:sao|foi|foram|sera|serao|esta|estao|tem|reduz|reduzem|aumenta|aumentam|eleva|elevam|mantem|gera|geram|estimula|estimulam|melhora|melhoram|deve|devem|precisa|precisam|pode|podem|vai|vao|atingiu|chegou|caiu|subiu|impede|impedem|garante|garantem)\b/.test(normalized)) return false;
-  const result = scorer.classify(text, "");
-  return shouldAnalyze(result) && Math.max(result.scores.economia, result.scores.politica) >= 0.55;
 }
 
 type Observation = { state: "ready"; source: PostSource } | { state: "expand" } | { state: "unknown" } | { state: "skip" };
@@ -45,7 +31,9 @@ function observe(article: HTMLElement): Observation {
   const texts = own(article, '[data-testid="tweetText"]');
   if (texts.length !== 1) return { state: "skip" };
   const text = writtenText(texts[0]);
-  if (!relevant(text, texts[0].lang)) return { state: "skip" };
+  // X's own language tag on the post text is the post's language: the cards are written in it (src/post-relevance.ts).
+  const lang = texts[0].lang.trim();
+  if (!relevantPost(text, lang)) return { state: "skip" };
   if (own(article, LOCK).length) return { state: "skip" };
   const header = own(article, '[data-testid="User-Name"]')[0];
   const authorLinks = header ? [...header.querySelectorAll<HTMLAnchorElement>('a[href]')] : [];
@@ -64,7 +52,7 @@ function observe(article: HTMLElement): Observation {
   const canonical = timestamp && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(timestamp)
     ? timestamp.includes(".") ? timestamp : timestamp.replace(/Z$/, ".000Z") : null;
   const publishedAt = canonical && Number.isFinite(Date.parse(canonical)) && new Date(canonical).toISOString() === canonical ? canonical : null;
-  return { state: "ready", source: { postId: match[2], url: `https://x.com/${handle}/status/${match[2]}`, author, handle, publishedAt, text, lang: "pt", visibility: "public", complete: true } };
+  return { state: "ready", source: { postId: match[2], url: `https://x.com/${handle}/status/${match[2]}`, author, handle, publishedAt, text, lang, visibility: "public", complete: true } };
 }
 
 type Placement = { anchor: HTMLElement; side: "before" | "after"; align: "actions" | "author" | "notice" };
