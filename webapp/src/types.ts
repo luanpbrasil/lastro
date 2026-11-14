@@ -37,7 +37,8 @@ export interface PostSource {
   handle: string;
   publishedAt: string | null;
   text: string;
-  lang: "pt";
+  /** X's language tag on the post text, one Lastro supports (src/post-language.ts); the cards are written in it. */
+  lang: string;
   visibility: "public";
   complete: true;
 }

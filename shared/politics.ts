@@ -7,6 +7,8 @@
  * (Novo consenso is a node).
  */
 const ACRONYMS = "PT|PSDB|MDB|PSOL";
+/** "and"/"or" in Portuguese, English and Spanish (X posts are in all three). */
+const AND_OR = String.raw`\b(?:e|ou|and|or|y)\b`;
 /**
  * "PL" is also a bill (projeto de lei: "PL 1087", "o PL da reforma", "PL das fake news"), so it counts as the party
  * only when that is clear: after "partido", or in a list with another party ("PT e PL", "PL, PSDB"). Never before a
@@ -15,11 +17,15 @@ const ACRONYMS = "PT|PSDB|MDB|PSOL";
 const PL_PARTY = new RegExp(
   [
     String.raw`\b[Pp]artido\s+(?:do\s+)?PL\b(?!\s*(?:n[º°o.]\s*)?\d)`,
-    String.raw`\b(?:${ACRONYMS})\s*(?:,|\/|\be\b|\bou\b)\s*PL\b(?!\s*(?:n[º°o.]\s*)?\d)`,
-    String.raw`\bPL\s*(?:,|\/|\be\b|\bou\b)\s*(?:${ACRONYMS})\b`,
+    String.raw`\b(?:${ACRONYMS})\s*(?:,|\/|${AND_OR})\s*PL\b(?!\s*(?:n[º°o.]\s*)?\d)`,
+    String.raw`\bPL\s*(?:,|\/|${AND_OR})\s*(?:${ACRONYMS})\b`,
   ].join("|"),
 );
-const PARTIES: RegExp[] = [new RegExp(String.raw`\b(${ACRONYMS})\b`), PL_PARTY, /partido (novo|liberal)/i, /\b(União Brasil|Republicanos)\b/i];
+const PARTIES: RegExp[] = [
+  new RegExp(String.raw`\b(${ACRONYMS})\b`), PL_PARTY, /partido (novo|liberal)/i, /\b(União Brasil|Republicanos)\b/i,
+  // PT by its full name, in Portuguese, Spanish and English.
+  /partido (dos trabalhadores|de los trabajadores)|workers'? party/i,
+];
 /**
  * Alexandre de Moraes is a justice, not a politician; he is listed, in full and as "Moraes" alone, because a card
  * naming him reads as partisan. Short forms cards use ("Moraes", "Nikolas", "Ciro") are listed too; "Marina" and

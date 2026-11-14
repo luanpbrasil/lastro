@@ -1,14 +1,21 @@
 # X post context
 
 Lastro adds context to economic and political claims in selected public
-Portuguese posts on X. It uses the newer [app and extension](../../../webapp/README.md).
+Portuguese, English and Spanish posts on X. It uses the newer [app and extension](../../../webapp/README.md).
 This document is the maintained feature contract; implementation tickets and
 change-specific validation evidence belong in GitHub.
 
 ## Viewer experience
 
 - Home, post detail, search, and profile feeds use the same interaction. A local
-  Portuguese topic/assertion gate offers **Lastro** on likely relevant posts.
+  topic/assertion gate offers **Lastro** on likely relevant posts
+  ([`src/post-relevance.ts`](../../../webapp/src/post-relevance.ts)). The post's
+  language is X's own `lang` tag on the post text; Portuguese, English and Spanish
+  posts are supported, and posts in any other language (or `und`) get no action.
+  Portuguese posts need a policy/economic subject, an assertion verb and the topic
+  model's score. The topic model is trained on Portuguese and can't separate
+  English or Spanish claims from chit-chat, so those need two different subjects
+  and an assertion verb instead.
   Unrelated or uncertain posts have no action; scrolling sends no analysis
   requests. The conservative gate can miss relevant posts.
 - Analyze only the selected post's own complete written text. Preserve written
@@ -32,7 +39,9 @@ change-specific validation evidence belong in GitHub.
 - Show loading, attributed cards, an explicit **no relevant claims** result, or
   an error with **Retry**. A competing request also offers Retry. Post cards have
   no video timestamps or seek controls. Interface labels use the existing English
-  and Brazilian Portuguese selection; supported post content is Portuguese.
+  and Brazilian Portuguese selection. Cards (headline, paraphrase, context,
+  counterpoint) are written in the post's language, like video cards in the
+  video's language.
 - Close, the Lastro trigger, or Escape from within the panel/trigger dismisses
   the panel. Interaction elsewhere leaves it open. Scroll and resize reposition
   it. Edits, moved/removed/recycled sources, and repeated injection clear stale
@@ -137,7 +146,7 @@ Real-provider quality and live media playback/capture need their own evidence.
 
 Unsupported: protected content, surrounding threads/replies, quoted-post bodies,
 image/audio/video analysis, X API/OAuth access, standalone pasted-post input,
-broader post languages, automatic analysis on scroll, cache expiry, feedback
+post languages other than Portuguese, English and Spanish, automatic analysis on scroll, cache expiry, feedback
 collection, and per-viewer history. Media would need its own acquisition and
 evidence-grounding contract; the current contract is written text only.
 

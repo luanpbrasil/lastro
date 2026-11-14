@@ -2,7 +2,7 @@ import { sha256Hex } from "../../../shared/transcript";
 import type { PostAnalysis, PostSource } from "../types";
 
 /** Bump whenever extraction, validation, graph context or numerical comparison semantics change. */
-const ANALYSIS_VERSION = "post-v3"; // v3: Claude adds context and counterpoint (notes.ts)
+const ANALYSIS_VERSION = "post-v4"; // v3: Claude adds context and counterpoint (notes.ts); v4: cards in the post's language (pt, en, es)
 // Recovery for an interrupted Worker, not an expiry policy for successful results.
 const CLAIM_MS = 3 * 60 * 1000;
 type PostKey = [postId: string, textFingerprint: string, metadataFingerprint: string, version: string];

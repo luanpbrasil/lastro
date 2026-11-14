@@ -6,7 +6,7 @@ This guide maps the two implementations and their change boundaries. Verify the 
 
 Lastro helps a viewer understand economic and political claims in a YouTube video. It places context cards on the playback timeline: the speaker's claim, its intellectual background, opposing views, relevant Brazilian episodes, readings, and comparisons with official figures. A theory or forecast has no truth verdict. Numerical comparisons use official data and say whether values match or differ.
 
-The newer extension also contextualizes selected Portuguese X posts across home, detail, search, and profile feeds. Its source isolation, presentation, reuse, comparison policy, and limitations are maintained in the [X feature document](features/x/README.md).
+The newer extension also contextualizes selected Portuguese, English and Spanish X posts across home, detail, search, and profile feeds. Its source isolation, presentation, reuse, comparison policy, and limitations are maintained in the [X feature document](features/x/README.md).
 
 Read the [domain glossary](../GLOSSARY.md) for the product language. There are two executable implementations in this repository. They share domain code but have different ingestion, persistence, and delivery contracts.
 
@@ -71,7 +71,7 @@ The contract types are in [`webapp/src/types.ts`](../webapp/src/types.ts); routi
 | `GET /api/videos/:id/cards?after=<cursor>` | Up to 100 new stored cards per poll, cursor, recent chunk status, coverage estimate |
 | `GET /api/videos/:id/coverage` | Merged bucket ranges, used to avoid resending captions |
 | `GET /api/videos/:id/language` | Detects and caches spoken language (web page only; the extension detects it in the page, `src/language-detect.ts`) |
-| `POST /api/posts/analyze` | Validates a complete Portuguese public-post observation; reuses a compatible result or analyzes and saves `complete`/`empty`; competing requests receive 409 `in_progress` with Retry-After |
+| `POST /api/posts/analyze` | Validates a complete public-post observation in a supported language (pt, en, es); reuses a compatible result or analyzes and saves `complete`/`empty`; competing requests receive 409 `in_progress` with Retry-After |
 | `GET /api/posts/results/:id` | Retrieves one saved post result by its opaque result id; no public post-history listing |
 
 Ordered [SQL migrations](../webapp/migrations/) define:

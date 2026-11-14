@@ -11,7 +11,7 @@ import { isSafeText } from "./sanitize";
  */
 export function notesRules(source: "transcript" | "post"): string {
   const where = source === "transcript" ? "the Transcript block" : "the post";
-  const lang = source === "transcript" ? "in the language of the video" : "in Portuguese";
+  const lang = source === "transcript" ? "in the language of the video" : "in the language of the post";
   return `After all units, return "notes": one note for EACH unit, in the same order, skipping none (notes has as many entries as units). Every unit with nodes, a fact included, gets a context; only a unit without nodes gets context and counterpoint "".
 - i: the unit's position in units (the first is 0).
 - context: 1 or 2 sentences on why this claim belongs to the first node in nodes, following the author's own argument here: which step of their reasoning is typical of that node. Don't repeat the paraphrase or the node's summary.
