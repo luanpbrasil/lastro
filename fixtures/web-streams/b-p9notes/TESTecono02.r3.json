@@ -1,0 +1,178 @@
+{
+ "tag": "b-p9notes",
+ "videoId": "TESTecono02",
+ "run": 3,
+ "chunker": "uploader",
+ "at": "2026-11-14T17:43:28.339Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Bom dia, hoje o tema é a economia brasileira nos últimos trinta anos."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "Em 1994 a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não conseguiram vencer."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"URV acabou com a inflação inercial em 1994\",\"quote\":\"Em 1994 a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não conseguiram vencer\",\"paraphrase\":\"O falante afirma que, em 1994, a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não haviam vencido.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"e_plano_real\",\"role\":\"relies_on\"},{\"id\":\"s_monetarismo\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":\"1994\"}],\"notes\":[{\"i\":0,\"context\":\"O argumento trata a inflação como um problema de inércia, em que os preços sobem porque já subiram antes, e não apenas como excesso de moeda. Isso é típico do episódio do Plano Real, que é o primeiro nó citado.\",\"against\":\"s_monetarismo\",\"counterpoint\":\"Para a visão monetarista, a inflação é sempre um fenômeno monetário, e um plano bem-sucedido se explica pelo controle da moeda, não pela coordenação de reajustes.\"}]}",
+   "usage": {
+    "input_tokens": 242,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 408,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0003637,
+   "ms": 4385,
+   "firstCardMs": 3682
+  },
+  {
+   "input": {
+    "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Bom dia, hoje o tema é a economia brasileira nos últimos trinta anos."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "Em 1994 a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não conseguiram vencer."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "A recessão de 2015 e 2016 foi a pior em décadas, e até hoje se discute se a culpa foi do ajuste ou do descontrole fiscal anterior."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Agora os Estados Unidos sobem tarifas e muita gente aqui defende proteger a indústria nacional até ela conseguir competir."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que, em 1994, a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não haviam vencido."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Recessão de 2015-16 e a disputa sobre suas causas\",\"quote\":\"A recessão de 2015 e 2016 foi a pior em décadas, e até hoje se discute se a culpa foi do ajuste ou do descontrole fiscal anterior.\",\"paraphrase\":\"O falante afirma que a recessão de 2015 e 2016 foi a pior em décadas e que ainda se debate se a culpa foi do ajuste ou do descontrole fiscal anterior.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"e_recessao2015\",\"role\":\"relies_on\"},{\"id\":\"s_austeridade\",\"role\":\"echoes\"}],\"indicator\":\"pib_tri\",\"claimed_value\":null,\"period\":\"2015/2016\"},{\"headline\":\"Proteger a indústria até ela competir\",\"quote\":\"muita gente aqui defende proteger a indústria nacional até ela conseguir competir\",\"paraphrase\":\"O falante afirma que muitas pessoas defendem proteger a indústria nacional com tarifas até ela conseguir competir.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"p_protecionismo\",\"role\":\"relies_on\"},{\"id\":\"f_liberalismo_classico\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A discussão sobre se a recessão veio do ajuste ou do descontrole fiscal é o debate central sobre o episódio, em que cada lado usa a crise para defender sua visão sobre gasto e contas públicas.\",\"against\":\"s_austeridade\",\"counterpoint\":\"Quem defende a austeridade responderia que o descontrole fiscal anterior criou a crise e que o ajuste era necessário, mesmo que doloroso no curto prazo.\"},{\"i\":1,\"context\":\"Proteger a indústria nascente com tarifas até que ela possa competir é um argumento típico do protecionismo, que vê proteção temporária como caminho para construir capacidade produtiva.\",\"against\":\"f_liberalismo_classico\",\"counterpoint\":\"Quem defende o liberalismo clássico responderia que tarifas encarecem produtos para os consumidores e que a indústria protegida raramente deixa de depender da proteção.\"}]}",
+   "usage": {
+    "input_tokens": 432,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 767,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0005622,
+   "ms": 3783,
+   "firstCardMs": 3104
+  },
+  {
+   "input": {
+    "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "A recessão de 2015 e 2016 foi a pior em décadas, e até hoje se discute se a culpa foi do ajuste ou do descontrole fiscal anterior."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Agora os Estados Unidos sobem tarifas e muita gente aqui defende proteger a indústria nacional até ela conseguir competir."
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Nas apostas online o apostador não sabe as chances reais e a empresa sabe tudo, por isso o setor precisa de regulação."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "A reforma trabalhista e o fim da escala seis por um voltaram ao debate, com gente dizendo que a CLT protege quem é mais fraco."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Na Previdência, quem trabalha hoje paga a aposentadoria de quem já parou, e com a população envelhecendo a conta não fecha."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "Alguns economistas dizem que o país é pobre porque exporta soja e minério e importa tecnologia, preso na periferia do sistema."
+     },
+     {
+      "s": 48000,
+      "d": 6000,
+      "t": "Se gostou do vídeo, deixa o like e se inscreve no canal."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que muitas pessoas defendem proteger a indústria nacional com tarifas até ela conseguir competir.",
+     "O falante afirma que a recessão de 2015 e 2016 foi a pior em décadas e que ainda se debate se a culpa foi do ajuste ou do descontrole fiscal anterior.",
+     "O falante afirma que, em 1994, a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não haviam vencido."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Apostas online exigem regulação pela assimetria de informação\",\"quote\":\"Nas apostas online o apostador não sabe as chances reais e a empresa sabe tudo, por isso o setor precisa de regulação\",\"paraphrase\":\"O falante afirma que, nas apostas online, o apostador não conhece as chances reais enquanto a empresa conhece, por isso o setor precisa de regulação.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_falhas_mercado\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Reforma trabalhista e escala 6x1 voltam ao debate\",\"quote\":\"A reforma trabalhista e o fim da escala seis por um voltaram ao debate, com gente dizendo que a CLT protege quem é mais fraco\",\"paraphrase\":\"O falante afirma que a reforma trabalhista e o fim da escala 6x1 voltaram ao debate, com quem diz que a CLT protege o lado mais fraco.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_legislacao_trabalhista\",\"role\":\"relies_on\"},{\"id\":\"p_socialdemocracia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Previdência por repartição e envelhecimento pressionam contas\",\"quote\":\"Na Previdência, quem trabalha hoje paga a aposentadoria de quem já parou, e com a população envelhecendo a conta não fecha\",\"paraphrase\":\"O falante afirma que a Previdência funciona com quem trabalha hoje pagando quem já se aposentou, e que o envelhecimento da população faz a conta não fechar.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_previdencia\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Países pobres presos na periferia do sistema\",\"quote\":\"Alguns economistas dizem que o país é pobre porque exporta soja e minério e importa tecnologia, preso na periferia do sistema\",\"paraphrase\":\"O falante relata que alguns economistas afirmam que o país é pobre por exportar commodities, importar tecnologia e ficar na periferia do sistema.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"p_dependencia\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que o mercado sozinho não protege quem não consegue avaliar o risco se encaixa na regulação por falhas de mercado. O argumento aponta a assimetria de informação entre apostador e empresa como justificativa para regras.\",\"against\":\"f_libertarianismo\",\"counterpoint\":\"Para os libertários, regras e licenças limitam a liberdade de contratar e o próprio apostador deveria assumir o risco de suas escolhas.\"},{\"i\":1,\"context\":\"A defesa da CLT como proteção ao lado mais fraco da relação de emprego ecoa a visão de que o Estado deve proteger quem trabalha. O argumento está no debate sobre direitos trabalhistas.\",\"against\":\"f_liberalismo_classico\",\"counterpoint\":\"Para o liberalismo clássico, regras rígidas encarecem o emprego formal e empurram trabalhadores para a informalidade, enquanto a liberdade de contratar beneficia ambos os lados.\"},{\"i\":2,\"context\":\"O funcionamento da Previdência por repartição, com a pressão do envelhecimento sobre as contas, é o ponto central deste argumento sobre o sistema público de aposentadorias.\",\"against\":\"f_liberalismo_classico\",\"counterpoint\":\"Defensores da capitalização individual argumentam que cada pessoa poupa para a própria aposentadoria, sem depender de uma solidariedade entre gerações que o envelhecimento torna insustentável.\"},{\"i\":3,\"context\":\"A explicação do subdesenvolvimento pela posição do país na economia mundial, com exportação de primários e importação de tecnologia, é a tese central da teoria da dependência.\",\"against\":\"f_liberalismo_classico\",\"counterpoint\":\"Para essa visão liberal, o atraso vem de instituições e políticas internas, e não apenas da posição do país na economia mundial.\"}]}",
+   "usage": {
+    "input_tokens": 701,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1474,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0009426,
+   "ms": 8567,
+   "firstCardMs": 6881
+  }
+ ]
+}

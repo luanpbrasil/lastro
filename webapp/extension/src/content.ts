@@ -1,7 +1,8 @@
 import type { Segment } from "../../../shared/schema";
 import { shouldAnalyze, TopicScorer, type TopicModel } from "../../../shared/topics";
 import topicModel from "../../../shared/topics-model.json";
-import type { CardsResponse, CoverageResponse, ErrorCode, LanguageResponse, SessionResponse, StoredCard } from "../../src/types";
+import { detectFrom } from "../../src/language-detect";
+import type { CardsResponse, CoverageResponse, ErrorCode, SessionResponse, StoredCard } from "../../src/types";
 import { plural, refusal, t } from "../../src/web/i18n";
 import { nameOf, recognitionTag } from "../../src/web/languages";
 import { Overlay, type PillState } from "../../src/web/overlay";
@@ -387,12 +388,16 @@ class VideoSession {
     this.lateCaptions = null;
   }
 
-  /** The language to recognise: detected for the video by the Worker, else the captions', else the browser's. */
+  /**
+   * The language to recognise, detected here from the page's own player data (src/language-detect.ts: original audio
+   * track, automatic captions, title), else the captions', else the browser's. Never asks the Worker, so the Worker
+   * never fetches YouTube for the extension.
+   */
   private async listenLang(): Promise<string> {
     const fallback = recognitionTag(this.captionsLang) ?? recognitionTag(navigator.language) ?? "en-US";
-    this.langLookup ??= api("GET", `/api/videos/${this.videoId}/language`).then((r) => {
-      const lang = (r.data as LanguageResponse | null)?.lang;
-      return lang ? recognitionTag(lang) : null;
+    this.langLookup ??= videoMeta(this.videoId).then(({ title, tracks }) => {
+      const found = detectFrom(tracks, title);
+      return found ? recognitionTag(found.lang) : null;
     });
     return (await Promise.race([this.langLookup, sleep(LANG_WAIT_MS).then(() => null)])) ?? fallback;
   }

@@ -70,7 +70,7 @@ The contract types are in [`webapp/src/types.ts`](../webapp/src/types.ts); routi
 | `POST /api/videos/:id/transcript` | Submits segments, processes newly claimed text, reports accepted/skipped counts |
 | `GET /api/videos/:id/cards?after=<cursor>` | Up to 100 new stored cards per poll, cursor, recent chunk status, coverage estimate |
 | `GET /api/videos/:id/coverage` | Merged bucket ranges, used to avoid resending captions |
-| `GET /api/videos/:id/language` | Detects and caches spoken language |
+| `GET /api/videos/:id/language` | Detects and caches spoken language (web page only; the extension detects it in the page, `src/language-detect.ts`) |
 | `POST /api/posts/analyze` | Validates a complete Portuguese public-post observation; reuses a compatible result or analyzes and saves `complete`/`empty`; competing requests receive 409 `in_progress` with Retry-After |
 | `GET /api/posts/results/:id` | Retrieves one saved post result by its opaque result id; no public post-history listing |
 

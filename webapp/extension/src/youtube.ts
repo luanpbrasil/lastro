@@ -1,3 +1,4 @@
+import { cleanTracks, type PlayerTracks } from "../../src/language-detect";
 import type { Segment } from "../../../shared/schema";
 import { segmentsFromJson3 } from "../../../shared/transcript";
 import { onTranscriptResponse } from "./panel";
@@ -45,18 +46,18 @@ export function onPageMessage(e: MessageEvent): void {
   }
 }
 
-/** Title + full description from the page's player data, via hook.ts; null if no matching data in time. */
-type PlayerMeta = { title: string; description: string };
+/** Title, full description and audio/caption tracks from the page's player data, via hook.ts; null if no matching data in time. */
+type PlayerMeta = { title: string; description: string; tracks: PlayerTracks | null };
 const META_REPLY_MS = 4_000; // the hook waits up to 3 s for a matching response
 const metaWaiters = new Map<string, (m: PlayerMeta | null) => void>();
 function onMetaMessage(e: MessageEvent): void {
   const done = metaWaiters.get(String(e.data.videoId));
   if (!done) return;
   metaWaiters.delete(String(e.data.videoId));
-  done(e.data.found ? { title: String(e.data.title ?? ""), description: String(e.data.description ?? "") } : null);
+  done(e.data.found ? { title: String(e.data.title ?? ""), description: String(e.data.description ?? ""), tracks: cleanTracks(e.data.tracks) } : null);
 }
 
-export async function videoMeta(videoId: string): Promise<{ title: string; description: string }> {
+export async function videoMeta(videoId: string): Promise<PlayerMeta> {
   const meta = await new Promise<PlayerMeta | null>((resolve) => {
     const t = window.setTimeout(() => {
       metaWaiters.delete(videoId);
@@ -74,6 +75,7 @@ export async function videoMeta(videoId: string): Promise<{ title: string; descr
   return {
     title: (h1?.textContent ?? document.title.replace(/ - YouTube$/, "")).trim(),
     description: document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content ?? "",
+    tracks: null,
   };
 }
 

@@ -13,6 +13,8 @@
     "ext:build": "node extension/build.mjs",
     "ext:dev": "node extension/build.mjs --watch --worker http://127.0.0.1:8788",
     "ext:zip": "node extension/build.mjs --store",
+    "test:notes": "node --test tests/notes.test.mjs",
+    "test:language": "node --test tests/language.test.mjs",
     "test:posts": "pnpm run test:posts:worker && pnpm run test:posts:extension",
     "test:posts:worker": "node --test --test-timeout=20000 tests/posts-worker.test.mjs",
     "test:posts:extension": "node --test --test-timeout=20000 tests/posts-extension.test.mjs"

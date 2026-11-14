@@ -179,7 +179,10 @@ export function fullCard(card: StoredCard | PostCard, onSeek?: (ms: number) => v
   if (v.lead) {
     const name = el("p", "ov-stance", t(`role.${v.lead.role}`, { name: v.lead.node.name }));
     const summary = el("p", "muted", v.lead.role === "contradicts" ? t("card.thatView", { summary: v.lead.node.summary }) : v.lead.node.summary);
-    box.append(section(t("card.behind"), name, summary));
+    // Cards since p9 (Claude) explain the link in this video's own terms; the node's summary follows as background.
+    // Older cards and Workers AI cards have no context and keep the summary alone.
+    if (card.context) box.append(section(t("card.behind"), name, el("p", "ov-context", card.context), summary));
+    else box.append(section(t("card.behind"), name, summary));
   }
   const fact = factBlock(card);
   if (fact) box.append(fact);
@@ -188,7 +191,9 @@ export function fullCard(card: StoredCard | PostCard, onSeek?: (ms: number) => v
     for (const o of v.disagree) {
       const li = el("li");
       li.append(el("strong", "", o.node.name));
-      if (o.note) li.append(document.createTextNode(` — ${o.note}`));
+      // The model's answer to this claim, when it spoke for this view (checked in the Worker); otherwise the map's note.
+      const answer = card.counterpoint && o.node.id === card.counterpointBy ? card.counterpoint : o.note;
+      if (answer) li.append(document.createTextNode(` — ${answer}`));
       ul.append(li);
     }
     box.append(section(t("card.disagree"), ul));
