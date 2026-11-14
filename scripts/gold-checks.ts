@@ -6,23 +6,15 @@ import { existsSync, readFileSync } from "node:fs";
 import { node } from "../shared/kg";
 import { TranscriptIndex } from "../shared/locate";
 import type { Card, Segment } from "../shared/schema";
+import { namesPolitics as namesPoliticsShared } from "../shared/politics";
 import { stanceView } from "../shared/stance";
 import { looseNorm } from "../shared/transcript";
 
 /** Number tokens ("13,75", "2015") in a text. */
 export const digitsIn = (t: string) => t.match(/\d+(?:[.,]\d+)*/g) ?? [];
 
-/**
- * Parties and active politicians in free card text. Acronyms match case-sensitively as whole words
- * ("PL" the party, not "pl"); "Novo" only as "partido Novo" (Novo consenso is a node).
- */
-const POLITICS: RegExp[] = [
-  /\b(PT|PL|PSDB|MDB|PSOL)\b/,
-  /partido novo/i,
-  /\b(União Brasil|Republicanos)\b/i,
-  /\b(Lula|Bolsonaro|Haddad|Tarcísio|Alckmin|Dilma|Ciro Gomes|Marina Silva|Boulos|Moro|Lira|Pacheco|Motta|Alcolumbre|Milei|Trump|Campos Neto|Galípolo)\b/i,
-];
-export const namesPolitics = (t: string) => POLITICS.flatMap((r) => t.match(r)?.[0] ?? []);
+/** Any capitalisation: the eval reads more strictly than the Worker's filter. */
+export const namesPolitics = (t: string) => namesPoliticsShared(t, true);
 
 export interface GoldCase {
   name: string;

@@ -1,0 +1,249 @@
+{
+ "tag": "d-nonames",
+ "videoId": "TESTpolit02",
+ "run": 3,
+ "chunker": "uploader",
+ "at": "2026-11-14T18:56:25.389Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: instituições e tradições políticas (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Fala pessoal, hoje vamos falar de Brasília e do que está em jogo nas próximas semanas."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O presidente não tem maioria própria, então precisa distribuir ministérios e emendas para montar uma base no Congresso."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"Presidente depende de coalizão no Congresso\",\"quote\":\"O presidente não tem maioria própria, então precisa distribuir ministérios e emendas para montar uma base no Congresso\",\"paraphrase\":\"O falante afirma que o presidente não tem maioria própria e precisa dar ministérios e emendas para formar uma base no Congresso.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_presidencialismo_coalizao\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"Esta afirmação descreve o funcionamento do presidencialismo de coalizão: sem maioria própria, o presidente troca cargos e emendas por apoio no Congresso.\",\"against\":\"p_democracia_procedimental\",\"counterpoint\":\"A visão procedimental veria a formação de coalizões como parte normal das regras do jogo democrático, sem necessariamente considerá-la um problema de origem.\"}]}",
+   "usage": {
+    "input_tokens": 230,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 342,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00033074000000000005,
+   "ms": 1791,
+   "firstCardMs": 1767
+  },
+  {
+   "input": {
+    "title": "Teste: instituições e tradições políticas (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Fala pessoal, hoje vamos falar de Brasília e do que está em jogo nas próximas semanas."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O presidente não tem maioria própria, então precisa distribuir ministérios e emendas para montar uma base no Congresso."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Quem perde a base fica exposto, e aí qualquer pedido de impeachment por crime de responsabilidade ganha força."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "O Supremo derrubou a lei por ser inconstitucional, e uns chamam isso de defesa da Constituição, outros de ativismo judicial."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que o presidente não tem maioria própria e precisa dar ministérios e emendas para formar uma base no Congresso."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Perder a base expõe o presidente ao impeachment\",\"quote\":\"Quem perde a base fica exposto, e aí qualquer pedido de impeachment por crime de responsabilidade ganha força.\",\"paraphrase\":\"O falante afirma que um presidente que perde apoio no Congresso fica vulnerável a pedidos de impeachment por crime de responsabilidade.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_impeachment\",\"role\":\"relies_on\"},{\"id\":\"i_presidencialismo_coalizao\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"STF derruba lei e gera debate sobre ativismo\",\"quote\":\"O Supremo derrubou a lei por ser inconstitucional, e uns chamam isso de defesa da Constituição, outros de ativismo judicial.\",\"paraphrase\":\"O falante afirma que a anulação de uma lei pelo Supremo é vista por uns como defesa da Constituição e por outros como ativismo judicial.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_stf_controle\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que o presidente depende de uma base no Congresso e perde força ao perdê-la segue o raciocínio típico de quem analisa o presidencialismo de coalizão, em que o apoio parlamentar é a condição para governar.\",\"against\":\"p_democracia_procedimental\",\"counterpoint\":\"Quem vê a democracia como regra do jogo responde que o impeachment é um mecanismo previsto em lei, e que sua força vem das regras e não de uma manobra política.\"},{\"i\":1,\"context\":\"A tensão entre defesa da Constituição e ativismo judicial é o núcleo do debate sobre o poder do Supremo de anular leis, por isso o ponto liga-se diretamente a essa instituição.\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 397,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 690,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00052144,
+   "ms": 4125,
+   "firstCardMs": 3695
+  },
+  {
+   "input": {
+    "title": "Teste: instituições e tradições políticas (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Quem perde a base fica exposto, e aí qualquer pedido de impeachment por crime de responsabilidade ganha força."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "O Supremo derrubou a lei por ser inconstitucional, e uns chamam isso de defesa da Constituição, outros de ativismo judicial."
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Com voto proporcional e lista aberta, a Câmara fica com mais de vinte partidos e ninguém governa sozinho."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "Democracia é isso: quem perde a eleição aceita o resultado, e quem ganha não pode mudar as regras do jogo a seu favor."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Já a esquerda radical diz que o lucro do patrão é trabalho não pago, a velha mais-valia de Marx."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "E os conservadores respondem que família, religião e tradição seguram a sociedade melhor que qualquer projeto do governo."
+     },
+     {
+      "s": 48000,
+      "d": 6000,
+      "t": "Esse deputado é um vendido e aquele outro só pensa em reeleição, não dá para confiar em nenhum."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que a anulação de uma lei pelo Supremo é vista por uns como defesa da Constituição e por outros como ativismo judicial.",
+     "O falante afirma que um presidente que perde apoio no Congresso fica vulnerável a pedidos de impeachment por crime de responsabilidade.",
+     "O falante afirma que o presidente não tem maioria própria e precisa dar ministérios e emendas para formar uma base no Congresso."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Voto proporcional gera Câmara fragmentada\",\"quote\":\"Com voto proporcional e lista aberta, a Câmara fica com mais de vinte partidos e ninguém governa sozinho.\",\"paraphrase\":\"O falante afirma que o voto proporcional com lista aberta faz a Câmara ter mais de vinte partidos, e que ninguém consegue governar sozinho.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_sistema_eleitoral\",\"role\":\"relies_on\"},{\"id\":\"i_presidencialismo_coalizao\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":20,\"period\":null},{\"headline\":\"Democracia exige aceitar perder e regras comuns\",\"quote\":\"Democracia é isso: quem perde a eleição aceita o resultado, e quem ganha não pode mudar as regras do jogo a seu favor.\",\"paraphrase\":\"O falante sustenta que democracia significa que quem perde aceita o resultado e quem ganha não muda as regras a seu favor.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"p_democracia_procedimental\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Lucro seria trabalho não pago, segundo Marx\",\"quote\":\"Já a esquerda radical diz que o lucro do patrão é trabalho não pago, a velha mais-valia de Marx.\",\"paraphrase\":\"O falante atribui à esquerda radical a tese de que o lucro do patrão é trabalho não pago, a mais-valia de Marx.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"p_marxismo\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Família e tradição seguram a sociedade\",\"quote\":\"E os conservadores respondem que família, religião e tradição seguram a sociedade melhor que qualquer projeto do governo.\",\"paraphrase\":\"O falante afirma que os conservadores sustentam que família, religião e tradição mantêm a sociedade melhor que projetos do governo.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"p_conservadorismo\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que muitos partidos tornam o governo difícil liga-se ao debate sobre como as regras eleitorais moldam o Congresso e a governabilidade.\",\"against\":null,\"counterpoint\":\"\"},{\"i\":1,\"context\":\"Ao dizer que quem perde aceita o resultado e que as regras valem para quem governa, o falante descreve a democracia como um método, tradição central da teoria procedimental.\",\"against\":null,\"counterpoint\":\"\"},{\"i\":2,\"context\":\"A tese de que o lucro vem do trabalho não pago é o núcleo da teoria marxista da mais-valia, que explica o capitalismo pelo conflito entre capital e trabalho.\",\"against\":\"f_liberalismo_classico\",\"counterpoint\":\"Defensores do liberalismo clássico responderiam que o lucro é remuneração do risco, da organização e do capital investido, e que trocas voluntárias geram ganhos para os dois lados.\"},{\"i\":3,\"context\":\"Ver família, religião e tradição como sustentáculos da ordem social é a linha conservadora de valorizar instituições herdadas acima de projetos de reforma.\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 657,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1189,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00079694,
+   "ms": 4989,
+   "firstCardMs": 3539
+  },
+  {
+   "input": {
+    "title": "Teste: instituições e tradições políticas (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Com voto proporcional e lista aberta, a Câmara fica com mais de vinte partidos e ninguém governa sozinho."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "Democracia é isso: quem perde a eleição aceita o resultado, e quem ganha não pode mudar as regras do jogo a seu favor."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Já a esquerda radical diz que o lucro do patrão é trabalho não pago, a velha mais-valia de Marx."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "E os conservadores respondem que família, religião e tradição seguram a sociedade melhor que qualquer projeto do governo."
+     },
+     {
+      "s": 48000,
+      "d": 6000,
+      "t": "Esse deputado é um vendido e aquele outro só pensa em reeleição, não dá para confiar em nenhum."
+     }
+    ],
+    "segments": [
+     {
+      "s": 54000,
+      "d": 6000,
+      "t": "Comenta aí embaixo o que você acha e compartilha com quem gosta de política."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que os conservadores sustentam que família, religião e tradição mantêm a sociedade melhor que projetos do governo.",
+     "O falante atribui à esquerda radical a tese de que o lucro do patrão é trabalho não pago, a mais-valia de Marx.",
+     "O falante sustenta que democracia significa que quem perde aceita o resultado e quem ganha não muda as regras a seu favor.",
+     "O falante afirma que o voto proporcional com lista aberta faz a Câmara ter mais de vinte partidos, e que ninguém consegue governar sozinho.",
+     "O falante afirma que a anulação de uma lei pelo Supremo é vista por uns como defesa da Constituição e por outros como ativismo judicial.",
+     "O falante afirma que um presidente que perde apoio no Congresso fica vulnerável a pedidos de impeachment por crime de responsabilidade.",
+     "O falante afirma que o presidente não tem maioria própria e precisa dar ministérios e emendas para formar uma base no Congresso."
+    ]
+   },
+   "text": "{\"units\":[],\"notes\":[]}",
+   "usage": {
+    "input_tokens": 783,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 14,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00022204,
+   "ms": 804,
+   "firstCardMs": null
+  }
+ ]
+}

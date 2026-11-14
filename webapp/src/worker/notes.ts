@@ -1,5 +1,6 @@
 import type { Card, ModelNote } from "../../../shared/schema";
 import { stanceView } from "../../../shared/stance";
+import { namesIn } from "./names";
 import { isSafeText } from "./sanitize";
 
 /**
@@ -37,14 +38,15 @@ const safe = (t: string) => t.length > 0 && t.length <= MAX_NOTE_CHARS && isSafe
  * when it speaks for a view the card shows under "Who disagrees" (shared/stance.ts); otherwise that list keeps the
  * map's note on the link.
  */
-export function withNote<C extends Pick<Card, "nodes">>(card: C, raw: unknown): C {
+export function withNote<C extends Pick<Card, "nodes">>(card: C, raw: unknown, where: "chunk" | "post" = "chunk"): C {
   const n = (raw ?? {}) as Partial<ModelNote>;
   const context = clean(n.context);
-  if (!card.nodes.length || !safe(context)) return card;
+  // A party or politician in either text: that text is left out, and the card shows the map's text instead.
+  if (!card.nodes.length || !safe(context) || namesIn(context, where, "context", "cleared")) return card;
   const out: C & Pick<Card, "context" | "counterpoint" | "counterpointBy"> = { ...card, context };
   const by = typeof n.against === "string" && stanceView(card).disagree.some((d) => d.node.id === n.against) ? n.against : null;
   const counterpoint = clean(n.counterpoint);
-  if (by && safe(counterpoint)) {
+  if (by && safe(counterpoint) && !namesIn(counterpoint, where, "counterpoint", "cleared")) {
     out.counterpoint = counterpoint;
     out.counterpointBy = by;
   }

@@ -98,3 +98,50 @@ test("X posts, Workers AI: asked without notes, cards unchanged", async () => {
   assert.equal(r.cards[0].context, undefined);
   assert.equal(asked.response_format.json_schema.properties.notes, undefined);
 });
+
+test("names: a paraphrase naming a politician drops the card; a headline, context or counterpoint naming one is cleared", async () => {
+  const logs = [];
+  const orig = console.log;
+  console.log = (m) => logs.push(m);
+  try {
+    const named = [
+      unit("emite a propria moeda então nunca vai faltar dinheiro", { paraphrase: "O falante afirma que o governo Lula pode emitir moeda sem faltar dinheiro." }),
+      unit("o limite do gasto publico é a inflação", { headline: "PT e o limite do gasto" }),
+    ];
+    const noteNames = [
+      { i: 0, context: "Contexto qualquer sobre emissão de moeda.", against: null, counterpoint: "" },
+      { i: 1, context: "Como diria Bolsonaro, o limite é a inflação.", against: "s_novoconsenso", counterpoint: "Para essa visão, quem controla a inflação é o banco central." },
+    ];
+    const cards = await replay(JSON.stringify({ units: named, notes: noteNames }), 3);
+    assert.equal(cards.length, 1, "the card whose paraphrase names Lula is dropped");
+    assert.equal(cards[0].headline, undefined, "headline naming PT cleared");
+    assert.equal(cards[0].context, undefined, "context naming Bolsonaro cleared (and with it the counterpoint)");
+    const events = logs.map((m) => JSON.parse(m)).filter((e) => e.event === "politics_filtered");
+    assert.deepEqual(events.map((e) => `${e.field}:${e.action}`).sort(), ["context:cleared", "headline:cleared", "paraphrase:dropped"]);
+  } finally {
+    console.log = orig;
+  }
+});
+
+test("names: offices, 'lira turca' and lowercase words are not names", async () => {
+  const card = { nodes: [{ id: "s_mmt", role: "relies_on" }] };
+  assert.equal(withNote(card, { context: "O presidente e a lira turca mostram o limite da moeda.", against: null, counterpoint: "" }).context, "O presidente e a lira turca mostram o limite da moeda.");
+  assert.equal(withNote(card, { context: "Quem moro aqui sabe que a inflação pesa.", against: null, counterpoint: "" }).context, "Quem moro aqui sabe que a inflação pesa.");
+});
+
+test("names, X posts: the quote may name a politician, Lastro's paraphrase may not", async () => {
+  const text = "Lula disse que o governo emite a própria moeda, então nunca vai faltar dinheiro.";
+  const source = { postId: "2", url: "https://x.com/a/status/2", author: "A", handle: "a", publishedAt: null, text, lang: "pt", visibility: "public", complete: true };
+  const orig = console.log;
+  console.log = () => {};
+  try {
+    const ok = unit("Lula disse que o governo emite a própria moeda", { paraphrase: "A autora afirma que um país que emite a própria moeda não fica sem dinheiro." });
+    const r = await postWithWorkersAI({ run: async () => ({ response: { units: [ok] } }) }, source);
+    assert.equal(r.cards.length, 1);
+    assert.match(r.cards[0].quote, /^Lula/);
+    const bad = { ...ok, paraphrase: "A autora afirma que Lula defende emitir moeda sem limite." };
+    await assert.rejects(postWithWorkersAI({ run: async () => ({ response: { units: [bad] } }) }, source), /No grounded post units/);
+  } finally {
+    console.log = orig;
+  }
+});

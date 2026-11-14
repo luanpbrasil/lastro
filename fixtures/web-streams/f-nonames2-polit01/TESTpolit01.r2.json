@@ -1,0 +1,172 @@
+{
+ "tag": "f-nonames2-polit01",
+ "videoId": "TESTpolit01",
+ "run": 2,
+ "chunker": "uploader",
+ "at": "2026-11-14T19:02:43.267Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Olá, bem-vindos ao canal, hoje o assunto é o orçamento do governo e a briga em Brasília."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"Partidos quebraram o país, sem distinção\",\"quote\":\"O PT quebrou o país e o Bolsonaro também não fez nada que preste\",\"paraphrase\":\"O falante afirma que os governos recentes de partidos diferentes levaram o país à ruína e são todos iguais.\",\"kind\":\"theory\",\"nodes\":[],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 237,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 173,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00024744000000000003,
+   "ms": 1618,
+   "firstCardMs": 1610
+  },
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Olá, bem-vindos ao canal, hoje o assunto é o orçamento do governo e a briga em Brasília."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "O PT quebrou o país e o Bolsonaro também não fez nada que preste, é tudo farinha do mesmo saco."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Esse governo do Lula é uma vergonha e o Haddad não sabe o que está fazendo no ministério."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Mas a questão de fundo é outra: sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que os governos recentes de partidos diferentes levaram o país à ruína e são todos iguais."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Regra fiscal evita dívida descontrolada\",\"quote\":\"sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem\",\"paraphrase\":\"O falante afirma que, sem uma regra que limite o gasto público, a dívida cresce sem controle e os juros sobem.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_regras_fiscais\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"Defende que regras fixas de gasto dão credibilidade às contas públicas, ideia central das regras fiscais brasileiras como a LRF, o teto de gastos e o arcabouço. A dívida crescente pressionando os juros ecoa a lógica da dominância fiscal.\",\"against\":\"s_mmt\",\"counterpoint\":\"Para a MMT, o limite do gasto público é a inflação, não uma regra contábil; quem emite a própria moeda não fica sem ela, então uma regra fixa de gasto seria desnecessária.\"}]}",
+   "usage": {
+    "input_tokens": 388,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 394,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00037304,
+   "ms": 2062,
+   "firstCardMs": 2036
+  },
+  {
+   "input": {
+    "title": "Teste: orçamento, partidos e ideias (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "Esse governo do Lula é uma vergonha e o Haddad não sabe o que está fazendo no ministério."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Mas a questão de fundo é outra: sem uma regra que limite o gasto público a dívida cresce sem controle e os juros sobem."
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Quem quer acabar com o teto diz que o Estado que emite a própria moeda não precisa de limite contábil para gastar."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "E tem quem diga que cobrar imposto para redistribuir renda é tirar de quem produziu, e que o Estado deveria ser mínimo."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Do outro lado há quem defenda que a desigualdade só é aceitável se ela melhorar a vida de quem está pior."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "Deixe seu like, se inscreva no canal e ative o sininho para não perder o próximo vídeo."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que, sem uma regra que limite o gasto público, a dívida cresce sem controle e os juros sobem.",
+     "O falante afirma que os governos recentes de partidos diferentes levaram o país à ruína e são todos iguais."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Teto de gastos e moeda soberana\",\"quote\":\"Quem quer acabar com o teto diz que o Estado que emite a própria moeda não precisa de limite contábil para gastar\",\"paraphrase\":\"O falante afirma que quem quer acabar com o teto argumenta que um Estado que emite a própria moeda não precisa de limite contábil para gastar.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_mmt\",\"role\":\"echoes\"},{\"id\":\"i_regras_fiscais\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Imposto para redistribuir renda viola direitos\",\"quote\":\"cobrar imposto para redistribuir renda é tirar de quem produziu e que o Estado deveria ser mínimo\",\"paraphrase\":\"O falante relata a posição de quem sustenta que cobrar imposto para redistribuir renda é tirar de quem produziu e que o Estado deveria ser mínimo.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"f_libertarianismo\",\"role\":\"echoes\"},{\"id\":\"p_socialdemocracia\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Desigualdade aceitável se beneficiar os mais pobres\",\"quote\":\"a desigualdade só é aceitável se ela melhorar a vida de quem está pior\",\"paraphrase\":\"O falante relata a posição de quem defende que a desigualdade só é aceitável se melhorar a vida de quem está pior.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"f_justica_rawls\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que um Estado com moeda própria não depende de limite contábil para gastar segue a lógica da MMT, que vê a emissão monetária como fonte de capacidade de gasto.\",\"against\":\"i_regras_fiscais\",\"counterpoint\":\"Quem defende regras fiscais responde que sem limite o gasto cresce sem controle e a dívida pressiona juros e inflação.\"},{\"i\":1,\"context\":\"Argumentar que tributar para redistribuir viola o direito de quem produziu é a linha típica do libertarianismo, que limita o papel do Estado a direitos básicos.\",\"against\":\"p_socialdemocracia\",\"counterpoint\":\"Defensores do Estado de bem-estar respondem que impostos progressivos financiam proteção social e reduzem a desigualdade.\"},{\"i\":2,\"context\":\"A ideia de que desigualdades só se justificam se beneficiam os mais desfavorecidos vem da justiça como equidade de Rawls.\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 531,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13724,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 946,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0006633400000000001,
+   "ms": 6469,
+   "firstCardMs": 5533
+  }
+ ]
+}

@@ -7,6 +7,7 @@ import { INDICATORS, outputSchema, type Card, type Indicator, type Segment } fro
 import { fmtTime } from "../../../shared/transcript";
 import { UnitStreamParser } from "../../../shared/unitStream";
 import type { CheckedCard, FactCheck } from "../types";
+import { namesIn } from "./names";
 import { noteIndex, notesRules, withNote, withoutNotes } from "./notes";
 import { isSafeParaphrase, isSafeText } from "./sanitize";
 
@@ -60,7 +61,8 @@ Not worth a card: greetings, filler, ads, jokes, anecdotes, rhetorical questions
 - period: when the number applies, as "YYYY" or "YYYY-MM" ("in October 2012" → "2012-10"); null for the current value.
 ${notes ? `\n${notesRules("transcript")}\n` : ""}
 Rules
-- Link ideas to schools, traditions, institutions and episodes, never to parties or politicians. Praise or attacks on a party, government or politician with no idea behind them are not units; when there is an idea, describe the idea without naming the party or politician.
+- Link ideas to schools, traditions, institutions and episodes, never to parties or politicians. Praise or attacks on a party, government or politician with no idea behind them are not units, even if you could word them without names ("they are all the same", "they broke the country", "the governments of the last years ruined us"); when there is an idea (a policy, a mechanism, a number), describe the idea without naming the party or politician.
+- headline and paraphrase never name a party, a government ("the X government") or a politician, even when the speaker does: attribute the claim to the speaker and describe the idea ("The speaker argues the market needs a clear signal from the president on the debt", not the president's name). Offices ("the president", "the central bank governor") are fine. They stay in the language of the video; only the quote is verbatim.
 - At most ${MAX_UNITS} units, in the order they are said.
 
 Security
@@ -142,7 +144,11 @@ function toCard(raw: unknown, all: Segment[], index: TranscriptIndex, contextLen
   // A substantive claim is worth a card even when no node or official series fits it: the quote and paraphrase still help.
   const hit = index.locate(u.quote);
   if (!hit || hit.seg < contextLen) return null;
-  const headline = typeof u.headline === "string" ? u.headline.trim().replace(/[.。]$/, "") : "";
+  // Lastro's own text never names a party or politician: without a paraphrase there is no card; a headline can go
+  // (the list then titles the card from the paraphrase).
+  if (namesIn(u.paraphrase, "chunk", "paraphrase", "dropped")) return null;
+  let headline = typeof u.headline === "string" ? u.headline.trim().replace(/[.。]$/, "") : "";
+  if (namesIn(headline, "chunk", "headline", "cleared")) headline = "";
   return {
     quote: hit.text,
     // Shown as text only, but checked like the paraphrase: no links or markup, and short.
