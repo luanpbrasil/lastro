@@ -21,13 +21,15 @@ const PL_PARTY = new RegExp(
 );
 const PARTIES: RegExp[] = [new RegExp(String.raw`\b(${ACRONYMS})\b`), PL_PARTY, /partido (novo|liberal)/i, /\b(União Brasil|Republicanos)\b/i];
 /**
- * Alexandre de Moraes is a justice, not a politician; he is listed because a card naming him reads as partisan.
- * Longer names come first so the match reports the full name ("Michelle Bolsonaro", not "Bolsonaro").
+ * Alexandre de Moraes is a justice, not a politician; he is listed, in full and as "Moraes" alone, because a card
+ * naming him reads as partisan. Short forms cards use ("Moraes", "Nikolas", "Ciro") are listed too; "Marina" and
+ * "Michelle" alone are not, being common first names ("Bolsonaro" already catches Michelle Bolsonaro).
+ * A full name comes before its short form, so the match reports the full name ("Ciro Gomes", not "Ciro").
  */
 const POLITICIANS = [
-  "Michelle Bolsonaro", "Lula", "Bolsonaro", "Haddad", "Tarcísio", "Alckmin", "Dilma", "Ciro Gomes", "Marina Silva", "Boulos",
-  "Pacheco", "Motta", "Alcolumbre", "Milei", "Trump", "Campos Neto", "Galípolo", "Fernando Henrique", "FHC", "Collor",
-  "Nikolas Ferreira", "Gleisi", "Alexandre de Moraes",
+  "Michelle Bolsonaro", "Lula", "Bolsonaro", "Haddad", "Tarcísio", "Alckmin", "Dilma", "Ciro Gomes", "Ciro", "Marina Silva",
+  "Boulos", "Pacheco", "Motta", "Alcolumbre", "Milei", "Trump", "Campos Neto", "Galípolo", "Fernando Henrique", "FHC",
+  "Collor", "Nikolas Ferreira", "Nikolas", "Gleisi", "Alexandre de Moraes", "Moraes",
 ];
 /** Also Portuguese words ("moro" I live, "lira" a currency, "temer" to fear): matched capitalised even in the evals. */
 const ALSO_WORDS = ["Moro", "Lira", "Temer"];
