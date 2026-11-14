@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { build } from "esbuild";
 
 const out = await build({ entryPoints: ["tests/notes-entry.ts"], bundle: true, write: false, format: "esm", platform: "node" });
-const { ClaudeCards, factCheckChunk, postWithWorkersAI, withNote } = await import(`data:text/javascript;base64,${Buffer.from(out.outputFiles[0].text).toString("base64")}`);
+const { ClaudeCards, factCheckChunk, postWithWorkersAI, withNote, namesPolitics } = await import(`data:text/javascript;base64,${Buffer.from(out.outputFiles[0].text).toString("base64")}`);
 
 const segments = [
   { s: 0, d: 6000, t: "o governo emite a propria moeda então nunca vai faltar dinheiro para pagar a divida" },
@@ -141,6 +141,58 @@ test("names, X posts: the quote may name a politician, Lastro's paraphrase may n
     assert.match(r.cards[0].quote, /^Lula/);
     const bad = { ...ok, paraphrase: "A autora afirma que Lula defende emitir moeda sem limite." };
     await assert.rejects(postWithWorkersAI({ run: async () => ({ response: { units: [bad] } }) }, source), /No grounded post units/);
+  } finally {
+    console.log = orig;
+  }
+});
+
+test("name list: a bill (PL) is not the party; the party after 'partido' or in a list of parties is", () => {
+  for (const bill of ["O PL 1087 muda a faixa de isenção do imposto de renda.", "o PL da reforma tributária", "PL das fake news", "O PL nº 2630 trata das plataformas.", "o PL no 2630", "Um PL que corta gastos"]) {
+    assert.deepEqual(namesPolitics(bill), [], bill);
+    assert.deepEqual(namesPolitics(bill, true), [], `${bill} (any case)`);
+  }
+  for (const party of ["o partido PL", "Partido do PL", "o Partido Liberal", "PT e PL", "PL, PSDB e MDB", "PSOL ou PL", "PT/PL"]) {
+    assert.ok(namesPolitics(party).length > 0, party);
+    assert.ok(namesPolitics(party, true).length > 0, `${party} (any case)`);
+  }
+  // A bill number next to a party: the party still counts, the bill does not.
+  assert.deepEqual(namesPolitics("o PT e PL 2630"), ["PT"]);
+});
+
+test("name list: new names caught in the Worker and the evals; existing cases hold", () => {
+  for (const n of ["Temer", "FHC", "Fernando Henrique", "Collor", "Nikolas Ferreira", "Gleisi", "Michelle Bolsonaro", "Alexandre de Moraes"]) {
+    const t = `Segundo ${n}, o déficit cai.`;
+    assert.deepEqual(namesPolitics(t), [n], t);
+    assert.ok(namesPolitics(t, true).includes(n), `${t} (any case)`);
+  }
+  assert.ok(namesPolitics("segundo gleisi, o déficit cai", true).length > 0, "evals: any capitalisation");
+  // Names that are also words: capitalised only, in the evals too.
+  assert.deepEqual(namesPolitics("temer a inflação faz o banco central subir os juros", true), []);
+  assert.deepEqual(namesPolitics("quem moro aqui sabe", true), []);
+  assert.deepEqual(namesPolitics("O Temer cortou gastos"), ["Temer"]);
+  // Existing cases.
+  assert.deepEqual(namesPolitics("governo Lula"), ["Lula"]);
+  assert.deepEqual(namesPolitics("governo lula"), []);
+  assert.deepEqual(namesPolitics("governo lula", true), ["lula"]);
+  assert.deepEqual(namesPolitics("A Lira turca desvalorizou"), []);
+  assert.deepEqual(namesPolitics("Arthur Lira"), ["Lira"]);
+  assert.deepEqual(namesPolitics("O Novo consenso macroeconômico"), []);
+  assert.ok(namesPolitics("o partido Novo").length > 0);
+  assert.deepEqual(namesPolitics("o pt do texto"), []);
+});
+
+test("names: a card about a bill (PL 1087) is kept; a card naming the party PL is dropped", async () => {
+  const orig = console.log;
+  console.log = () => {};
+  try {
+    const bill = [
+      unit("emite a propria moeda então nunca vai faltar dinheiro", { headline: "O PL 1087 e a isenção", paraphrase: "O falante afirma que o PL 1087 amplia a isenção sem faltar dinheiro." }),
+      unit("o limite do gasto publico é a inflação", { paraphrase: "O falante afirma que o partido PL quer limitar o gasto pela inflação." }),
+    ];
+    const cards = await replay(JSON.stringify({ units: bill, notes }), 2);
+    assert.equal(cards.length, 1);
+    assert.equal(cards[0].headline, "O PL 1087 e a isenção");
+    assert.match(cards[0].paraphrase, /PL 1087/);
   } finally {
     console.log = orig;
   }

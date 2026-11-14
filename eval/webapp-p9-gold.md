@@ -87,3 +87,5 @@ Gold (3 runs per video):
 | Cost per Gaúcha video | $0.0055 | $0.0081 | $0.0080 |
 
 Live spend for this change: $0.094 (`d` $0.045, `e` $0.045, `f` $0.004). lastro-19 total: $0.187.
+
+**Name-list fix (offline, $0).** "PL" matched bills ("PL 1087", "PL das fake news"). It now counts as the party only after "partido" or next to another party acronym, never before a number. Added: Temer, FHC, Fernando Henrique, Collor, Nikolas Ferreira, Gleisi, Michelle Bolsonaro, and Alexandre de Moraes (a justice, listed because a card naming him reads as partisan). Moro, Lira and Temer are also Portuguese words, so they match only capitalised, in the evals too. Replaying `e-nonames2` and `f-nonames2-polit01` with the new list changes nothing shown: all-pass is still 13/15 and 3/3, and 0 shown cards name anyone. The one difference is one more model-written field that names someone, the headline "Gleisi elogia proposta de Lara Resende" (`e`, Gaúcha r2). It quoted the previous upload's context, so the Worker dropped that unit before the name check.

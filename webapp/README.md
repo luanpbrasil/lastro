@@ -78,6 +78,8 @@ Each card has a `headline` (3–9 words, used as its title in the list) and a pa
 
 Each case is logged as `politics_filtered` in `wrangler tail`.
 
+"PL" is also a bill (projeto de lei: "PL 1087", "o PL da reforma"), so the list counts it as the party only after "partido" or next to another party acronym ("PT e PL"), never before a number. Alexandre de Moraes is on the list although he is a justice, because a card naming him reads as partisan.
+
 **Context and counterpoint (p9, Claude only).** After all units, Claude writes a `notes` array, one note per unit, as the extension's Worker does (`shared/prompt.ts`; the rules are in `src/worker/notes.ts`):
 - `context`: why the claim belongs to its first node, in the speaker's own terms. The card shows it under "The idea behind it", before the node's summary.
 - `counterpoint`: how the opposing view would answer. It is kept only when the model names (`against`) a view the card already lists under "Who disagrees" (`shared/stance.ts`); otherwise that list keeps the map's note on the link.
