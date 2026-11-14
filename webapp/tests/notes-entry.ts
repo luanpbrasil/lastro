@@ -2,3 +2,4 @@
 export { ClaudeCards, factCheckChunk } from "../src/worker/factcheck";
 export { postWithWorkersAI } from "../src/worker/posts";
 export { withNote } from "../src/worker/notes";
+export { namesPolitics } from "../../shared/politics";
