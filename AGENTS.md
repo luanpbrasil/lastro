@@ -8,8 +8,9 @@ they do not judge the truth of an entire argument or its author.
 
 - For architecture or behavior questions, read `docs/codebase-guide.md` and
   `GLOSSARY.md`, then follow the relevant source links.
-- For changes and verification, follow `CONTRIBUTING.md`. Read
-  `docs/features/x/README.md` when working on X behavior.
+- For changes and verification, follow `CONTRIBUTING.md`. For feature behavior,
+  read the corresponding `docs/features/<feature>/README.md` (`x` or
+  `instagram-reels`).
 - For running the newer app and extension, use `webapp/README.md`.
 - If `.local/context.md` exists, read it for optional personal preferences and
   session handoffs. Verify recorded branch, process, and implementation state
