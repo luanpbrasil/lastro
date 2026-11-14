@@ -9,10 +9,12 @@
  *   versions), used when the player's captions fail. get_panel also serves other panels: only bodies with
  *   transcript rows are passed on.
  */
+import { tracksFromPlayerResponse } from "../../src/language-detect";
+
 (() => {
   // Injected again into open tabs on install/update (background.ts): skip if this version or newer already runs here.
   // An older hook without this flag stays in place; its messages are duplicates the content script handles.
-  const HOOK_VERSION = 4; // 4: the track switch below (the first extension's hook is 3)
+  const HOOK_VERSION = 5; // 4: the track switch below (the first extension's hook is 3); 5: audio/caption tracks in the meta reply
   const w = window as unknown as { __lastroHook?: number };
   if ((w.__lastroHook ?? 0) >= HOOK_VERSION) return;
   w.__lastroHook = HOOK_VERSION;
@@ -53,18 +55,20 @@
     return res;
   } as typeof fetch;
 
-  // Title + full description for the topic check, from the page's own player data (no request of ours).
+  // Title + full description for the topic check, and the audio and caption tracks for the spoken language
+  // (src/language-detect.ts), from the page's own player data (no request of ours).
   // movie_player.getPlayerResponse() follows in-app navigation; ytInitialPlayerResponse is right only on a first load.
   // Answers only when videoDetails.videoId is the video asked for, so a stale response is never used.
   type VideoDetails = { videoId?: string; title?: string; shortDescription?: string };
+  type PlayerResponse = { videoDetails?: VideoDetails };
   const META_WAIT_MS = 3_000;
-  const detailsFor = (id: string): { d: VideoDetails; from: string } | null => {
+  const detailsFor = (id: string): { d: VideoDetails; pr: PlayerResponse; from: string } | null => {
     try {
-      const mp = document.getElementById("movie_player") as unknown as { getPlayerResponse?: () => { videoDetails?: VideoDetails } } | null;
-      const live = mp?.getPlayerResponse?.()?.videoDetails;
-      if (live?.videoId === id) return { d: live, from: "player" };
-      const first = (window as unknown as { ytInitialPlayerResponse?: { videoDetails?: VideoDetails } }).ytInitialPlayerResponse?.videoDetails;
-      if (first?.videoId === id) return { d: first, from: "initial" };
+      const mp = document.getElementById("movie_player") as unknown as { getPlayerResponse?: () => PlayerResponse } | null;
+      const live = mp?.getPlayerResponse?.();
+      if (live?.videoDetails?.videoId === id) return { d: live.videoDetails, pr: live, from: "player" };
+      const first = (window as unknown as { ytInitialPlayerResponse?: PlayerResponse }).ytInitialPlayerResponse;
+      if (first?.videoDetails?.videoId === id) return { d: first.videoDetails, pr: first, from: "initial" };
     } catch {
       /* never break the page */
     }
@@ -78,7 +82,10 @@
       const hit = detailsFor(id);
       if (hit || performance.now() >= end) {
         window.postMessage(
-          { __lastro_meta: true, videoId: id, found: !!hit, from: hit?.from ?? null, title: hit?.d.title ?? "", description: hit?.d.shortDescription ?? "" },
+          {
+            __lastro_meta: true, videoId: id, found: !!hit, from: hit?.from ?? null, title: hit?.d.title ?? "", description: hit?.d.shortDescription ?? "",
+            tracks: hit ? tracksFromPlayerResponse(hit.pr) : null,
+          },
           location.origin,
         );
       } else setTimeout(tryNow, 200);

@@ -1,0 +1,173 @@
+{
+ "tag": "b-p9notes",
+ "videoId": "TESTfacts01",
+ "run": 2,
+ "chunker": "uploader",
+ "at": "2026-11-14T17:41:58.008Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: juros, inflação e dívida (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Bom dia, hoje a gente vai falar de juros e inflação."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "A Selic está hoje em 13,75% ao ano, uma das maiores taxas de juros do mundo."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"Selic a 13,75% ao ano\",\"quote\":\"A Selic está hoje em 13,75% ao ano, uma das maiores taxas de juros do mundo\",\"paraphrase\":\"O falante afirma que a Selic está hoje em 13,75% ao ano, uma das maiores taxas de juros do mundo.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"}],\"indicator\":\"selic_meta\",\"claimed_value\":13.75,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"Taxa básica de juros é o instrumento central do banco central para levar a inflação à meta, e o dado da Selic é a referência para essa leitura.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem segue a MMT diria que juros altos não controlam a inflação por si, pois o que pesa é o gasto público e a capacidade produtiva.\"}]}",
+   "usage": {
+    "input_tokens": 211,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 317,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0003151,
+   "ms": 1729,
+   "firstCardMs": 1702
+  },
+  {
+   "input": {
+    "title": "Teste: juros, inflação e dívida (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Bom dia, hoje a gente vai falar de juros e inflação."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "A Selic está hoje em 13,75% ao ano, uma das maiores taxas de juros do mundo."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "E a inflação em doze meses, medida pelo IPCA, já passou de 6%."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Lembra que em outubro de 2012 o Banco Central cortou a Selic para 7,25%?"
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que a Selic está hoje em 13,75% ao ano, uma das maiores taxas de juros do mundo."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Inflação de 12 meses passa de 6%\",\"quote\":\"E a inflação em doze meses, medida pelo IPCA, já passou de 6%.\",\"paraphrase\":\"O falante afirma que a inflação acumulada em doze meses, medida pelo IPCA, já passou de 6%.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"}],\"indicator\":\"ipca_12m\",\"claimed_value\":6,\"period\":null},{\"headline\":\"Corte da Selic para 7,25% em 2012\",\"quote\":\"Lembra que em outubro de 2012 o Banco Central cortou a Selic para 7,25%?\",\"paraphrase\":\"O falante lembra que, em outubro de 2012, o Banco Central cortou a Selic para 7,25%.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"e_cortes2012\",\"role\":\"relies_on\"}],\"indicator\":\"selic_meta\",\"claimed_value\":7.25,\"period\":\"2012-10\"}],\"notes\":[{\"i\":0,\"context\":\"A inflação medida em doze meses é o indicador que o novo consenso usa para julgar se o banco central está cumprindo a meta; uma alta acima de 6% é o tipo de dado que essa visão toma como sinal de que os juros precisam reagir.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem vê a inflação pelo ângulo do gasto público diria que um número alto de inflação não prova sozinho que os juros são a solução, pois a causa pode estar na demanda e na capacidade produtiva.\"},{\"i\":1,\"context\":\"O corte de 2012 é o episódio que o novo consenso usa como exemplo de juros reduzidos na marra, sem a inflação ceder, o que desancora as expectativas.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Os defensores de juros mais baixos respondem que o corte de 2012 mostrou que reduzir a Selic podia estimular a economia sem que a inflação saísse de controle no curto prazo.\"}]}",
+   "usage": {
+    "input_tokens": 345,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 697,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0005185,
+   "ms": 3316,
+   "firstCardMs": 2627
+  },
+  {
+   "input": {
+    "title": "Teste: juros, inflação e dívida (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "E a inflação em doze meses, medida pelo IPCA, já passou de 6%."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Lembra que em outubro de 2012 o Banco Central cortou a Selic para 7,25%?"
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Não deu certo, a inflação voltou e os juros tiveram que subir de novo em 2013."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "A dívida bruta do governo já passa de 80% do PIB."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Tem economista dizendo que o Estado emite a própria moeda e por isso nunca fica sem dinheiro."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "Eu acho que sem ajuste fiscal o Banco Central não controla a inflação sozinho."
+     }
+    ],
+    "knownIdeas": [
+     "O falante lembra que, em outubro de 2012, o Banco Central cortou a Selic para 7,25%.",
+     "O falante afirma que a inflação acumulada em doze meses, medida pelo IPCA, já passou de 6%.",
+     "O falante afirma que a Selic está hoje em 13,75% ao ano, uma das maiores taxas de juros do mundo."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Cortes de 2012 não seguraram a inflação\",\"quote\":\"Não deu certo, a inflação voltou e os juros tiveram que subir de novo em 2013\",\"paraphrase\":\"O falante afirma que o corte de juros feito em 2012 não funcionou: a inflação voltou e os juros tiveram que subir de novo em 2013.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"e_cortes2012\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":\"2013\"},{\"headline\":\"Dívida bruta do governo acima de 80% do PIB\",\"quote\":\"A dívida bruta do governo já passa de 80% do PIB\",\"paraphrase\":\"O falante afirma que a dívida bruta do governo já ultrapassa 80% do PIB.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"}],\"indicator\":\"dbgg_pib\",\"claimed_value\":80,\"period\":null},{\"headline\":\"Estado que emite moeda nunca fica sem dinheiro\",\"quote\":\"Tem economista dizendo que o Estado emite a própria moeda e por isso nunca fica sem dinheiro\",\"paraphrase\":\"O falante relata que economistas sustentam que um Estado que emite a própria moeda nunca fica sem dinheiro.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_mmt\",\"role\":\"echoes\"},{\"id\":\"p_soberania_monetaria\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Sem ajuste fiscal, BC não controla inflação\",\"quote\":\"Eu acho que sem ajuste fiscal o Banco Central não controla a inflação sozinho\",\"paraphrase\":\"O falante sustenta que, sem ajuste fiscal, o Banco Central não consegue controlar a inflação sozinho.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"O argumento de que cortar juros sem a inflação ceder desancora as expectativas aparece aqui como prova de que o corte de 2012 falhou.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem defende o novo consenso diria que o corte foi feito antes de a inflação ceder de forma crível, e que a culpa é da política de juros, não do modelo.\"},{\"i\":1,\"context\":\"A dívida alta é vista como fator que pode tornar os juros ineficazes contra a inflação, a lógica central da dominância fiscal.\",\"against\":null,\"counterpoint\":\"\"},{\"i\":2,\"context\":\"A ideia de que o Estado que emite a própria moeda não pode ficar sem dinheiro é o núcleo da visão de que o limite do gasto não é a solvência.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem vê a questão pelo lado do banco central responderia que emitir moeda sem limite gera inflação, e que o limite do gasto existe mesmo sem falta de caixa.\"},{\"i\":3,\"context\":\"A tese de que o controle da inflação depende de ajuste fiscal é o argumento típico da dominância fiscal: a política monetária sozinha perde força quando as contas públicas não são confiáveis.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem defende o novo consenso diria que um banco central independente, com regra clara de juros, basta para ancorar a inflação, sem depender do lado fiscal.\"}]}",
+   "usage": {
+    "input_tokens": 505,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1271,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0008215,
+   "ms": 8301,
+   "firstCardMs": 5410
+  }
+ ]
+}

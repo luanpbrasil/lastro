@@ -1,0 +1,1742 @@
+{
+ "tag": "b-p9notes",
+ "videoId": "wOpqx7XvD54",
+ "run": 2,
+ "chunker": "uploader",
+ "at": "2026-11-14T17:43:11.603Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 320,
+      "d": 4120,
+      "t": "Bom, a situação fiscal do país, né? Ou"
+     },
+     {
+      "s": 2760,
+      "d": 3280,
+      "t": "essa semana nós temos reunião do Banco"
+     },
+     {
+      "s": 4440,
+      "d": 3160,
+      "t": "Central, do Comitê de Política Monetária"
+     },
+     {
+      "s": 6040,
+      "d": 3400,
+      "t": "do Banco Central para decisão sobre a"
+     },
+     {
+      "s": 7600,
+      "d": 4480,
+      "t": "taxa de juros Selic."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"Reunião do Copom define a Selic nesta semana\",\"quote\":\"essa semana nós temos reunião do Banco Central, do Comitê de Política Monetária do Banco Central para decisão sobre a taxa de juros Selic\",\"paraphrase\":\"O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"},{\"id\":\"i_bc_autonomo\",\"role\":\"relies_on\"}],\"indicator\":\"selic_meta\",\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A decisão de juros pelo Comitê de Política Monetária é o instrumento central do regime de metas de inflação, em que o banco central move a taxa básica para levar a inflação à meta.\",\"against\":\"s_dominancia\",\"counterpoint\":\"Quem vê dominância fiscal diria que, com a dívida alta, mexer nos juros sozinho não basta para controlar a inflação, pois a situação das contas públicas também pesa.\"}]}",
+   "usage": {
+    "input_tokens": 260,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 395,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.000359,
+   "ms": 2335,
+   "firstCardMs": 2312
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 320,
+      "d": 4120,
+      "t": "Bom, a situação fiscal do país, né? Ou"
+     },
+     {
+      "s": 2760,
+      "d": 3280,
+      "t": "essa semana nós temos reunião do Banco"
+     },
+     {
+      "s": 4440,
+      "d": 3160,
+      "t": "Central, do Comitê de Política Monetária"
+     },
+     {
+      "s": 6040,
+      "d": 3400,
+      "t": "do Banco Central para decisão sobre a"
+     },
+     {
+      "s": 7600,
+      "d": 4480,
+      "t": "taxa de juros Selic."
+     }
+    ],
+    "segments": [
+     {
+      "s": 9440,
+      "d": 5760,
+      "t": "E o juro é o principal problema da"
+     },
+     {
+      "s": 12080,
+      "d": 3960,
+      "t": "economia hoje no país e é um problema"
+     },
+     {
+      "s": 15200,
+      "d": 2960,
+      "t": "que"
+     },
+     {
+      "s": 16040,
+      "d": 4120,
+      "t": "se que é uma consequência da situação"
+     },
+     {
+      "s": 18160,
+      "d": 3600,
+      "t": "fiscal do país. O ideal seria que o"
+     },
+     {
+      "s": 20160,
+      "d": 3880,
+      "t": "Copom se reunisse já com alguma"
+     },
+     {
+      "s": 21760,
+      "d": 4960,
+      "t": "sinalização por parte do presidente"
+     },
+     {
+      "s": 24040,
+      "d": 5240,
+      "t": "Lula, seja da formação da equipe e"
+     }
+    ],
+    "knownIdeas": [
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Juro é o principal problema da economia\",\"quote\":\"E o juro é o principal problema da economia hoje no país e é um problema que\",\"paraphrase\":\"O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_austeridade\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Copom deveria sinalizar antes de decidir\",\"quote\":\"O ideal seria que o Copom se reunisse já com alguma sinalização por parte do presidente Lula\",\"paraphrase\":\"O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"i_bc_autonomo\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"Ao ligar juros altos à situação fiscal, o argumento segue a lógica de que uma dívida pública elevada limita o efeito dos juros sobre a inflação, a linha típica da dominância fiscal.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem defende a MMT diria que um governo que emite a própria moeda não depende de juros altos para financiar a dívida, e que o limite real é a inflação, não a situação fiscal.\"},{\"i\":1,\"context\":\"Sugerir que o Banco Central espere sinalização do governo contraria a ideia de que a autonomia do Banco Central protege a política de juros de pressões políticas.\",\"against\":\"i_bc_autonomo\",\"counterpoint\":\"A defesa da autonomia responde que o Banco Central deve decidir com base na inflação e nas metas, sem esperar sinais do governo, para que as expectativas de inflação fiquem ancoradas.\"}]}",
+   "usage": {
+    "input_tokens": 462,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 694,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0005287,
+   "ms": 5961,
+   "firstCardMs": 4701
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 9440,
+      "d": 5760,
+      "t": "E o juro é o principal problema da"
+     },
+     {
+      "s": 12080,
+      "d": 3960,
+      "t": "economia hoje no país e é um problema"
+     },
+     {
+      "s": 15200,
+      "d": 2960,
+      "t": "que"
+     },
+     {
+      "s": 16040,
+      "d": 4120,
+      "t": "se que é uma consequência da situação"
+     },
+     {
+      "s": 18160,
+      "d": 3600,
+      "t": "fiscal do país. O ideal seria que o"
+     },
+     {
+      "s": 20160,
+      "d": 3880,
+      "t": "Copom se reunisse já com alguma"
+     },
+     {
+      "s": 21760,
+      "d": 4960,
+      "t": "sinalização por parte do presidente"
+     },
+     {
+      "s": 24040,
+      "d": 5240,
+      "t": "Lula, seja da formação da equipe e"
+     }
+    ],
+    "segments": [
+     {
+      "s": 26720,
+      "d": 4240,
+      "t": "também de qual vai ser o posicionamento"
+     },
+     {
+      "s": 29280,
+      "d": 5080,
+      "t": "dele em relação à dívida pública do"
+     },
+     {
+      "s": 30960,
+      "d": 5080,
+      "t": "país. Mas não tem nenhuma posição ainda."
+     },
+     {
+      "s": 34360,
+      "d": 3520,
+      "t": "E isso deixa o terreno fértil para"
+     },
+     {
+      "s": 36040,
+      "d": 4200,
+      "t": "conjecturas. No final de semana, ontem"
+     },
+     {
+      "s": 37880,
+      "d": 4480,
+      "t": "inclusive, saiu uma informação de que"
+     },
+     {
+      "s": 40240,
+      "d": 4840,
+      "t": "ele teria uma reunião nesta semana com o"
+     },
+     {
+      "s": 42360,
+      "d": 5040,
+      "t": "economista André Lara Resende."
+     },
+     {
+      "s": 45080,
+      "d": 4000,
+      "t": "Vamos lembrar que foi um dos criadores"
+     },
+     {
+      "s": 47400,
+      "d": 5040,
+      "t": "do Plano Real, também da Lei de"
+     },
+     {
+      "s": 49080,
+      "d": 5320,
+      "t": "Responsabilidade Fiscal. E ele teve um"
+     },
+     {
+      "s": 52440,
+      "d": 4360,
+      "t": "artigo que foi publicado recentemente no"
+     },
+     {
+      "s": 54400,
+      "d": 4760,
+      "t": "qual ele defende uma redução"
+     }
+    ],
+    "knownIdeas": [
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Juros são o principal problema da economia\",\"quote\":\"O juro é o principal problema da economia hoje no país e é um problema que é uma consequência da situação fiscal do país\",\"paraphrase\":\"O apresentador afirma que os juros são hoje o principal problema da economia, consequência da situação fiscal do país.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_austeridade\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Copom deveria ter sinal do governo\",\"quote\":\"O ideal seria que o Copom se reunisse já com alguma sinalização por parte do presidente Lula, seja da formação da equipe\",\"paraphrase\":\"O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente sobre a equipe econômica e a dívida pública.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"i_bc_autonomo\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Proposta de André Lara Resende para reduzir juros\",\"quote\":\"ele teve um artigo que foi publicado recentemente no qual ele defende uma redução\",\"paraphrase\":\"O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"t_lararesende\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"contradicts\"}],\"indicator\":\"selic_meta\",\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"Ao ligar juros altos à situação fiscal, o apresentador segue a lógica de que a dívida pública limita o efeito da política monetária, a ideia central da dominância fiscal.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem segue o novo consenso responderia que o banco central controla a inflação com os juros, e que a questão fiscal é separada desse controle.\"},{\"i\":1,\"context\":\"Ao defender que o Copom espere sinais fiscais, o apresentador parte da ideia de que a credibilidade das contas públicas influencia o efeito dos juros sobre a inflação.\",\"against\":\"i_bc_autonomo\",\"counterpoint\":\"Defensores da autonomia do Banco Central diriam que a diretoria deve decidir os juros com foco na inflação, sem esperar sinais do governo.\"},{\"i\":2,\"context\":\"A proposta de reduzir juros vinda de um formulador do Plano Real contraria o consenso de metas de inflação, que sustenta juros altos para ancorar expectativas.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"O novo consenso responderia que cortar juros sem a inflação ceder desancora as expectativas e pode ser contraproducente.\"}]}",
+   "usage": {
+    "input_tokens": 728,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1030,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0007233000000000001,
+   "ms": 5190,
+   "firstCardMs": 5165
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 34360,
+      "d": 3520,
+      "t": "E isso deixa o terreno fértil para"
+     },
+     {
+      "s": 36040,
+      "d": 4200,
+      "t": "conjecturas. No final de semana, ontem"
+     },
+     {
+      "s": 37880,
+      "d": 4480,
+      "t": "inclusive, saiu uma informação de que"
+     },
+     {
+      "s": 40240,
+      "d": 4840,
+      "t": "ele teria uma reunião nesta semana com o"
+     },
+     {
+      "s": 42360,
+      "d": 5040,
+      "t": "economista André Lara Resende."
+     },
+     {
+      "s": 45080,
+      "d": 4000,
+      "t": "Vamos lembrar que foi um dos criadores"
+     },
+     {
+      "s": 47400,
+      "d": 5040,
+      "t": "do Plano Real, também da Lei de"
+     },
+     {
+      "s": 49080,
+      "d": 5320,
+      "t": "Responsabilidade Fiscal. E ele teve um"
+     },
+     {
+      "s": 52440,
+      "d": 4360,
+      "t": "artigo que foi publicado recentemente no"
+     },
+     {
+      "s": 54400,
+      "d": 4760,
+      "t": "qual ele defende uma redução"
+     }
+    ],
+    "segments": [
+     {
+      "s": 56800,
+      "d": 4760,
+      "t": "a força da taxa de juro no país, fazendo"
+     },
+     {
+      "s": 59160,
+      "d": 4680,
+      "t": "uma inversão do raciocínio."
+     },
+     {
+      "s": 61560,
+      "d": 4000,
+      "t": "E que de que"
+     },
+     {
+      "s": 63840,
+      "d": 3560,
+      "t": "a reduzir a dívida pública poderia"
+     },
+     {
+      "s": 65560,
+      "d": 3600,
+      "t": "começar por uma redução do juro, porque"
+     },
+     {
+      "s": 67400,
+      "d": 3520,
+      "t": "uma parte muito grande da dívida"
+     },
+     {
+      "s": 69160,
+      "d": 3760,
+      "t": "pública, como a gente tem dito aqui no"
+     },
+     {
+      "s": 70920,
+      "d": 3480,
+      "t": "Gaúcha Atualidades, se deve ao juro alto"
+     },
+     {
+      "s": 72920,
+      "d": 2880,
+      "t": "que a gente música paga."
+     },
+     {
+      "s": 74400,
+      "d": 4240,
+      "t": "A gente, porque a gente paga, né,"
+     },
+     {
+      "s": 75800,
+      "d": 4320,
+      "t": "Andressa? Eu e tu pagamos, né? Não é só"
+     },
+     {
+      "s": 78640,
+      "d": 2920,
+      "t": "lá o cofre público, é o dinheiro que a"
+     },
+     {
+      "s": 80120,
+      "d": 3360,
+      "t": "gente manda para o cofre público que"
+     },
+     {
+      "s": 81560,
+      "d": 4120,
+      "t": "paga a dívida pública."
+     },
+     {
+      "s": 83480,
+      "d": 4760,
+      "t": "E aí ele acredita que reduzir a taxa de"
+     }
+    ],
+    "knownIdeas": [
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Juros altos inflam a dívida pública\",\"quote\":\"uma parte muito grande da dívida pública, como a gente tem dito aqui no Gaúcha Atualidades, se deve ao juro alto\",\"paraphrase\":\"O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Reduzir juros para reduzir dívida\",\"quote\":\"e que de que a reduzir a dívida pública poderia começar por uma redução do juro\",\"paraphrase\":\"O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"t_lararesende\",\"role\":\"relies_on\"},{\"id\":\"s_ftpl\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que juros altos elevam a dívida pública é o argumento central da dominância fiscal: com dívida alta, a taxa de juros pesa mais no orçamento do que o combate à inflação.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"A visão de metas de inflação responde que a taxa de juros é o instrumento para controlar a inflação e que sua redução sem credibilidade desancora as expectativas.\"},{\"i\":1,\"context\":\"A proposta de cortar juros para reduzir a dívida inverte a lógica convencional e aproxima-se da teoria fiscal do nível de preços, que liga a estabilidade dos preços às expectativas fiscais.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Quem defende o novo consenso diz que cortar juros sem que a inflação ceda enfraquece a credibilidade e pode fazer a dívida subir, não cair.\"}]}",
+   "usage": {
+    "input_tokens": 875,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 722,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.000584,
+   "ms": 3297,
+   "firstCardMs": 2608
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 67400,
+      "d": 3520,
+      "t": "uma parte muito grande da dívida"
+     },
+     {
+      "s": 69160,
+      "d": 3760,
+      "t": "pública, como a gente tem dito aqui no"
+     },
+     {
+      "s": 70920,
+      "d": 3480,
+      "t": "Gaúcha Atualidades, se deve ao juro alto"
+     },
+     {
+      "s": 72920,
+      "d": 2880,
+      "t": "que a gente música paga."
+     },
+     {
+      "s": 74400,
+      "d": 4240,
+      "t": "A gente, porque a gente paga, né,"
+     },
+     {
+      "s": 75800,
+      "d": 4320,
+      "t": "Andressa? Eu e tu pagamos, né? Não é só"
+     },
+     {
+      "s": 78640,
+      "d": 2920,
+      "t": "lá o cofre público, é o dinheiro que a"
+     },
+     {
+      "s": 80120,
+      "d": 3360,
+      "t": "gente manda para o cofre público que"
+     },
+     {
+      "s": 81560,
+      "d": 4120,
+      "t": "paga a dívida pública."
+     },
+     {
+      "s": 83480,
+      "d": 4760,
+      "t": "E aí ele acredita que reduzir a taxa de"
+     }
+    ],
+    "segments": [
+     {
+      "s": 85680,
+      "d": 6520,
+      "t": "juro no que se chama de canetaço e"
+     },
+     {
+      "s": 88240,
+      "d": 6680,
+      "t": "manter ela tabelada numa faixa reduzida,"
+     },
+     {
+      "s": 92200,
+      "d": 3960,
+      "t": "isso poderia cortar a dívida pública do"
+     },
+     {
+      "s": 94920,
+      "d": 2440,
+      "t": "país."
+     },
+     {
+      "s": 96160,
+      "d": 4000,
+      "t": "Porém,"
+     },
+     {
+      "s": 97360,
+      "d": 5680,
+      "t": "isso é uma medida considerada artificial"
+     },
+     {
+      "s": 100160,
+      "d": 4760,
+      "t": "pelos economistas. Já foi ah adotada em"
+     },
+     {
+      "s": 103040,
+      "d": 3680,
+      "t": "outros países, mais recentemente até na"
+     },
+     {
+      "s": 104920,
+      "d": 4440,
+      "t": "Turquia, não deu certo."
+     },
+     {
+      "s": 106720,
+      "d": 6160,
+      "t": "Porque gera uma desconfiança do mercado"
+     },
+     {
+      "s": 109360,
+      "d": 5960,
+      "t": "como um todo, ah que o governo não vai"
+     },
+     {
+      "s": 112880,
+      "d": 5000,
+      "t": "cortar também o gasto. Pode manter o"
+     },
+     {
+      "s": 115320,
+      "d": 2840,
+      "t": "gasto elevado, talvez até aumentá-lo."
+     }
+    ],
+    "knownIdeas": [
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Juros altos explicam grande parte da dívida\",\"quote\":\"uma parte muito grande da dívida pública se deve ao juro alto que a gente paga\",\"paraphrase\":\"O apresentador afirma que uma parcela muito grande da dívida pública decorre dos juros altos que o governo paga.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Reduzir juros por decreto cortaria a dívida\",\"quote\":\"reduzir a taxa de juro no que se chama de canetaço e manter ela tabelada numa faixa reduzida\",\"paraphrase\":\"O falante sustenta que reduzir os juros por decreto e mantê-los em faixa baixa poderia cortar a dívida pública.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"s_mmt\",\"role\":\"echoes\"},{\"id\":\"s_novoconsenso\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Juro por decreto é visto como artificial\",\"quote\":\"isso é uma medida considerada artificial pelos economistas já foi adotada em outros países\",\"paraphrase\":\"O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Juro artificial gera desconfiança do mercado\",\"quote\":\"gera uma desconfiança do mercado como um todo que o governo não vai cortar também o gasto\",\"paraphrase\":\"O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_austeridade\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que a dívida cresce com os juros pagos liga-se à lógica de que, com dívida alta, o custo dos juros pesa na trajetória fiscal.\",\"against\":\"s_mmt\",\"counterpoint\":\"Para a MMT, um governo que emite a própria moeda não depende de juros altos para financiar a dívida, então o custo dos juros não é o limite decisivo.\"},{\"i\":1,\"context\":\"Propor que o juro seja fixado por decreto em faixa baixa é uma aposta de que a taxa pode ser controlada sem depender da confiança do mercado, algo que o consenso de metas de inflação questiona.\",\"against\":\"s_novoconsenso\",\"counterpoint\":\"Para o consenso de metas, juros fixados sem credibilidade desancoram as expectativas e não se sustentam por muito tempo.\"},{\"i\":2,\"context\":\"A crítica de que a medida é artificial segue o raciocínio do novo consenso, que valoriza juros definidos por um banco central independente e guiados pela inflação.\",\"against\":null,\"counterpoint\":\"\"},{\"i\":3,\"context\":\"A ligação entre gasto público e confiança do mercado segue a lógica de que um ajuste fiscal crível sustenta juros mais baixos.\",\"against\":\"s_keynes\",\"counterpoint\":\"Para a visão keynesiana, cortar gastos numa economia fraca pode aprofundar a queda, e a confiança sozinha não resolve a demanda.\"}]}",
+   "usage": {
+    "input_tokens": 927,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1235,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0008457,
+   "ms": 5741,
+   "firstCardMs": 5067
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 94920,
+      "d": 2440,
+      "t": "país."
+     },
+     {
+      "s": 96160,
+      "d": 4000,
+      "t": "Porém,"
+     },
+     {
+      "s": 97360,
+      "d": 5680,
+      "t": "isso é uma medida considerada artificial"
+     },
+     {
+      "s": 100160,
+      "d": 4760,
+      "t": "pelos economistas. Já foi ah adotada em"
+     },
+     {
+      "s": 103040,
+      "d": 3680,
+      "t": "outros países, mais recentemente até na"
+     },
+     {
+      "s": 104920,
+      "d": 4440,
+      "t": "Turquia, não deu certo."
+     },
+     {
+      "s": 106720,
+      "d": 6160,
+      "t": "Porque gera uma desconfiança do mercado"
+     },
+     {
+      "s": 109360,
+      "d": 5960,
+      "t": "como um todo, ah que o governo não vai"
+     },
+     {
+      "s": 112880,
+      "d": 5000,
+      "t": "cortar também o gasto. Pode manter o"
+     },
+     {
+      "s": 115320,
+      "d": 2840,
+      "t": "gasto elevado, talvez até aumentá-lo."
+     }
+    ],
+    "segments": [
+     {
+      "s": 117880,
+      "d": 2772,
+      "t": "E aí"
+     },
+     {
+      "s": 118160,
+      "d": 5852,
+      "t": "Até porque o governo fez uma série de"
+     },
+     {
+      "s": 120652,
+      "d": 6080,
+      "t": "promessas e de medidas"
+     },
+     {
+      "s": 124012,
+      "d": 5360,
+      "t": "às vésperas da eleição, todas elas com"
+     },
+     {
+      "s": 126732,
+      "d": 5600,
+      "t": "muito, muito reflexo fiscal."
+     },
+     {
+      "s": 129372,
+      "d": 5640,
+      "t": "Isso, com gastos maiores e abrindo mão"
+     },
+     {
+      "s": 132332,
+      "d": 5000,
+      "t": "de receita, as duas coisas, né?"
+     },
+     {
+      "s": 135012,
+      "d": 4680,
+      "t": "E com o governo com essa postura, qual é"
+     },
+     {
+      "s": 137332,
+      "d": 4240,
+      "t": "a credibilidade que tu tem de dizer para"
+     },
+     {
+      "s": 139692,
+      "d": 5240,
+      "t": "o mercado: \"Ó, nós vamos manter o juro"
+     },
+     {
+      "s": 141572,
+      "d": 5520,
+      "t": "mais baixo aqui, à força, mas confia na"
+     },
+     {
+      "s": 144932,
+      "d": 2600,
+      "t": "gente e não nos cobra um juro muito alto"
+     },
+     {
+      "s": 147092,
+      "d": 2200,
+      "t": "para emprestar\"?"
+     }
+    ],
+    "knownIdeas": [
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Governo sem credibilidade fiscal para segurar juros\",\"quote\":\"e com o governo com essa postura, qual é a credibilidade que tu tem de dizer para o mercado\",\"paraphrase\":\"O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Juros baixos por força geram desconfiança fiscal\",\"quote\":\"Porque gera uma desconfiança do mercado como um todo, ah que o governo não vai cortar também o gasto\",\"paraphrase\":\"O falante afirma que cortar juros artificialmente gera desconfiança de que o governo não cortará gastos, e pode manter ou aumentar a despesa.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_austeridade\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que a credibilidade fiscal condiciona os juros acompanha a linha de que a dívida alta limita o efeito da política monetária sobre a inflação e os juros.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem segue a MMT responderia que um Estado que emite a própria moeda não depende da confiança do mercado para financiar gastos, e que o limite é a inflação.\"},{\"i\":1,\"context\":\"A ligação entre gasto e confiança segue a tradição de que um ajuste fiscal crível sustenta juros mais baixos e crescimento.\",\"against\":\"s_keynes\",\"counterpoint\":\"Keynesianos responderiam que cortar gastos numa economia fraca reduz a demanda e pode piorar o quadro, e que juros baixos ajudam mesmo sem ajuste imediato.\"}]}",
+   "usage": {
+    "input_tokens": 989,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 725,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0005969,
+   "ms": 3605,
+   "firstCardMs": 2869
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 124012,
+      "d": 5360,
+      "t": "às vésperas da eleição, todas elas com"
+     },
+     {
+      "s": 126732,
+      "d": 5600,
+      "t": "muito, muito reflexo fiscal."
+     },
+     {
+      "s": 129372,
+      "d": 5640,
+      "t": "Isso, com gastos maiores e abrindo mão"
+     },
+     {
+      "s": 132332,
+      "d": 5000,
+      "t": "de receita, as duas coisas, né?"
+     },
+     {
+      "s": 135012,
+      "d": 4680,
+      "t": "E com o governo com essa postura, qual é"
+     },
+     {
+      "s": 137332,
+      "d": 4240,
+      "t": "a credibilidade que tu tem de dizer para"
+     },
+     {
+      "s": 139692,
+      "d": 5240,
+      "t": "o mercado: \"Ó, nós vamos manter o juro"
+     },
+     {
+      "s": 141572,
+      "d": 5520,
+      "t": "mais baixo aqui, à força, mas confia na"
+     },
+     {
+      "s": 144932,
+      "d": 2600,
+      "t": "gente e não nos cobra um juro muito alto"
+     },
+     {
+      "s": 147092,
+      "d": 2200,
+      "t": "para emprestar\"?"
+     }
+    ],
+    "segments": [
+     {
+      "s": 147532,
+      "d": 3680,
+      "t": "Essa garantia só e de um idiota."
+     },
+     {
+      "s": 149292,
+      "d": 4240,
+      "t": "Tu não consegue, assim, eu acho que tudo"
+     },
+     {
+      "s": 151212,
+      "d": 4440,
+      "t": "indica não se conseguiria essa confiança"
+     },
+     {
+      "s": 153532,
+      "d": 4440,
+      "t": "por parte do mercado financeiro. É, que"
+     },
+     {
+      "s": 155652,
+      "d": 3960,
+      "t": "que acontece? Tu acaba tendo que pagar"
+     },
+     {
+      "s": 157972,
+      "d": 2720,
+      "t": "mais juro, o governo"
+     },
+     {
+      "s": 159612,
+      "d": 6160,
+      "t": "tem que pagar mais juro para pegar"
+     },
+     {
+      "s": 160692,
+      "d": 5080,
+      "t": "dinheiro emprestado, acaba tendo que,"
+     },
+     {
+      "s": 166452,
+      "d": 4280,
+      "t": "de, que também de,"
+     },
+     {
+      "s": 168532,
+      "d": 3120,
+      "t": "de elevar, eleva a inflação, acaba tendo"
+     },
+     {
+      "s": 170732,
+      "d": 3160,
+      "t": "que,"
+     },
+     {
+      "s": 171652,
+      "d": 4600,
+      "t": "usar reservas internacionais para tentar"
+     },
+     {
+      "s": 173892,
+      "d": 3920,
+      "t": "segurar o dólar, porque nós temos uma"
+     },
+     {
+      "s": 176252,
+      "d": 3320,
+      "t": "alta do dólar como reflexo nessas"
+     }
+    ],
+    "knownIdeas": [
+     "O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.",
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Mercado não confiaria em juro forçado para baixo\",\"quote\":\"Essa garantia só e de um idiota. Tu não consegue, assim, eu acho que tudo indica não se conseguiria essa confiança\",\"paraphrase\":\"O falante afirma que o mercado financeiro não concederia confiança ao governo que tentasse manter os juros artificialmente baixos.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Juro forçado eleva inflação e pressiona o dólar\",\"quote\":\"tem que pagar mais juro para pegar dinheiro emprestado, acaba tendo que, de elevar, eleva a inflação, acaba tendo que, usar reservas internacionais para tentar segurar o dólar\",\"paraphrase\":\"O falante sustenta que, se o mercado exigir juros mais altos, o governo pagará mais caro pelo crédito, a inflação subirá e serão usadas reservas internacionais para conter o dólar.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"O argumento de que a credibilidade depende das contas públicas segue a lógica de que o banco central não controla a inflação sem âncora fiscal crível.\",\"against\":\"s_mmt\",\"counterpoint\":\"A MMT responderia que um governo que emite a própria moeda não depende da confiança do mercado para financiar gastos, e que o limite real é a inflação.\"},{\"i\":1,\"context\":\"A ideia de que dívida alta e juros mais altos realimentam a inflação e pressionam a taxa de câmbio é a cadeia típica da dominância fiscal.\",\"against\":\"s_mmt\",\"counterpoint\":\"A MMT contestaria que juros e dívida não são a causa da inflação, que dependeria de pressões de demanda e capacidade produtiva, não de custo financeiro.\"}]}",
+   "usage": {
+    "input_tokens": 1104,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 755,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0006234,
+   "ms": 3932,
+   "firstCardMs": 3195
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 155652,
+      "d": 3960,
+      "t": "que acontece? Tu acaba tendo que pagar"
+     },
+     {
+      "s": 157972,
+      "d": 2720,
+      "t": "mais juro, o governo"
+     },
+     {
+      "s": 159612,
+      "d": 6160,
+      "t": "tem que pagar mais juro para pegar"
+     },
+     {
+      "s": 160692,
+      "d": 5080,
+      "t": "dinheiro emprestado, acaba tendo que,"
+     },
+     {
+      "s": 166452,
+      "d": 4280,
+      "t": "de, que também de,"
+     },
+     {
+      "s": 168532,
+      "d": 3120,
+      "t": "de elevar, eleva a inflação, acaba tendo"
+     },
+     {
+      "s": 170732,
+      "d": 3160,
+      "t": "que,"
+     },
+     {
+      "s": 171652,
+      "d": 4600,
+      "t": "usar reservas internacionais para tentar"
+     },
+     {
+      "s": 173892,
+      "d": 3920,
+      "t": "segurar o dólar, porque nós temos uma"
+     },
+     {
+      "s": 176252,
+      "d": 3320,
+      "t": "alta do dólar como reflexo nessas"
+     }
+    ],
+    "segments": [
+     {
+      "s": 177812,
+      "d": 3880,
+      "t": "situações."
+     },
+     {
+      "s": 179572,
+      "d": 5480,
+      "t": "E aí tu tem o efeito rebote, que é tu"
+     },
+     {
+      "s": 181692,
+      "d": 5040,
+      "t": "ter uma inflação e exigir que, daqui a"
+     },
+     {
+      "s": 185052,
+      "d": 3040,
+      "t": "pouco tu diga: \"Ó, não deu para segurar"
+     },
+     {
+      "s": 186732,
+      "d": 3080,
+      "t": "o juro, vamos ter que aumentar o juro de"
+     },
+     {
+      "s": 188092,
+      "d": 3080,
+      "t": "novo\" e o juro volta bem maior do que"
+     },
+     {
+      "s": 189812,
+      "d": 3880,
+      "t": "estava antes."
+     },
+     {
+      "s": 191172,
+      "d": 4160,
+      "t": "Este é um efeito rebote que é um risco"
+     },
+     {
+      "s": 193692,
+      "d": 3200,
+      "t": "de implementar essa política."
+     },
+     {
+      "s": 195332,
+      "d": 2800,
+      "t": "arrumado as contas."
+     },
+     {
+      "s": 196892,
+      "d": 4560,
+      "t": "Então essa é a discussão que surgiu no"
+     },
+     {
+      "s": 198132,
+      "d": 5320,
+      "t": "final de semana. O, a ex-ministra do"
+     },
+     {
+      "s": 201452,
+      "d": 3840,
+      "t": "governo Lula e ex-presidente do PT,"
+     },
+     {
+      "s": 203452,
+      "d": 3120,
+      "t": "Gleisi Hoffmann, elogiou André Lara"
+     },
+     {
+      "s": 205292,
+      "d": 2840,
+      "t": "Resende."
+     }
+    ],
+    "knownIdeas": [
+     "O falante sustenta que, se o mercado exigir juros mais altos, o governo pagará mais caro pelo crédito, a inflação subirá e serão usadas reservas internacionais para conter o dólar.",
+     "O falante afirma que o mercado financeiro não concederia confiança ao governo que tentasse manter os juros artificialmente baixos.",
+     "O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.",
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Juros mais altos elevam custo do governo e inflação\",\"quote\":\"que acontece? Tu acaba tendo que pagar mais juro, o governo tem que pagar mais juro para pegar dinheiro emprestado\",\"paraphrase\":\"O falante afirma que, se os juros sobem, o governo paga mais caro pelo dinheiro emprestado e a inflação tende a subir.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_novoconsenso\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Reservas usadas para segurar o dólar\",\"quote\":\"usar reservas internacionais para tentar segurar o dólar, porque nós temos uma alta do dólar como reflexo\",\"paraphrase\":\"O falante diz que o governo teria de usar reservas internacionais para conter a alta do dólar.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":\"cambio_usd\",\"claimed_value\":null,\"period\":null},{\"headline\":\"Efeito rebote: juros voltam maiores\",\"quote\":\"E aí tu tem o efeito rebote, que é tu ter uma inflação e exigir que, daqui a pouco tu diga\",\"paraphrase\":\"O falante sustenta que cortar juros sem controlar a inflação leva a um efeito rebote, com juros que voltam a subir mais do que antes.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"},{\"id\":\"e_cortes2012\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que juros altos encarecem a dívida e podem alimentar a inflação é o tipo de raciocínio típico da dominância fiscal, em que a situação das contas públicas limita o que o juro consegue controlar.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem defende a MMT responderia que um governo que emite a própria moeda não fica sem ela, e que o limite real do gasto é a inflação, não a solvência nominal.\"},{\"i\":1,\"context\":\"Ao ligar a alta do dólar ao uso de reservas, o falante segue a lógica de que a credibilidade fiscal sustenta o câmbio e a inflação, como na teoria da dominância fiscal.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem defende a MMT diria que o câmbio depende mais da inflação e do gasto real do que de reservas, e que a emissão própria de moeda reduz a dependência externa.\"},{\"i\":2,\"context\":\"A advertência de que cortar juros sem a inflação ceder leva a juros maiores depois segue o argumento do novo consenso de que expectativas desancoradas encarecem o combate à inflação.\",\"against\":\"s_keynes\",\"counterpoint\":\"Quem segue o keynesianismo responderia que juros baixos estimulam a demanda e o emprego, e que o risco de rebote é exagerado quando a economia está em recessão.\"}]}",
+   "usage": {
+    "input_tokens": 1214,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1076,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0007949,
+   "ms": 4926,
+   "firstCardMs": 4902
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 188092,
+      "d": 3080,
+      "t": "novo\" e o juro volta bem maior do que"
+     },
+     {
+      "s": 189812,
+      "d": 3880,
+      "t": "estava antes."
+     },
+     {
+      "s": 191172,
+      "d": 4160,
+      "t": "Este é um efeito rebote que é um risco"
+     },
+     {
+      "s": 193692,
+      "d": 3200,
+      "t": "de implementar essa política."
+     },
+     {
+      "s": 195332,
+      "d": 2800,
+      "t": "arrumado as contas."
+     },
+     {
+      "s": 196892,
+      "d": 4560,
+      "t": "Então essa é a discussão que surgiu no"
+     },
+     {
+      "s": 198132,
+      "d": 5320,
+      "t": "final de semana. O, a ex-ministra do"
+     },
+     {
+      "s": 201452,
+      "d": 3840,
+      "t": "governo Lula e ex-presidente do PT,"
+     },
+     {
+      "s": 203452,
+      "d": 3120,
+      "t": "Gleisi Hoffmann, elogiou André Lara"
+     },
+     {
+      "s": 205292,
+      "d": 2840,
+      "t": "Resende."
+     }
+    ],
+    "segments": [
+     {
+      "s": 206572,
+      "d": 3800,
+      "t": "Aí isso já colocou mais lenha na"
+     },
+     {
+      "s": 208132,
+      "d": 5920,
+      "t": "fogueira, né? Porque ela é de uma ala"
+     },
+     {
+      "s": 210372,
+      "d": 6960,
+      "t": "política muito forte que tem uma crítica"
+     },
+     {
+      "s": 214052,
+      "d": 6160,
+      "t": "fortíssima à, à preocupação fiscal,"
+     },
+     {
+      "s": 217332,
+      "d": 4060,
+      "t": "disse inclusive que essa proposta de,"
+     },
+     {
+      "s": 220212,
+      "d": 1680,
+      "t": "de Lara Resende,"
+     },
+     {
+      "s": 221392,
+      "d": 3140,
+      "t": "música"
+     },
+     {
+      "s": 221892,
+      "d": 5480,
+      "t": "acaba, né? Atacando a ofensiva"
+     },
+     {
+      "s": 224532,
+      "d": 5160,
+      "t": "terrorista dos rentistas."
+     },
+     {
+      "s": 227372,
+      "d": 5320,
+      "t": "É, é um discurso, tá? Bem comum que se"
+     },
+     {
+      "s": 229692,
+      "d": 4520,
+      "t": "tem neste tipo de, de debate. Por outro"
+     },
+     {
+      "s": 232692,
+      "d": 3560,
+      "t": "lado, o ministro da Fazenda, Dario"
+     },
+     {
+      "s": 234212,
+      "d": 3600,
+      "t": "Durigan, tentou, né? Apagar um pouco"
+     },
+     {
+      "s": 236252,
+      "d": 2920,
+      "t": "esse incêndio, que é o que ele que ele"
+     }
+    ],
+    "knownIdeas": [
+     "O falante sustenta que cortar juros sem controlar a inflação leva a um efeito rebote, com juros que voltam a subir mais do que antes.",
+     "O falante sustenta que, se o mercado exigir juros mais altos, o governo pagará mais caro pelo crédito, a inflação subirá e serão usadas reservas internacionais para conter o dólar.",
+     "O falante afirma que o mercado financeiro não concederia confiança ao governo que tentasse manter os juros artificialmente baixos.",
+     "O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.",
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Gleisi elogia proposta de Lara Resende\",\"quote\":\"Gleisi Hoffmann, elogiou André Lara Resende. Aí isso já colocou mais lenha na fogueira\",\"paraphrase\":\"O falante relata que a ex-ministra Gleisi Hoffmann elogiou a proposta de André Lara Resende, o que acendeu mais polêmica no debate.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"t_lararesende\",\"role\":\"echoes\"},{\"id\":\"s_dominancia\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Crítica forte à preocupação fiscal\",\"quote\":\"ela é de uma ala política muito forte que tem uma crítica fortíssima à, à preocupação fiscal\",\"paraphrase\":\"O falante afirma que a ala política de Gleisi Hoffmann critica fortemente a preocupação com o equilíbrio fiscal.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_austeridade\",\"role\":\"contradicts\"},{\"id\":\"s_keynes\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Proposta chamada de ofensiva terrorista dos rentistas\",\"quote\":\"acaba, né? Atacando a ofensiva terrorista dos rentistas.\",\"paraphrase\":\"O falante relata que a proposta de Lara Resende foi descrita como um ataque dos rentistas, em tom de crítica ao mercado financeiro.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"t_lararesende\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A proposta de Lara Resende de começar a reduzir a dívida pelos juros é um tema que ele associa a ideias de economistas heterodoxos, e o elogio partidário mostra que a discussão ganhou força política.\",\"against\":\"s_dominancia\",\"counterpoint\":\"Quem defende a dominância fiscal responderia que juros mais baixos sem ajuste fiscal crível podem levar a dívida a crescer e a inflação a subir.\"},{\"i\":1,\"context\":\"A crítica à preocupação fiscal lembra o debate sobre o papel do gasto público na demanda e no emprego, tema central do keynesianismo.\",\"against\":\"s_austeridade\",\"counterpoint\":\"Defensores da austeridade diriam que cortar gastos de forma crível reduz juros e aumenta a confiança, o que favorece o crescimento.\"},{\"i\":2,\"context\":\"Chamar a proposta de ataque dos rentistas reflete a tensão entre quem vive de juros da dívida e quem defende juros mais baixos para reduzir o custo do Estado.\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 1255,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 973,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0007475,
+   "ms": 4218,
+   "firstCardMs": 3764
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 217332,
+      "d": 4060,
+      "t": "disse inclusive que essa proposta de,"
+     },
+     {
+      "s": 220212,
+      "d": 1680,
+      "t": "de Lara Resende,"
+     },
+     {
+      "s": 221392,
+      "d": 3140,
+      "t": "música"
+     },
+     {
+      "s": 221892,
+      "d": 5480,
+      "t": "acaba, né? Atacando a ofensiva"
+     },
+     {
+      "s": 224532,
+      "d": 5160,
+      "t": "terrorista dos rentistas."
+     },
+     {
+      "s": 227372,
+      "d": 5320,
+      "t": "É, é um discurso, tá? Bem comum que se"
+     },
+     {
+      "s": 229692,
+      "d": 4520,
+      "t": "tem neste tipo de, de debate. Por outro"
+     },
+     {
+      "s": 232692,
+      "d": 3560,
+      "t": "lado, o ministro da Fazenda, Dario"
+     },
+     {
+      "s": 234212,
+      "d": 3600,
+      "t": "Durigan, tentou, né? Apagar um pouco"
+     },
+     {
+      "s": 236252,
+      "d": 2920,
+      "t": "esse incêndio, que é o que ele que ele"
+     }
+    ],
+    "segments": [
+     {
+      "s": 237812,
+      "d": 3440,
+      "t": "tem feito desde o segundo turno da"
+     },
+     {
+      "s": 239172,
+      "d": 4362,
+      "t": "eleição e disse que não tinha encontro"
+     },
+     {
+      "s": 241252,
+      "d": 5282,
+      "t": "marcado, Andressa, e que não está se"
+     },
+     {
+      "s": 243534,
+      "d": 4680,
+      "t": "cogitando tabelamento de taxa de juro."
+     },
+     {
+      "s": 246534,
+      "d": 4800,
+      "t": "Mas o que o mercado precisa é uma"
+     },
+     {
+      "s": 248214,
+      "d": 6520,
+      "t": "posição do presidente Lula, não dos seus"
+     },
+     {
+      "s": 251334,
+      "d": 4960,
+      "t": "ministros, não dos seus aliados, não de"
+     },
+     {
+      "s": 254734,
+      "d": 4040,
+      "t": "ninguém da equipe dele. O presidente"
+     },
+     {
+      "s": 256294,
+      "d": 4440,
+      "t": "Lula precisa falar claramente para que"
+     },
+     {
+      "s": 258774,
+      "d": 4080,
+      "t": "se entenda qual vai ser a decisão dele,"
+     },
+     {
+      "s": 260734,
+      "d": 3600,
+      "t": "porque independentemente dele colocar"
+     },
+     {
+      "s": 262854,
+      "d": 3840,
+      "t": "Rafael Fonteles como ministro da"
+     },
+     {
+      "s": 264334,
+      "d": 3800,
+      "t": "Fazenda, governador eleito do Piauí,"
+     }
+    ],
+    "knownIdeas": [
+     "O falante relata que a proposta de Lara Resende foi descrita como um ataque dos rentistas, em tom de crítica ao mercado financeiro.",
+     "O falante afirma que a ala política de Gleisi Hoffmann critica fortemente a preocupação com o equilíbrio fiscal.",
+     "O falante sustenta que cortar juros sem controlar a inflação leva a um efeito rebote, com juros que voltam a subir mais do que antes.",
+     "O falante sustenta que, se o mercado exigir juros mais altos, o governo pagará mais caro pelo crédito, a inflação subirá e serão usadas reservas internacionais para conter o dólar.",
+     "O falante afirma que o mercado financeiro não concederia confiança ao governo que tentasse manter os juros artificialmente baixos.",
+     "O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.",
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Mercado precisa de posição clara do presidente Lula\",\"quote\":\"O presidente Lula precisa falar claramente para que se entenda qual vai ser a decisão dele\",\"paraphrase\":\"O falante afirma que o mercado precisa de uma posição clara do presidente, não de ministros ou aliados, sobre a decisão que será tomada.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Ministério nega tabelamento de juros\",\"quote\":\"não está se cogitando tabelamento de taxa de juro\",\"paraphrase\":\"O ministro da Fazenda teria dito que não há encontro marcado com André Lara Resende e que não se cogita tabelar a taxa de juros.\",\"kind\":\"fact\",\"nodes\":[],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"O argumento de que o mercado reage a sinais claros e que a credibilidade do banco central depende de expectativas bem ancoradas aparece nesse tipo de análise, que vê a política de juros como ancorada na confiança.\",\"against\":\"s_mmt\",\"counterpoint\":\"A MMT responderia que o gasto público e a emissão própria de moeda não dependem da aprovação do mercado, e que a inflação, e não a confiança dos investidores, é o limite real.\"},{\"i\":1,\"context\":\"\",\"against\":null,\"counterpoint\":\"\"}]}",
+   "usage": {
+    "input_tokens": 1357,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 521,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0005317,
+   "ms": 3880,
+   "firstCardMs": 3836
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 243534,
+      "d": 4680,
+      "t": "cogitando tabelamento de taxa de juro."
+     },
+     {
+      "s": 246534,
+      "d": 4800,
+      "t": "Mas o que o mercado precisa é uma"
+     },
+     {
+      "s": 248214,
+      "d": 6520,
+      "t": "posição do presidente Lula, não dos seus"
+     },
+     {
+      "s": 251334,
+      "d": 4960,
+      "t": "ministros, não dos seus aliados, não de"
+     },
+     {
+      "s": 254734,
+      "d": 4040,
+      "t": "ninguém da equipe dele. O presidente"
+     },
+     {
+      "s": 256294,
+      "d": 4440,
+      "t": "Lula precisa falar claramente para que"
+     },
+     {
+      "s": 258774,
+      "d": 4080,
+      "t": "se entenda qual vai ser a decisão dele,"
+     },
+     {
+      "s": 260734,
+      "d": 3600,
+      "t": "porque independentemente dele colocar"
+     },
+     {
+      "s": 262854,
+      "d": 3840,
+      "t": "Rafael Fonteles como ministro da"
+     },
+     {
+      "s": 264334,
+      "d": 3800,
+      "t": "Fazenda, governador eleito do Piauí,"
+     }
+    ],
+    "segments": [
+     {
+      "s": 266694,
+      "d": 3880,
+      "t": "Geraldo Alckmin como ministro da"
+     },
+     {
+      "s": 268134,
+      "d": 4440,
+      "t": "Fazenda, o vice-presidente, se Lula não"
+     },
+     {
+      "s": 270574,
+      "d": 2400,
+      "t": "respaldar estes nomes"
+     },
+     {
+      "s": 272574,
+      "d": 2320,
+      "t": "Uhum."
+     },
+     {
+      "s": 272974,
+      "d": 4600,
+      "t": "para que se tenha exatamente uma ideia"
+     },
+     {
+      "s": 274894,
+      "d": 4680,
+      "t": "do que vai ser feito na área fiscal, o"
+     },
+     {
+      "s": 277574,
+      "d": 4240,
+      "t": "mercado financeiro não vai comprar só o"
+     },
+     {
+      "s": 279574,
+      "d": 4000,
+      "t": "anúncio, tá? E"
+     },
+     {
+      "s": 281814,
+      "d": 3920,
+      "t": "não tem que agradar a Faria Lima, não é"
+     },
+     {
+      "s": 283574,
+      "d": 3720,
+      "t": "esse, não é essa questão. A questão é"
+     },
+     {
+      "s": 285734,
+      "d": 3240,
+      "t": "que tu não pode obrigar o investidor a"
+     },
+     {
+      "s": 287294,
+      "d": 3560,
+      "t": "confiar em ti, tu precisa"
+     },
+     {
+      "s": 288974,
+      "d": 3840,
+      "t": "conquistar essa confiança. Se ele não"
+     },
+     {
+      "s": 290854,
+      "d": 4040,
+      "t": "confia em ti, tu tem esse impacto de"
+     },
+     {
+      "s": 292814,
+      "d": 4280,
+      "t": "inflação, tu tem o impacto dólar e tu"
+     },
+     {
+      "s": 294894,
+      "d": 4880,
+      "t": "não consegue ajeitar as contas públicas."
+     }
+    ],
+    "knownIdeas": [
+     "O ministro da Fazenda teria dito que não há encontro marcado com André Lara Resende e que não se cogita tabelar a taxa de juros.",
+     "O falante afirma que o mercado precisa de uma posição clara do presidente, não de ministros ou aliados, sobre a decisão que será tomada.",
+     "O falante relata que a proposta de Lara Resende foi descrita como um ataque dos rentistas, em tom de crítica ao mercado financeiro.",
+     "O falante afirma que a ala política de Gleisi Hoffmann critica fortemente a preocupação com o equilíbrio fiscal.",
+     "O falante sustenta que cortar juros sem controlar a inflação leva a um efeito rebote, com juros que voltam a subir mais do que antes.",
+     "O falante sustenta que, se o mercado exigir juros mais altos, o governo pagará mais caro pelo crédito, a inflação subirá e serão usadas reservas internacionais para conter o dólar.",
+     "O falante afirma que o mercado financeiro não concederia confiança ao governo que tentasse manter os juros artificialmente baixos.",
+     "O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.",
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Mercado precisa de posição clara de Lula\",\"quote\":\"posição do presidente Lula, não dos seus ministros, não dos seus aliados, não de ninguém da equipe dele\",\"paraphrase\":\"O falante afirma que o mercado precisa ouvir do próprio presidente Lula qual será a decisão sobre a área fiscal, e não de ministros ou aliados.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"i_presidencialismo_coalizao\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Confiança do investidor não se impõe\",\"quote\":\"A questão é que tu não pode obrigar o investidor a confiar em ti, tu precisa conquistar essa confiança\",\"paraphrase\":\"O falante sustenta que o governo não pode obrigar investidores a confiar nele; a confiança precisa ser conquistada com medidas fiscais críveis.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_novoconsenso\",\"role\":\"echoes\"},{\"id\":\"s_dominancia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Sem confiança, inflação e dólar sobem\",\"quote\":\"Se ele não confia em ti, tu tem esse impacto de inflação, tu tem o impacto dólar e tu não consegue ajeitar as contas públicas\",\"paraphrase\":\"O falante argumenta que, sem a confiança do mercado, o país sofre mais inflação e alta do dólar e fica sem conseguir organizar as contas públicas.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_dominancia\",\"role\":\"relies_on\"},{\"id\":\"s_austeridade\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que a confiança depende de compromissos fiscais claros aparece como condição para a política econômica funcionar, do jeito que a escola de dominância fiscal descreve.\",\"against\":\"s_mmt\",\"counterpoint\":\"A visão MMT responderia que um governo que emite a própria moeda não depende da confiança de investidores para financiar gastos, e que a clareza de anúncios importa menos do que a capacidade produtiva.\"},{\"i\":1,\"context\":\"O argumento de que a credibilidade fiscal é condição para a política monetária funcionar segue a lógica de que a inflação é ancorada pelas expectativas fiscais.\",\"against\":\"s_mmt\",\"counterpoint\":\"A MMT diria que o limite real do gasto é a inflação e a capacidade produtiva, não a confiança do mercado, então a credibilidade fiscal não seria o gargalo.\"},{\"i\":2,\"context\":\"Dívida e déficit altos, com desconfiança, levando a inflação e dólar mais caros, é o raciocínio típico da dominância fiscal: sem âncora fiscal, juros e câmbio não se controlam sozinhos.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem defende a MMT diria que o gasto na própria moeda não obriga a inflação automaticamente e que o problema está na pressão sobre a capacidade produtiva, não em um risco fiscal de confiança.\"}]}",
+   "usage": {
+    "input_tokens": 1527,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1115,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0008457,
+   "ms": 5029,
+   "firstCardMs": 4167
+  },
+  {
+   "input": {
+    "title": "Giane Guerra analisa proposta de ANDRÉ LARA RESENDE para reduzir juros Gaúcha Atualidade",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 277574,
+      "d": 4240,
+      "t": "mercado financeiro não vai comprar só o"
+     },
+     {
+      "s": 279574,
+      "d": 4000,
+      "t": "anúncio, tá? E"
+     },
+     {
+      "s": 281814,
+      "d": 3920,
+      "t": "não tem que agradar a Faria Lima, não é"
+     },
+     {
+      "s": 283574,
+      "d": 3720,
+      "t": "esse, não é essa questão. A questão é"
+     },
+     {
+      "s": 285734,
+      "d": 3240,
+      "t": "que tu não pode obrigar o investidor a"
+     },
+     {
+      "s": 287294,
+      "d": 3560,
+      "t": "confiar em ti, tu precisa"
+     },
+     {
+      "s": 288974,
+      "d": 3840,
+      "t": "conquistar essa confiança. Se ele não"
+     },
+     {
+      "s": 290854,
+      "d": 4040,
+      "t": "confia em ti, tu tem esse impacto de"
+     },
+     {
+      "s": 292814,
+      "d": 4280,
+      "t": "inflação, tu tem o impacto dólar e tu"
+     },
+     {
+      "s": 294894,
+      "d": 4880,
+      "t": "não consegue ajeitar as contas públicas."
+     }
+    ],
+    "segments": [
+     {
+      "s": 297094,
+      "d": 4560,
+      "t": "Tem que ter sinalizações claras do"
+     },
+     {
+      "s": 299774,
+      "d": 5800,
+      "t": "presidente da República a respeito do"
+     },
+     {
+      "s": 301654,
+      "d": 3920,
+      "t": "que fará com as contas públicas."
+     }
+    ],
+    "knownIdeas": [
+     "O falante argumenta que, sem a confiança do mercado, o país sofre mais inflação e alta do dólar e fica sem conseguir organizar as contas públicas.",
+     "O falante sustenta que o governo não pode obrigar investidores a confiar nele; a confiança precisa ser conquistada com medidas fiscais críveis.",
+     "O ministro da Fazenda teria dito que não há encontro marcado com André Lara Resende e que não se cogita tabelar a taxa de juros.",
+     "O falante afirma que o mercado precisa de uma posição clara do presidente, não de ministros ou aliados, sobre a decisão que será tomada.",
+     "O falante relata que a proposta de Lara Resende foi descrita como um ataque dos rentistas, em tom de crítica ao mercado financeiro.",
+     "O falante afirma que a ala política de Gleisi Hoffmann critica fortemente a preocupação com o equilíbrio fiscal.",
+     "O falante sustenta que cortar juros sem controlar a inflação leva a um efeito rebote, com juros que voltam a subir mais do que antes.",
+     "O falante sustenta que, se o mercado exigir juros mais altos, o governo pagará mais caro pelo crédito, a inflação subirá e serão usadas reservas internacionais para conter o dólar.",
+     "O falante afirma que o mercado financeiro não concederia confiança ao governo que tentasse manter os juros artificialmente baixos.",
+     "O falante questiona se o governo tem credibilidade para pedir ao mercado juros mais baixos, depois de promessas e medidas com grande impacto fiscal às vésperas da eleição.",
+     "O falante argumenta que a redução artificial de juros gera desconfiança no mercado de que o governo não cortará gastos.",
+     "O falante afirma que economistas consideram a medida artificial, já adotada em outros países sem bons resultados.",
+     "O apresentador relata a proposta de André Lara Resende de que a redução da dívida pública poderia começar pela redução dos juros, invertendo a lógica usual.",
+     "O apresentador afirma que uma grande parte da dívida pública se deve aos juros altos que o governo paga.",
+     "O apresentador comenta que André Lara Resende publicou artigo defendendo redução dos juros, e que o presidente teria reunião com ele.",
+     "O apresentador sustenta que o Copom deveria se reunir já com alguma sinalização do presidente Lula, seja sobre a formação da equipe econômica.",
+     "O apresentador afirma que os juros são hoje o principal problema da economia brasileira, e que isso decorre da situação fiscal do país.",
+     "O apresentador afirma que o Comitê de Política Monetária do Banco Central se reúne esta semana para decidir a taxa de juros Selic."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Mercado exige sinais claros do presidente sobre contas\",\"quote\":\"Tem que ter sinalizações claras do presidente da República a respeito do que fará com as contas públicas\",\"paraphrase\":\"O falante afirma que o mercado precisa de sinalizações claras do presidente da República sobre o que fará com as contas públicas.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"s_austeridade\",\"role\":\"relies_on\"},{\"id\":\"s_dominancia\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}],\"notes\":[{\"i\":0,\"context\":\"A ideia de que a confiança fiscal crível sustenta juros e inflação baixos segue a lógica de que ajuste das contas públicas é condição para a política de juros funcionar.\",\"against\":\"s_mmt\",\"counterpoint\":\"Quem emite a própria moeda não precisa convencer o mercado de sua solvência; o limite do gasto seria a inflação, não a confiança dos investidores.\"}]}",
+   "usage": {
+    "input_tokens": 1369,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 13550,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 351,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0004479,
+   "ms": 2357,
+   "firstCardMs": 2334
+  }
+ ]
+}

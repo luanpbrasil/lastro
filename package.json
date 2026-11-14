@@ -13,6 +13,7 @@
     "watch:ext": "node extension/build.mjs --watch",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p extension",
     "eval": "esbuild scripts/eval.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/eval.mjs && node .cache/eval.mjs",
+    "eval:web": "esbuild scripts/eval-web.ts --bundle --platform=node --format=esm --packages=external --log-level=warning --outfile=.cache/eval-web.mjs && node .cache/eval-web.mjs",
     "analyze": "esbuild scripts/analyze.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/analyze.mjs && node .cache/analyze.mjs",
     "facts": "esbuild scripts/facts-check.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/facts.mjs && node .cache/facts.mjs",
     "label": "esbuild scripts/label-topics.ts --bundle --platform=node --format=esm --log-level=warning --outfile=.cache/label.mjs && node .cache/label.mjs",

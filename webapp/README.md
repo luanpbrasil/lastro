@@ -57,6 +57,8 @@ Chrome's speech recognition can't detect the language. It must be told, and the 
 
 The Worker reads YouTube's watch page only as far as the player data (about 0.9 MB in) and never scans it twice, to stay inside the free plan's 10 ms of CPU. Only the video id is sent, nothing about the viewer. The result is kept in `videos.lang`, so each video is looked up once.
 
+**The Chrome extension never calls this endpoint.** It reads the same player data from the YouTube page the viewer already has open (`movie_player.getPlayerResponse()`, else `ytInitialPlayerResponse`, only when its video id matches; `extension/src/hook.ts`) and applies the same steps 1–3 in the content script. Both sides share `src/language-detect.ts`, so they give the same answer (`tests/language.test.mjs`). Then the extension falls back to the language of the captions it loaded, then the browser's: it has no language picker, so there is no viewer choice to remember. This keeps the Worker from fetching YouTube from Cloudflare's IPs for every extension user (block risk) and spends none of its CPU.
+
 The page preselects the detected language in the picker ("English · detected") and says where it came from. If nothing is recognised 45 s after listening starts, it suggests checking the language. The chosen language also goes into the prompt, so the model knows what Chrome was set to.
 
 ## The prompt
@@ -69,6 +71,15 @@ The page preselects the detected language in the picker ("English · detected") 
 It asks for recall on substance: a card for every claim a viewer could want context on (where the idea comes from, who disagrees, what the data says), about one every 20–40 s of argument. Cards are kept even when no node of the map fits.
 
 Each card has a `headline` (3–9 words, used as its title in the list) and a paraphrase that attributes the claim to the speaker, both in the language of the video. `headline` is an addition to the shared schema for this page only. Indicators are used only for figures about Brazil. Any other fact with a number shows as "not checked".
+
+**Context and counterpoint (p9, Claude only).** After all units, Claude writes a `notes` array, one note per unit, as the extension's Worker does (`shared/prompt.ts`; the rules are in `src/worker/notes.ts`):
+- `context`: why the claim belongs to its first node, in the speaker's own terms. The card shows it under "The idea behind it", before the node's summary.
+- `counterpoint`: how the opposing view would answer. It is kept only when the model names (`against`) a view the card already lists under "Who disagrees" (`shared/stance.ts`); otherwise that list keeps the map's note on the link.
+- Both may use only the transcript and the map: no new names, numbers, dates or works, no party or politician, never who is right.
+
+The notes come after the units because, written inside each unit, they changed which nodes the model picked. A card is saved to D1 once its note arrives (the page polls new cards by id, so a card saved earlier would never show its note), so a chunk's cards land a few seconds later than before. A reply cut off in the notes still saves every card, without context. Workers AI is not asked for notes (`SYSTEM_NO_NOTES`, same schema without `notes`): its neuron budget was measured on the shorter reply. Its cards, and cards saved before p9, show the layout without context. Cards are stored as JSON, so no migration was needed.
+
+`pnpm eval:web` (repository root) runs the gold eval on this path: each gold transcript is cut into the page's uploads, analysed with the Worker's context and known ideas, and checked like the root eval. Recorded replies in `fixtures/web-streams/` replay at $0; `-- --live --tag <name> --runs 3` records new ones.
 
 On the eval transcripts (via Workers AI, since no Anthropic key was available locally), 2 minutes of English ASR-style speech gave 10 cards, and the 13 real Portuguese uploads from production gave 36 cards (9 under the old prompt).
 
@@ -124,7 +135,7 @@ None is both faster and more accurate, and the others cost 1.3–8× the neurons
 
 ## Costs
 
-Cloudflare is sized to stay inside its free allowances. The Anthropic API is paid: one 3-minute upload costs about $0.001–0.003 with Haiku 5.5 ($0.10/M input, $0.50/M output, cached input $0.01/M). `DAILY_USD_CAP` (default $1) caps it per UTC day: each call reserves $0.003, the most one upload can cost, and gives back the difference afterwards. Past the cap, uploads go to Workers AI, and once both are used up new analyses stop until 00:00 UTC. To check the day's spend: `pnpm wrangler d1 execute lastro-live --remote --command "SELECT * FROM usage_daily ORDER BY day DESC LIMIT 7"`. Also set a spend limit on the API key's workspace in the Anthropic Console as a backstop.
+Cloudflare is sized to stay inside its free allowances. The Anthropic API is paid: one 3-minute upload costs about $0.001–0.003 with Haiku 5.5 ($0.10/M input, $0.50/M output, cached input $0.01/M). `DAILY_USD_CAP` (default $1) caps it per UTC day: each call reserves $0.004, the most one upload can cost (4500 output tokens: since p9 Claude also writes context and counterpoint), and gives back the difference afterwards. Past the cap, uploads go to Workers AI, and once both are used up new analyses stop until 00:00 UTC. To check the day's spend: `pnpm wrangler d1 execute lastro-live --remote --command "SELECT * FROM usage_daily ORDER BY day DESC LIMIT 7"`. Also set a spend limit on the API key's workspace in the Anthropic Console as a backstop.
 
 | Service | Free allowance | How the app stays inside it |
 |---|---|---|
@@ -213,7 +224,7 @@ With the extension, every economics video someone opens takes a session and, if 
 The transcript is posted by any page and the title is chosen by whoever uploaded the video, so both are treated as hostile.
 
 - **In:** before text is stored or sent to the model, it is cut down to what speech contains: letters, digits and basic punctuation. Markup, braces, role tags, control and invisible characters are removed, and segments are capped at 600 characters. The data is fenced in the prompt between `<<<DADOS>>>` and `<<<FIM DOS DADOS>>>`. Since `<` can't reach the data, nothing inside can close the fence. The system prompt says that anything inside is speech, never instructions.
-- **Out:** every field the model returns is checked. Node ids, indicators, kinds and roles must come from fixed lists, and the quote must really be in the new part of the transcript. The paraphrase and headline can't contain links, addresses, handles or markup, and both are rendered as text only. Since they are written in the video's language, their wording isn't checked. Anything else is dropped.
+- **Out:** every field the model returns is checked. Node ids, indicators, kinds and roles must come from fixed lists, and the quote must really be in the new part of the transcript. The paraphrase, headline, context and counterpoint can't contain links, addresses, handles or markup, and all are rendered as text only. Since they are written in the video's language, their wording isn't checked. Anything else is dropped.
 - **No authority:** the model never decides whether a claim is true. "confere" or "diferente" comes from BCB and IBGE data in code, and links only ever point to those official sources. The model has no tools, secrets or other users' data to leak.
 
 What it can't stop: someone who says an injection out loud gets a card only if that sentence is an economic idea. The card then quotes it and attributes it to the speaker, which is accurate.

@@ -1,0 +1,178 @@
+{
+ "tag": "a-main",
+ "videoId": "TESTecono02",
+ "run": 1,
+ "chunker": "uploader",
+ "at": "2026-11-14T17:36:17.387Z",
+ "chunks": [
+  {
+   "input": {
+    "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [],
+    "segments": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Bom dia, hoje o tema é a economia brasileira nos últimos trinta anos."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "Em 1994 a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não conseguiram vencer."
+     }
+    ],
+    "knownIdeas": []
+   },
+   "text": "{\"units\":[{\"headline\":\"URV acabou com a inflação inercial em 1994\",\"quote\":\"em 1994 a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não conseguiram vencer\",\"paraphrase\":\"O falante afirma que, em 1994, a URV alinhou os reajustes de preços e acabou com a inflação inercial que planos anteriores não haviam vencido.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"e_plano_real\",\"role\":\"echoes\"},{\"id\":\"s_monetarismo\",\"role\":\"contradicts\"}],\"indicator\":null,\"claimed_value\":null,\"period\":\"1994\"}]}",
+   "usage": {
+    "input_tokens": 242,
+    "cache_creation_input_tokens": 12501,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 12501,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 227,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.001700325,
+   "ms": 3744,
+   "firstCardMs": 3735
+  },
+  {
+   "input": {
+    "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 0,
+      "d": 6000,
+      "t": "Bom dia, hoje o tema é a economia brasileira nos últimos trinta anos."
+     },
+     {
+      "s": 6000,
+      "d": 6000,
+      "t": "Em 1994 a URV alinhou todos os reajustes e acabou com a inflação inercial que os planos anteriores não conseguiram vencer."
+     }
+    ],
+    "segments": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "A recessão de 2015 e 2016 foi a pior em décadas, e até hoje se discute se a culpa foi do ajuste ou do descontrole fiscal anterior."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Agora os Estados Unidos sobem tarifas e muita gente aqui defende proteger a indústria nacional até ela conseguir competir."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que, em 1994, a URV alinhou os reajustes de preços e acabou com a inflação inercial que planos anteriores não haviam vencido."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Recessão de 2015-16 e debate sobre a culpa\",\"quote\":\"A recessão de 2015 e 2016 foi a pior em décadas, e até hoje se discute se a culpa foi do ajuste ou do descontrole fiscal anterior.\",\"paraphrase\":\"O falante afirma que a recessão de 2015 e 2016 foi a pior em décadas e que ainda se discute se a culpa foi do ajuste ou do descontrole fiscal anterior.\",\"kind\":\"fact\",\"nodes\":[{\"id\":\"e_recessao2015\",\"role\":\"relies_on\"},{\"id\":\"s_austeridade\",\"role\":\"echoes\"}],\"indicator\":\"pib_tri\",\"claimed_value\":null,\"period\":\"2015\"},{\"headline\":\"Protecionismo para a indústria até competir\",\"quote\":\"muita gente aqui defende proteger a indústria nacional até ela conseguir competir\",\"paraphrase\":\"O falante afirma que muitos defendem proteger a indústria nacional com tarifas até ela conseguir competir.\",\"kind\":\"forecast\",\"nodes\":[{\"id\":\"p_protecionismo\",\"role\":\"relies_on\"},{\"id\":\"p_desenvolvimentismo\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}]}",
+   "usage": {
+    "input_tokens": 432,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 12501,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 438,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.00038721000000000003,
+   "ms": 2886,
+   "firstCardMs": 2290
+  },
+  {
+   "input": {
+    "title": "Teste: episódios, comércio, regulação, trabalho e previdência (synthetic transcript, written for this eval)",
+    "lang": "pt",
+    "source": "captions",
+    "context": [
+     {
+      "s": 12000,
+      "d": 6000,
+      "t": "A recessão de 2015 e 2016 foi a pior em décadas, e até hoje se discute se a culpa foi do ajuste ou do descontrole fiscal anterior."
+     },
+     {
+      "s": 18000,
+      "d": 6000,
+      "t": "Agora os Estados Unidos sobem tarifas e muita gente aqui defende proteger a indústria nacional até ela conseguir competir."
+     }
+    ],
+    "segments": [
+     {
+      "s": 24000,
+      "d": 6000,
+      "t": "Nas apostas online o apostador não sabe as chances reais e a empresa sabe tudo, por isso o setor precisa de regulação."
+     },
+     {
+      "s": 30000,
+      "d": 6000,
+      "t": "A reforma trabalhista e o fim da escala seis por um voltaram ao debate, com gente dizendo que a CLT protege quem é mais fraco."
+     },
+     {
+      "s": 36000,
+      "d": 6000,
+      "t": "Na Previdência, quem trabalha hoje paga a aposentadoria de quem já parou, e com a população envelhecendo a conta não fecha."
+     },
+     {
+      "s": 42000,
+      "d": 6000,
+      "t": "Alguns economistas dizem que o país é pobre porque exporta soja e minério e importa tecnologia, preso na periferia do sistema."
+     },
+     {
+      "s": 48000,
+      "d": 6000,
+      "t": "Se gostou do vídeo, deixa o like e se inscreve no canal."
+     }
+    ],
+    "knownIdeas": [
+     "O falante afirma que muitos defendem proteger a indústria nacional com tarifas até ela conseguir competir.",
+     "O falante afirma que a recessão de 2015 e 2016 foi a pior em décadas e que ainda se discute se a culpa foi do ajuste ou do descontrole fiscal anterior.",
+     "O falante afirma que, em 1994, a URV alinhou os reajustes de preços e acabou com a inflação inercial que planos anteriores não haviam vencido."
+    ]
+   },
+   "text": "{\"units\":[{\"headline\":\"Regulação necessária nas apostas online\",\"quote\":\"Nas apostas online o apostador não sabe as chances reais e a empresa sabe tudo, por isso o setor precisa de regulação.\",\"paraphrase\":\"O falante afirma que, nas apostas online, o apostador desconhece as chances reais enquanto a empresa sabe tudo, por isso o setor precisa de regulação.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"s_falhas_mercado\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"CLT protege quem é mais fraco\",\"quote\":\"A reforma trabalhista e o fim da escala seis por um voltaram ao debate, com gente dizendo que a CLT protege quem é mais fraco.\",\"paraphrase\":\"O falante relata que a reforma trabalhista e o fim da escala 6x1 voltaram ao debate, com quem afirma que a CLT protege o lado mais fraco.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_legislacao_trabalhista\",\"role\":\"relies_on\"},{\"id\":\"p_socialdemocracia\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Previdência é repartição e envelhecimento pesa\",\"quote\":\"Na Previdência, quem trabalha hoje paga a aposentadoria de quem já parou, e com a população envelhecendo a conta não fecha.\",\"paraphrase\":\"O falante afirma que na Previdência quem trabalha hoje paga a aposentadoria de quem já parou e que, com o envelhecimento populacional, a conta não fecha.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"i_previdencia\",\"role\":\"relies_on\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null},{\"headline\":\"Periferia exporta commodities e importa tecnologia\",\"quote\":\"Alguns economistas dizem que o país é pobre porque exporta soja e minério e importa tecnologia, preso na periferia do sistema.\",\"paraphrase\":\"O falante relata que alguns economistas atribuem a pobreza do país à exportação de soja e minério e à importação de tecnologia, presos na periferia do sistema.\",\"kind\":\"theory\",\"nodes\":[{\"id\":\"p_dependencia\",\"role\":\"relies_on\"},{\"id\":\"p_desenvolvimentismo\",\"role\":\"echoes\"}],\"indicator\":null,\"claimed_value\":null,\"period\":null}]}",
+   "usage": {
+    "input_tokens": 697,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 12501,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 851,
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard",
+    "output_tokens_details": {
+     "thinking_tokens": 0
+    }
+   },
+   "stopReason": "end_turn",
+   "usd": 0.0006202099999999999,
+   "ms": 3279,
+   "firstCardMs": 1315
+  }
+ ]
+}
