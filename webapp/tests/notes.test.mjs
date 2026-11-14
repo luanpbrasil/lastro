@@ -181,6 +181,20 @@ test("name list: new names caught in the Worker and the evals; existing cases ho
   assert.deepEqual(namesPolitics("o pt do texto"), []);
 });
 
+test("name list: short forms caught; full names still report in full; Marina and Michelle alone are not names", () => {
+  for (const n of ["Moraes", "Nikolas", "Ciro"]) {
+    assert.deepEqual(namesPolitics(`${n} decidiu cortar gastos.`), [n], n);
+    assert.ok(namesPolitics(`${n.toLowerCase()} decidiu`, true).length > 0, `${n} (evals, any case)`);
+  }
+  assert.deepEqual(namesPolitics("Alexandre de Moraes decidiu"), ["Alexandre de Moraes"]);
+  assert.deepEqual(namesPolitics("Nikolas Ferreira disse"), ["Nikolas Ferreira"]);
+  assert.deepEqual(namesPolitics("Ciro Gomes propôs"), ["Ciro Gomes"]);
+  assert.deepEqual(namesPolitics("Marina disse que a inflação cai"), []);
+  assert.deepEqual(namesPolitics("Michelle disse que a inflação cai"), []);
+  assert.deepEqual(namesPolitics("Michelle Bolsonaro disse"), ["Michelle Bolsonaro"]);
+  assert.deepEqual(namesPolitics("Marina Silva disse"), ["Marina Silva"]);
+});
+
 test("names: a card about a bill (PL 1087) is kept; a card naming the party PL is dropped", async () => {
   const orig = console.log;
   console.log = () => {};
