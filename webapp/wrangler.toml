@@ -32,8 +32,8 @@ IP_SESSION_CAP = "6"
 # Days to keep the transcript log (every upload's text and outcome; nothing about the sender).
 LOG_RETENTION_DAYS = "30"
 # The Lastro Chrome extension's origin (comma-separate several). This id comes from the "key" in
-# extension/manifest.json; after publishing to the Chrome Web Store, add the store's id too.
-EXTENSION_ORIGINS = "chrome-extension://ohhohhbaolbbkfkfmjamaghddfchejkk"
+# extension/manifest.json (unpacked builds); the second is the Chrome Web Store item.
+EXTENSION_ORIGINS = "chrome-extension://ohhohhbaolbbkfkfmjamaghddfchejkk,chrome-extension://hpgajbjlcffjhhcdmedjpnkkoakpkhfa"
 
 [[d1_databases]]
 binding = "DB"
